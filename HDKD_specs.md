@@ -25,7 +25,7 @@ This is a working document.
 
 TODO
 
-# 1. Introduction
+## 1. Introduction
 
 See for context: [Privacy-preserving key management in the EU Digital Identity Wallet](context.md).
 
@@ -189,6 +189,6 @@ Leiba, B., “Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words”, BCP 
   <dt id=RFC9380>[RFC9380]<dd>
 
 [RFC9380]: #RFC9380
-Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S., and C. A. Wood, "Hashing to Elliptic Curves", [RFC 9380](https://www.rfc-editor.org/info/rfc9380), DOI 10.17487/RFC9380, August 2023.
+Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S., and C. A. Wood, “Hashing to Elliptic Curves”, [RFC 9380](https://www.rfc-editor.org/info/rfc9380), DOI 10.17487/RFC9380, August 2023.
 
 </dl>
