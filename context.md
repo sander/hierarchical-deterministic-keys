@@ -49,28 +49,32 @@ To achieve **LoA-High** in practice, the EUDIW instance can rely on a PoP key  a
 
 To resist high attack potential, the verification of both factors must actively involve the WSCD.
 
-The rate-limiting of the PIN check may happen in the WCA instead of the WSCD only if this WCA capability is securely managed, e.g., under the ISMS of the EUDIW Solution Provider and not in local software that an attacker could modify undetectably.
-
 The following include possible WSCD architectures:
 
-1. External (smart card, e.g., PIV)
-2. Smartphone internal (eUICC, eSIM, eSE)
-3. Remote HSM (requires 1 or 2 above to authenticate to HSM)
-4. Internal Native for Android and iOS
+1. Local external standalone device, for example:
+  - Smart card, such as PIV Card, with WSCA applet
+  - Secure element, with WSCA applet
+2. Local internal standalone programmable cryptographic chip, for example:
+  - Smartphone eUICC with WSCA applet
+  - Smartphone eSIM with WSCA applet
+  - Smartphone eSE with WSCA applet
+3. Local internal preprogammed security platform, for example:
+  - Android trusted execution environment acting as WSCA
+  - Android StrongBox secure element acting as WSCA
+  - iOS Secure Enclave system-on-chip acting as WSCA
+  - TPM acting as WSCA
+4. Remote HSM, for example:
+  - QSCD with a local client application acting as WSCA, authorizing operations using options 1, 2 or 3 above, for example using:
+    - PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)
+    - Android/iOS security platform using SECDSA, described in [[SECDSA]] (granted patent claim by Wellet), applying asymmetric cryptography to enable detection of remote HSM corruption as described in [[SCAL3]]
+    - Secure element contained in passkey device with Universal Authentication Framework support for PIN verification, described in [[SCAL3-UAF]] (no patent claims known)
+    - Android/iOS security platform using threshold signatures, described in [[SCAL3-Thresholds]] (pending patent claim by Cleverbase)
 
-The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives. All operations critical for security need to be performed in the WSCD, but non-critical operations can be performed in any environment (including hostile ones) such as the smartphone's memory or in a browser.
+The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives. All operations critical for security need to be performed in the WSCD. Non-critical operations can be performed in a WCD or a WCA running in any environment (including hostile ones with limited sandboxing capabilities) such as in a smartphone’s rich execution environment or in a web browser.
 
-Solutions considered to date by potential EUDIW Solution / PID Providers:
+If the user enters the PIN in the WDA or WCA instead of in the WSCD, the WDA or WCA must process it directly after entering, the WDA or WCA must keep the plaintext PIN confidential, and the WDA or WCA must delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed to the WSCD.
 
-- Local WSCD-based
-  - SE with WSCA applet (requires platform license)
-  - eSIM with WSCA applet (requires telco license)
-- Remote WSCD-based
-  - SCAL3 with UAF: QSCD HSM controlled using passkey with UAF support (no patent claims known)
-  - SCAL3 with SECDSA: QSCD HSM controlled using mobile endpoint (granted patent claim by Wellet)
-  - SCAL3 with Thresholds: QSCD HSM controlled using mobile endpoint (pending patent claim by Cleverbase)
-- Hybrid WSCD-based
-  - Possession using a local PIV card, and PIN verification using a remote HSM with a Device-Enhanced augmented PAKE (an approach proposed by Sweden).
+The rate-limiting of the PIN check may happen in the WCA instead of the WSCD only if this WCA capability is securely managed, e.g., under the ISMS of the EUDIW Solution Provider and not in local software that an attacker could modify undetectably.
 
 Assuming that the root key control is proven, the PID Provider may now derive PoP keys using the WSCD root key.
 
@@ -122,6 +126,8 @@ An open challenge in the WSCD == QSCD case is: should the QES key be diversified
 
 ## References
 
+### Informative References
+
 <dl>
   <dt id=EU2015-1502>[EU2015-1502]<dd>
 
@@ -132,5 +138,25 @@ European Commission, “Commission Implementing Regulation (EU) 2015/1502 of 8 S
 
 [RFC7800]: #RFC7800
 Jones, M., Bradley, J., and H. Tschofenig, “Proof-of-Possession Key Semantics for JSON Web Tokens (JWTs)”, [RFC 7800](https://www.rfc-editor.org/info/rfc7800), DOI 10.17487/RFC7800, April 2016.
+
+  <dt id=SCAL3>[SCAL3]<dd>
+
+[SCAL3]: #SCAL3
+Cleverbase ID B.V., [“SCAL3: Verify that systems operate under your sole control”](https://github.com/cleverbase/scal3), March 2024.
+
+  <dt id=SCAL3-Thresholds>[SCAL3-Thresholds]<dd>
+
+[SCAL3-Thresholds]: #SCAL3-Thresholds
+Dijkhuis, S, [“SCAL3 with Thresholds”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/thresholds.md), March 2024.
+
+  <dt id=SCAL3-UAF>[SCAL3-UAF]<dd>
+
+[SCAL3-UAF]: #SCAL3-UAF
+Dijkhuis, S, [“SCAL3 with UAF”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/uaf.md), March 2024.
+
+  <dt id=SECDSA>[SECDSA]<dd>
+
+[SECDSA]: #SECDSA
+Verheul, E. “SECDSA: Mobile signing and authentication under classical ‘sole control’”, [Cryptology ePrint Archive Paper 2021/910](https://eprint.iacr.org/2021/910), March 2024.
 
 </dl>
