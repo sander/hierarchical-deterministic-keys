@@ -52,23 +52,23 @@ To resist high attack potential, the verification of both factors must actively 
 The following include possible WSCD architectures:
 
 1. Local external standalone device, for example:
-  - Smart card, such as PIV Card, with WSCA applet
-  - Secure element, with WSCA applet
+    - Smart card, such as PIV Card, with WSCA applet
+    - Secure element, with WSCA applet
 2. Local internal standalone programmable cryptographic chip, for example:
-  - Smartphone eUICC with WSCA applet
-  - Smartphone eSIM with WSCA applet
-  - Smartphone eSE with WSCA applet
+    - Smartphone eUICC with WSCA applet
+    - Smartphone eSIM with WSCA applet
+    - Smartphone eSE with WSCA applet
 3. Local internal preprogammed security platform, for example:
-  - Android trusted execution environment acting as WSCA
-  - Android StrongBox secure element acting as WSCA
-  - iOS Secure Enclave system-on-chip acting as WSCA
-  - TPM acting as WSCA
+    - Android trusted execution environment acting as WSCA
+    - Android StrongBox secure element acting as WSCA
+    - iOS Secure Enclave system-on-chip acting as WSCA
+    - TPM acting as WSCA
 4. Remote HSM, for example:
-  - QSCD with a local client application acting as WSCA, authorizing operations using options 1, 2 or 3 above, for example using:
-    - PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)
-    - Android/iOS security platform using SECDSA, described in [[SECDSA]] (granted patent claim by Wellet), applying asymmetric cryptography to enable detection of remote HSM corruption as described in [[SCAL3]]
-    - Secure element contained in passkey device with Universal Authentication Framework support for PIN verification, described in [[SCAL3-UAF]] (no patent claims known)
-    - Android/iOS security platform using threshold signatures, described in [[SCAL3-Thresholds]] (pending patent claim by Cleverbase)
+    - QSCD with a local client application acting as WSCA, authorizing operations using options 1, 2 or 3 above, for example using:
+        - PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)
+        - Android/iOS security platform using SECDSA, described in [[SECDSA]] (granted patent claim by Wellet), applying asymmetric cryptography to enable detection of remote HSM corruption as described in [[SCAL3]]
+        - Secure element contained in passkey device with Universal Authentication Framework support for PIN verification, described in [[SCAL3-UAF]] (no patent claims known)
+        - Android/iOS security platform using threshold signatures, described in [[SCAL3-Thresholds]] (pending patent claim by Cleverbase)
 
 The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives. All operations critical for security need to be performed in the WSCD. Non-critical operations can be performed in a WCD or a WCA running in any environment (including hostile ones with limited sandboxing capabilities) such as in a smartphone’s rich execution environment or in a web browser.
 
@@ -83,14 +83,14 @@ Assuming that the root key control is proven, the PID Provider may now derive Po
 To achieve **RP-Unlinkability** and **PID/(Q)EAA-Binding** at scale, the following is necessary:
 
 1. The EUDIW Solution needs to act as a HDKD wallet. This includes a capability to:
-  * Perform HDKD
-  * Manage non-secret information (e.g., index values, domain separation data, suite identifiers etc.) required for the HDKD.
-  * Manage relationships with the PID/(Q)EAA provider if this entity uses an identifier that is different from its signature verification key included in the issued attestation.
+    * Perform HDKD
+    * Manage non-secret information (e.g., index values, domain separation data, suite identifiers etc.) required for the HDKD.
+    * Manage relationships with the PID/(Q)EAA provider if this entity uses an identifier that is different from its signature verification key included in the issued attestation.
 2. The PID Provider must verify the WSCD binding of the long term root key and cryptographically bind every PID derived PoP key to the same WSCD.
 3. Any (Q)EAA Provider who supports HDKD will use the PID derived PoP key either to:
-  * Cryptographically bind the derived (Q)EAA PoP key to the PID derived PoP key. This ensures that the (Q)EAA PoP key enjoyes the same WSCD protection as the long term root key.
-  * Ask the user to create a signature using the PID PoP key over the PoP key the user wants to use for key derivation. While out of scope for the text herein, this option may be suitable for LoA Substantial use cases where the user relies on a LoA Substantial device (e.g., smartphone) to derive a PoP key that is not bound to the PID PoP key.
-  * Use a WSCD protected key to attest another WSCD derived key (cf., Eric Verheul's approach)
+    * Cryptographically bind the derived (Q)EAA PoP key to the PID derived PoP key. This ensures that the (Q)EAA PoP key enjoyes the same WSCD protection as the long term root key.
+    * Ask the user to create a signature using the PID PoP key over the PoP key the user wants to use for key derivation. While out of scope for the text herein, this option may be suitable for LoA Substantial use cases where the user relies on a LoA Substantial device (e.g., smartphone) to derive a PoP key that is not bound to the PID PoP key.
+    * Use a WSCD protected key to attest another WSCD derived key (cf., Eric Verheul's approach)
 
 Using HDKD enables concurrent issuance of a set of PIDs, using a single root key (level 0 key), where each PID has a derived PoP key (level 1). Subsequent issuance of (Q)EAAs can use the level 1 derived PoP keys to derive attestation unique level 2 PoP keys. At every level, the keys are crytographically bound to the same WSCD that protects the root key.
 
@@ -100,13 +100,13 @@ Components of a coherent solution:
 
 - Open standard EUDIW-(Q)EAA Provider protocol for diversification, with mandatory support for [SIG-IS approved algorithms](https://www.sogis.eu/documents/cc/crypto/SOGIS-Agreed-Cryptographic-Mechanisms-1.2.pdf) (tbd), and optional algorithm support for suites listed in [BSI TR-03181](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03181/BSI-TR-03181.pdf?__blob=publicationFile&v=5).
 - Open standard EUDIW-Relying Party protocol for PoP, with mandatory support for SOG-IS approved algorithms, and optional support for BSI TR-03181 suites.
-  - MSO or SD-JWT with ECDSA
-  - MSO or SD-JWT with ECSDSA (Schnorr)
-  - MSO or SD-JWT with ECDH
+    - MSO or SD-JWT with ECDSA
+    - MSO or SD-JWT with ECSDSA (Schnorr)
+    - MSO or SD-JWT with ECDH
 - Multi-vendor solutions for EUDIW key management in WCA, based on root key that cannot be extracted from a WSCD
-  - Local threshold/aggregated ECDSA (several patent claims apply)
-  - Local threshold/aggregated ECSDSA (unlikely to be under patent claims, investigation required)
-  - Local ECDH (unlikely to be under patent claims, investigation required)
+    - Local threshold/aggregated ECDSA (several patent claims apply)
+    - Local threshold/aggregated ECSDSA (unlikely to be under patent claims, investigation required)
+    - Local ECDH (unlikely to be under patent claims, investigation required)
 
 Appendix A details a proposal for a HDKD. Next, current work on how to utilize the HDKD in deriving PoP keys is presented.
 
