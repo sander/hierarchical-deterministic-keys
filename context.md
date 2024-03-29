@@ -76,39 +76,40 @@ If the user enters the PIN in the WDA or WCA instead of in the WSCD, the WDA or 
 
 The rate-limiting of the PIN check may happen in the WCA instead of the WSCD only if this WCA capability is securely managed, e.g., under the ISMS of the EUDIW Solution Provider and not in local software that an attacker could modify undetectably.
 
-Assuming that the root key control is proven, the PID Provider may now derive PoP keys using the WSCD root key.
+Assuming that the root key control is proven, the PID Provider may now derive PoP keys using the (long term) WSCD root key.
 
 ## Issue 2: The HDKD approach
 
-To achieve **RP-Unlinkability** and **PID/(Q)EAA-Binding** at scale, the following is necessary:
+To achieve **RP-Unlinkability**, **Weak-Issuer-Unlinkability**, and **Binding-to-PID** at scale, the following is necessary:
 
 1. The EUDIW Solution needs to act as a HDKD wallet. This includes a capability to:
     * Perform HDKD
     * Manage non-secret information (e.g., index values, domain separation data, suite identifiers etc.) required for the HDKD.
-    * Manage relationships with the PID/(Q)EAA provider if this entity uses an identifier that is different from its signature verification key included in the issued attestation.
+    * Manage relationships with the PID/(Q)EAA provider, such as storing the identifier (which is different from its signature verification key included in the issued attestation), if this is not part of the issued attestation itself.
 2. The PID Provider must verify the WSCD binding of the long term root key and cryptographically bind every PID derived PoP key to the same WSCD.
-3. Any (Q)EAA Provider who supports HDKD will use the PID derived PoP key either to:
-    * Cryptographically bind the derived (Q)EAA PoP key to the PID derived PoP key. This ensures that the (Q)EAA PoP key enjoyes the same WSCD protection as the long term root key.
-    * Ask the user to create a signature using the PID PoP key over the PoP key the user wants to use for key derivation. While out of scope for the text herein, this option may be suitable for LoA Substantial use cases where the user relies on a LoA Substantial device (e.g., smartphone) to derive a PoP key that is not bound to the PID PoP key.
-    * Use a WSCD protected key to attest another WSCD derived key (cf., Eric Verheul's approach)
+3. Any (Q)EAA Provider who supports HDKD may use the PID-derived PoP key either to:
+    * Cryptographically bind the derived (Q)EAA PoP key to the PID-derived PoP key. This ensures that the (Q)EAA PoP key enjoys the same WSCD protection as the long term root key.
+    * Ask the user to use the PID PoP key to authenticate a new (not necessarily PID-derived) PoP key the user wants to use for key derivation, e.g. using HMAC with an ECDH-derived key or using a digital signature with EC(S)DSA. While out of scope for the text herein, this option may be suitable for LoA Substantial use cases where the user relies on a LoA Substantial device (such as a standalone smartphone) to derive a PoP key that is not bound to the PID PoP key.
+    * Use a WSCD protected key to attest another key derived from the WSCD root key (cf., Eric Verheul’s approach).
 
 Using HDKD enables concurrent issuance of a set of PIDs, using a single root key (level 0 key), where each PID has a derived PoP key (level 1). Subsequent issuance of (Q)EAAs can use the level 1 derived PoP keys to derive attestation unique level 2 PoP keys. At every level, the keys are crytographically bound to the same WSCD that protects the root key.
 
-> NOTE 2: It is only the PID Provider who needs to verify the validity of the EUDIW and ensure that the root key is bound to the WSCD. For derived keys, there is no need to validate binding to either the WSCD, the root key, or any other derived key.
+> [!NOTE]
+> Only the PID Provider needs to verify the validity of the EUDIW and ensure that the root key is bound to the WSCD. For derived PID/(Q)EAA keys, there is no need to validate binding to either the WSCD, the root key, or any other derived key.
 
-Components of a coherent solution:
+A coherent solution applying the HDKD approach must consist of the following components:
 
-- Open standard EUDIW-(Q)EAA Provider protocol for diversification, with mandatory support for [SIG-IS approved algorithms](https://www.sogis.eu/documents/cc/crypto/SOGIS-Agreed-Cryptographic-Mechanisms-1.2.pdf) (tbd), and optional algorithm support for suites listed in [BSI TR-03181](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03181/BSI-TR-03181.pdf?__blob=publicationFile&v=5).
-- Open standard EUDIW-Relying Party protocol for PoP, with mandatory support for SOG-IS approved algorithms, and optional support for BSI TR-03181 suites.
+- Open standard EUDIW-(Q)EAA Provider protocol for diversification, with mandatory support for SOG-IS approved algorithms as listed in [[SOG-IS-1.3]], and optionally with algorithm support for suites supported by the Cryptographic Service Provider 2 (CSP2) as listed in [[TR03181]]
+- Open standard EUDIW-Relying Party protocol for PoP, with mandatory support for SOG-IS approved algorithms, and optional support for CSP2 suites.
     - MSO or SD-JWT with ECDSA
     - MSO or SD-JWT with ECSDSA (Schnorr)
     - MSO or SD-JWT with ECDH
-- Multi-vendor solutions for EUDIW key management in WCA, based on root key that cannot be extracted from a WSCD
+- Multi-vendor solutions for EUDIW key management in WCA, based on a root key that cannot be extracted from a WSCD
     - Local threshold/aggregated ECDSA (several patent claims apply)
     - Local threshold/aggregated ECSDSA (unlikely to be under patent claims, investigation required)
     - Local ECDH (unlikely to be under patent claims, investigation required)
 
-Appendix A details a proposal for a HDKD. Next, current work on how to utilize the HDKD in deriving PoP keys is presented.
+[HDKD_specs.md](HDKD_specs.md) details a proposal for a HDKD. Next, current work on how to utilize the HDKD in deriving PoP keys is presented.
 
 ## Issue 3: Deriving PoP keys
 
@@ -142,21 +143,31 @@ Jones, M., Bradley, J., and H. Tschofenig, “Proof-of-Possession Key Semantics 
   <dt id=SCAL3>[SCAL3]<dd>
 
 [SCAL3]: #SCAL3
-Cleverbase ID B.V., [“SCAL3: Verify that systems operate under your sole control”](https://github.com/cleverbase/scal3), March 2024.
+Cleverbase ID B.V., [“SCAL3: Verify that systems operate under your sole control”](https://github.com/cleverbase/scal3) version de8c5ae, March 2024.
 
   <dt id=SCAL3-Thresholds>[SCAL3-Thresholds]<dd>
 
 [SCAL3-Thresholds]: #SCAL3-Thresholds
-Dijkhuis, S, [“SCAL3 with Thresholds”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/thresholds.md), March 2024.
+Dijkhuis, S., [“SCAL3 with Thresholds”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/thresholds.md) version de8c5ae, March 2024.
 
   <dt id=SCAL3-UAF>[SCAL3-UAF]<dd>
 
 [SCAL3-UAF]: #SCAL3-UAF
-Dijkhuis, S, [“SCAL3 with UAF”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/uaf.md), March 2024.
+Dijkhuis, S., [“SCAL3 with UAF”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/uaf.md) version de8c5ae, March 2024.
 
   <dt id=SECDSA>[SECDSA]<dd>
 
 [SECDSA]: #SECDSA
-Verheul, E. “SECDSA: Mobile signing and authentication under classical ‘sole control’”, [Cryptology ePrint Archive Paper 2021/910](https://eprint.iacr.org/2021/910), March 2024.
+Verheul, E., “SECDSA: Mobile signing and authentication under classical ‘sole control’”, [Cryptology ePrint Archive Paper 2021/910](https://eprint.iacr.org/2021/910) version 2024-03-16, March 2024.
+
+  <dt id=SOGIS-1.3>[SOG-IS-1.3]<dd>
+
+[SOG-IS-1.3]: #SOG-IS-1.3
+SOG-IS Crypto Working Group, [“Agreed Cryptographic Mechanisms” version 1.3](https://www.sogis.eu/documents/cc/crypto/SOGIS-Agreed-Cryptographic-Mechanisms-1.3.pdf), February 2023.
+
+  <dt id=TR03181>[TR03181]<dd>
+
+[TR03181]: #TR03181
+BSI, “Cryptographic Service Provider 2, Part 1: Architecture and Concepts”, [TR-03181-1](https://www.bsi.bund.de/dok/TR-03181-en) version 0.94, April 2023.
 
 </dl>
