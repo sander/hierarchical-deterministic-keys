@@ -1,37 +1,18 @@
-**Workgroup:** N/A \
-**Internet-Draft:** TODO \
-**Published:** TODO \
-**Intended Status:** TODO \
-**Expires:** TODO \
-**Authors:** Peter Altmann (Digg), Sander Q. Dijkhuis (Cleverbase)
+# Hierarchical Deterministic Keys
 
-# Hierarchical Deterministic Key Derivation (HDKD)
+**Version:** 0.1.0-SNAPSHOT
 
-## Abstract
+**Authors:** Sander Dijkhuis (Cleverbase, editor)
 
-TODO
+**License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-## Discussion Venues
-
-_This note is to be removed before publishing as an RFC._
-
-Source for this draft and an issue tracker can be found at [GitHub: AltmannPeter/privacy-key-management](https://github.com/AltmannPeter/privacy-key-management).
-
-## Status of This Memo
-
-This is a working document.
-
-## Copyright Notice
-
-TODO
-
-## 1. Introduction
+## Introduction
 
 See for context: [Privacy-preserving key management in the EU Digital Identity Wallet](context.md).
 
-This document represents the consensus of the authors. It is not an IETF product and is not a standard.
+This document represents the consensus of the authors. It is not a standard.
 
-## 2. Conventions and Definitions
+## Conventions and definitions
 
 The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “NOT RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here.
 
@@ -41,9 +22,9 @@ The following notation is used throughout the document.
 - I2OS(x): Conversion of a nonnegative integer `x` to a byte array using a big-endian representation of the integer without padding.
 - reduce(fn, list, init): Outputs the reduction of `list` to a single value by repeatedly applying the function `fn` to the list values and the current accumulation state, starting with `init`.
 
-## 3. Cryptographic Dependencies
+## Cryptographic dependencies
 
-HDKD depends on the following cryptographic constructs:
+HDK depends on the following cryptographic constructs:
 
 - Prime-Order Group;
 - Cryptographic Hash Function;
@@ -51,7 +32,7 @@ HDKD depends on the following cryptographic constructs:
 
 These are described in the following sections.
 
-### 3.1. Prime-Order Group
+### Prime-order group
 
 Let $B$ be the group generator of order $q$ of an elliptic curve $E$ defined over $GF(p)$. Denote scalar multiplication between a scalar $x$ and a point $A$ as $[x]A$.
 
@@ -67,11 +48,11 @@ This document represents $E$ as the object `G`. The following member functions c
 - ScalarBaseMult(k): Outputs the scalar multiplication between Scalar `k` and the group generator $B$.
 - ECDH(k, A): Outputs the result of an Elliptic Curve Diffie-Hellman key exchange between Scalar `k` and Element `A`. The details vary based on the ciphersuite.
 
-### 3.2. Cryptographic Hash Function
+### Cryptographic hash function
 
 This document represents a cryptographically secure hash function as `H`. This function maps arbitrary byte strings to Scalar elements associated with `G`. The details vary based on the ciphersuite.
 
-### 3.3. Asymmetric Key Blinding Scheme
+### Asymmetric key blinding scheme
 
 An asymmetric key blinding scheme `BL` provides the following functions:
 
@@ -87,7 +68,7 @@ This document adds the following function:
 
 This document also defines the constant `Id_bl`, which is the identity blind such that `Combine(Id_bl, tau) == tau` for all `tau`.
 
-### 3.4. Key Encapsulation Mechanism
+### Key encapsulation mechanism
 
 A key encapsulation mechanism `KEM` provides the following functions:
 
@@ -95,7 +76,7 @@ A key encapsulation mechanism `KEM` provides the following functions:
 - Encaps(pk): Outputs a key encapsulation `(k, c)` containing a shared secret `k` and an encapsulation ciphertext `c`.
 - Decaps(sk, c): Outputs a shared secret `k` upon successful decapsulation, or an error otherwise.
 
-### 3.5. Asynchronous Remote Key Generation
+### Asynchronous remote key generation
 
 See [[draft-bradleylundberg-cfrg-arkg-01]]. This document assumes an `ARKG` instance with the following member functions:
 
@@ -145,9 +126,9 @@ BL-Blind-Secret-Key(sk_bl, ARKG.DeriveBlind(sk_kem, kh, info))
   == ARKG.DeriveSecretKey((sk_kem, sk_bl), kh, info)
 ```
 
-### 3.6. Proof of Possession
+### Proof of possession
 
-A Proof of Possession protocol `PoP` provides the following functions:
+A proof of possession protocol `PoP` provides the following functions:
 
 - Sign(sk, info): Outputs `signature` using a secret key `sk` and application-specific `info`.
 - Verify(proof, vk, info): Outputs whether `signature` is a valid proof of possession of the secret key associated with `vk`.
@@ -155,9 +136,9 @@ A Proof of Possession protocol `PoP` provides the following functions:
 > [!NOTE]
 > This is a generalization of signature schemes and Diffie Hellman-based schemes. In the case of signature schemes, `sk` is a private key and `vk` is a public key, and the `signature` is a digital signature. In the case of DH-based schemes, `sk == vk` is a shared secret, and the `signature` is a message authentication code (MAC) generated from a key derived from `sk`.
 
-## 4. Helper Functions
+## Helper functions
 
-### 4.1. The BlindProve function
+### The BlindProve function
 
 This document specifies several implementations of the BlindProve function, that creates a signature proving possession of a blinded secret key associated with a blinded public key.
 
@@ -172,7 +153,7 @@ Outputs:
 - signature, a signature.
 ```
 
-#### 4.1.1. Using ECDH for BlindProve with multiplicative blinding
+#### Using ECDH for BlindProve with multiplicative blinding
 
 ```
 def BlindProve(sk_bl, tau, info, pk_rp):
@@ -184,7 +165,7 @@ def BlindProve(sk_bl, tau, info, pk_rp):
 
 The G.ECDH computation MUST be performed in a WSCD.
 
-#### 4.1.2. Using threshold EC-SDSA for BlindProve with additive blinding
+#### Using threshold EC-SDSA for BlindProve with additive blinding
 
 ```
 def BlindProve(sk_bl, tau, info, pk_rp):
@@ -196,11 +177,11 @@ def BlindProve(sk_bl, tau, info, pk_rp):
 
 The ECSDSA.Sign computation MUST be performed in a WSCD.
 
-#### 4.1.3. Using threshold ECDSA for BlindProve with multiplicative blinding
+#### Using threshold ECDSA for BlindProve with multiplicative blinding
 
 Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.
 
-## 5. Hierarchical Deterministic Keys
+## Hierarchical Deterministic Keys
 
 The following example illustrate the use of hierarchical deterministic keys.
 
@@ -254,11 +235,11 @@ Note that while a tree representation is used, this is not a mandatory data stru
 
 Note that key encapsulation key pairs are not reused across parent nodes in order to avoid linkability. Since they cannot be authenticated, they MAY be generated and stored outside of the WSCD. For example, they MAY be derived from attestation metadata using a secret key in the wallet.
 
-### 5.1. Key Generation
+### Key generation
 
 The user generates `((pk_kem, pk_bl), (sk_kem, sk_bl)) = ARKG.GenerateSeed()` once in their WSCD.
 
-### 5.2. Initial Attestation Issuance
+### 5.2. Initial attestation issuance
 
 Say the provider wants to issue `n` initial attestations.
 
@@ -283,7 +264,7 @@ Steps:
     3. Issues an attestation with `PoP` public key `pk'` and with `kh` as metadata that is not necessarily signed, but authenticated.
 8. For each `j = 0, …, n-1`, the user stores `j`, `kh` and the attestation att<sub>1,j</sub>.
 
-### 5.3. Proof of Possession
+### 5.3. Proof of possession
 
 Say the user has attributes at att<sub>i,j</sub> at level `i` with index `j` that are relevant to the relying party.
 
@@ -309,7 +290,7 @@ Steps:
 
 Note that the performance of this algorithm scales linearly relative to the number of keys to derive. For short-lived one-time-use keys, the amount `n` is likely to be relatively small. For improved performance in case of large `n`, the result can be computed by caching intermediate values while computing `ARKG.DeriveBlind` or otherwise breaking down the implementation of `ARKG.DeriveBlind`.
 
-### 5.4. Subsequent Attestation Issuance
+### 5.4. Subsequent attestation issuance
 
 Say the provider wants to issue `n` attestations to the user based on prior attribute release from att<sub>i,j</sub> (see previous section).
 
@@ -332,9 +313,9 @@ Steps:
 
 The RECOMMENDED ciphersuite is the one defined below.
 
-### 6.1. HDKD(ECDH, P-256, SHA-256, ARKG-P256mul-ECDH-P256-HMAC-SHA256-HKDF-SHA256))
+### 6.1. HDK(ECDH, P-256, SHA-256, ARKG-P256mul-ECDH-P256-HMAC-SHA256-HKDF-SHA256))
 
-The `contextString` value is `"HDKD-ECDH-P256-SHA256-ARKG-P256mul-ECDH-P256-HMAC-SHA256-HKDF-SHA256-v1"`.
+The `contextString` value is `"HDK-ECDH-P256-SHA256-ARKG-P256mul-ECDH-P256-HMAC-SHA256-HKDF-SHA256-v1"`.
 
 - `PoP`: Applying ECDH to establish a shared secret using the WSCD, and creating and verifying signatures as defined below.
 - `BlindProve`: The ECDH implementation from Section 4.1.1.
@@ -364,17 +345,13 @@ def Verify(signature, sk, info):
   check signature == signature'
 ```
 
-## 7. Security Considerations
+## Security considerations
 
 TODO
 
-## 8. IANA Considerations
+## References
 
-This document makes no IANA requests.
-
-## 9. References
-
-## 9.1. Normative References
+## Normative references
 
 <dl>
 
@@ -395,7 +372,7 @@ Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S., and C. A. Wood, “Has
 
 </dl>
 
-## 9.2. Informative References
+## Informative references
 
 <dl>
 
@@ -406,3 +383,7 @@ Lundberg, E., and Bradley, J, “The Asynchronous Remote Key Generation (ARKG) a
 ”, [draft-bradleylundberg-cfrg-arkg-01](https://www.ietf.org/archive/id/draft-bradleylundberg-cfrg-arkg-01.html), March 2024.
 
 </dl>
+
+## Acknowledgements
+
+This design is based on ideas introduced to the EU Digital Identity domain by Peter Lee Altmann.
