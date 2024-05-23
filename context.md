@@ -1,5 +1,8 @@
 # Privacy-preserving key management in the EU Digital Identity Wallet
 
+> [!NOTE]
+> These are notes by Peter Lee Altmann and Sander Dijkhuis from an initial exploration during March 2024. We keep these notes in temporarily for in-depth context in addition to the [README](README.md), until the other documents are more complete.
+
 ## Context
 
 Relevant EUDIW solution security components (uncontested in ARF v1.3):
