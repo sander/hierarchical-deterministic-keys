@@ -12,6 +12,9 @@ The European Commission and Member States are developing a Wallet Toolbox to ena
 
 In this repository, Pilot participants contribute to a concrete interoperable solution based on the idea of Hierarchical Deterministic Keys (HDKs). This approach is being considered for the an update to the Analysis of selective disclosure and zero-knowledge proofs (ETSI TR 119476, work item [RTR/ESI-0019476v121](https://portal.etsi.org/webapp/workprogram/Report_WorkItem.asp?WKI_ID=69479)). The Pilot participants aim to evaluate various options, present an appropriate solution, and develop a common specification to enable testing interoperability.
 
+> [!NOTE]
+> This information is shared by participants of the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all Potential members.
+
 ## Approach
 
 We aim to specify minimum requirements to address challenge 1. To illustrate these requirements, we may refer to some example solutions. Several solutions involve proprietary technologies. A complete discussion is out of scope for this repository.
@@ -28,6 +31,8 @@ To address challenges 2–4, we aim to specify an HDK architecture. Quality crit
 
 Challenge 5 is out of scope at the moment since the Pilots currently focus on remote qualified signature creation devices. Such solutions may already be built upon the existing common standards. However, the insights regarding challenge 1–4 may lead to valuable insights about alternative solutions to challenge 5.
 
+The challenge of revoking identity documents is relevant to take into account, but designing revocation solutions is out of scope for this work.
+
 The technical reports and specifications in this repository may eventually be used to contribute to open standards. For the current repository, we apply practices inspired by the [Community Cryptography Specification Project](https://github.com/C2SP/C2SP).
 
 To enable reuse, new contributions to the technical reports and specifications must be provided under either [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) or [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
@@ -36,3 +41,4 @@ To enable reuse, new contributions to the technical reports and specifications m
 
 - Previous introduction: [Privacy-preserving key management in the EU Digital Identity Wallet](context.md)
 - Specification: [Hierarchical Deterministic Keys](keys.md)
+- Feedback: [Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)
