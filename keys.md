@@ -10,355 +10,358 @@
 
 See for context: [Privacy-preserving key management in the EU Digital Identity Wallet](context.md).
 
+This document specifies the algorithms and protocols to apply Hierarchical Deterministic Keys (HDKs) for managing proof of possession keys and for issuing and releasing documents. It is designed to be applicable to profiles of [[ISO18013-5]], [[draft-OpenID4VP]], [[draft-OpenID4VCI]] and [[draft-ietf-oauth-selective-disclosure-jwt]].
+
+With HDKs, it is feasible to manage many unique proof of possession keys in a digital identity wallet that is backed by a secure cryptographic device. Such devices often are not capable of the operations required to manage many related keys. This specification applies the Asynchronous Remote Key Generation algorithm [[draft-bradleylundberg-cfrg-arkg]] to this problem. For every issuance of a batch of reader-unlinkable documents, the user proves possession of a parent key applies ARKG with the issuer using ephemeral keys to efficiently create many child keys. The ARKG and blinded authentication algorithms can be executed within the general-purpose execution environment of the wallet solution, delegating only operations upon a single root key to the secure cryptographic device.
+
+This is an alternative to Key Blinding for Signature Schemes [[draft-irtf-cfrg-signature-key-blinding]], which would require a secure cryptographic device that supports the BlindKeySign operation. These are not yet widely available at the time of writing.
+
+This document provides a specification of the generic HDK scheme, generic HDK instances, and fully specified concrete HDK instances.
+
 This document represents the consensus of the authors. It is not a standard.
 
-## Conventions and definitions
+### Conventions and definitions
 
 The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “NOT RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here.
 
 The following notation is used throughout the document.
 
 - byte: A sequence of eight bits.
-- I2OS(x): Conversion of a nonnegative integer `x` to a byte array using a big-endian representation of the integer without padding.
-- reduce(fn, list, init): Outputs the reduction of `list` to a single value by repeatedly applying the function `fn` to the list values and the current accumulation state, starting with `init`.
+- I2OSP(x, xLen): Conversion of a nonnegative integer `x` to a byte array of specified length `xLen` using a big-endian representation of the integer, as described in [[RFC8017]].
 
-## Cryptographic dependencies
+## The Hierarchical Deterministic Keys scheme
 
-HDK depends on the following cryptographic constructs:
+The following example illustrate the use of HDKs.
 
-- Prime-Order Group;
-- Cryptographic Hash Function;
-- Asynchronous Remote Key Generation.
-
-These are described in the following sections.
-
-### Prime-order group
-
-Let $B$ be the group generator of order $q$ of an elliptic curve $E$ defined over $GF(p)$. Denote scalar multiplication between a scalar $x$ and a point $A$ as $[x]A$.
-
-This document uses types `Element` and `Scalar` to denote elements of $E$ and its set of scalars, respectively.
-
-This document represents $E$ as the object `G`. The following member functions can be invoked on `G`.
-
-- Order(): Outputs the order of $E$ (i.e. $p$).
-- Identity(): Outputs the identity `Element` of $E$.
-- Add(A, B): Outputs the sum of Elements `A` and `B`.
-- SerializeScalar(s): Maps a Scalar `s` to a canonical byte array of fixed length `Ns`.
-- ScalarMult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
-- ScalarBaseMult(k): Outputs the scalar multiplication between Scalar `k` and the group generator $B$.
-- ECDH(k, A): Outputs the result of an Elliptic Curve Diffie-Hellman key exchange between Scalar `k` and Element `A`. The details vary based on the ciphersuite.
-
-### Cryptographic hash function
-
-This document represents a cryptographically secure hash function as `H`. This function maps arbitrary byte strings to Scalar elements associated with `G`. The details vary based on the ciphersuite.
-
-### Asymmetric key blinding scheme
-
-An asymmetric key blinding scheme `BL` provides the following functions:
-
-- GenerateKeyPair(): Outputs a key pair `(pk, sk)`.
-- BlindPublicKey(pk, tau): Outputs the deterministically blinded public key `pk_tau`.
-- BlindSecretKey(sk, tau): Outputs the deterministically blinded secret key `sk_tau`.
-
-It also defines the integer `L_bl`, which is the length of `tau` in bytes.
-
-This document adds the following function:
-
-- Combine(tau1, tau2): Outputs the combination of `tau1` and `tau2` such that `Blind*Key(x, Combine(tau1, tau2)) == Blind*Key(Blind*Key(x, tau1), tau2)` and `Combine(tau1, tau2) == Combine(tau2, tau1)`.
-
-This document also defines the constant `Id_bl`, which is the identity blind such that `Combine(Id_bl, tau) == tau` for all `tau`.
-
-### Key encapsulation mechanism
-
-A key encapsulation mechanism `KEM` provides the following functions:
-
-- GenerateKeyPair(): Outputs a key pair `(pk, sk)`.
-- Encaps(pk): Outputs a key encapsulation `(k, c)` containing a shared secret `k` and an encapsulation ciphertext `c`.
-- Decaps(sk, c): Outputs a shared secret `k` upon successful decapsulation, or an error otherwise.
-
-### Asynchronous remote key generation
-
-See [[draft-bradleylundberg-cfrg-arkg-01]]. This document assumes an `ARKG` instance with the following member functions:
-
-- GenerateSeed(): Outputs an ARKG seed pair `(pk, sk)` at the delegating party, where `pk = (pk_kem, pk_bl)` and `sk = (sk_kem, sk_bl)`.
-- DerivePublicKey(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key.
-
-This document does not apply the DeriveSecretKey function directly, as it would require access to the original private key for scalar addition. Instead, this document applies an alternative function DeriveBlind:
-
-```
-ARKG-Derive-Blind(sk_kem, kh, info) -> tau
-    ARKG instance parameters:
-        BL        A key blinding scheme.
-        KEM       A key encapsulation mechanism.
-        MAC       A MAC scheme.
-        KDF       A key derivation function.
-        L_bl      The length in octets of the blinding factor tau
-                    of the key blinding scheme BL.
-        L_mac     The length in octets of the MAC key
-                    of the MAC scheme MAC.
-
-    Inputs:
-        sk_kem    A key encapsulation secret key.
-        kh        A key handle output from ARKG-Derive-Public-Key.
-        info      An octet string containing optional context
-                    and application specific information
-                    (can be a zero-length string).
-
-    Output:
-        tau       A blind to apply to the secret key.
-
-    The output sk' is calculated as follows:
-
-    (c, tag) = kh
-    k = KEM-Decaps(sk_kem, c)
-    mk = KDF("arkg-mac" || 0x00 || info, k, L_mac)
-
-    If MAC-Verify(mk, c || info, tag) = 0:
-        Abort with an error.
-
-    tau = KDF("arkg-blind" || 0x00 || info, k, L_bl)
-```
-
-Note that this is compatible with ARKG in the sense that:
-
-```
-BL-Blind-Secret-Key(sk_bl, ARKG.DeriveBlind(sk_kem, kh, info))
-  == ARKG.DeriveSecretKey((sk_kem, sk_bl), kh, info)
-```
-
-### Proof of possession
-
-A proof of possession protocol `PoP` provides the following functions:
-
-- Sign(sk, info): Outputs `signature` using a secret key `sk` and application-specific `info`.
-- Verify(proof, vk, info): Outputs whether `signature` is a valid proof of possession of the secret key associated with `vk`.
-
-> [!NOTE]
-> This is a generalization of signature schemes and Diffie Hellman-based schemes. In the case of signature schemes, `sk` is a private key and `vk` is a public key, and the `signature` is a digital signature. In the case of DH-based schemes, `sk == vk` is a shared secret, and the `signature` is a message authentication code (MAC) generated from a key derived from `sk`.
-
-## Helper functions
-
-### The BlindProve function
-
-This document specifies several implementations of the BlindProve function, that creates a signature proving possession of a blinded secret key associated with a blinded public key.
-
-```
-Inputs:
-- sk_bl, a blinding secret key.
-- tau, a blind.
-- info, a byte array of application-specific info.
-- pk_rp, either a DH public key or empty.
-
-Outputs:
-- signature, a signature.
-```
-
-#### Using ECDH for BlindProve with multiplicative blinding
-
-```
-def BlindProve(sk_bl, tau, info, pk_rp):
-  pk' = G.ScalarMult(pk_rp, tau)
-  sk' = G.ECDH(sk_bl, pk')
-  k = H(contextString || "prove" || sk')
-  signature = MAC.Tag(k, info)
-```
-
-The G.ECDH computation MUST be performed in a WSCD.
-
-#### Using threshold EC-SDSA for BlindProve with additive blinding
-
-```
-def BlindProve(sk_bl, tau, info, pk_rp):
-  assert pk_rp == null
-  (c,s) = ECSDSA.Sign(sk_bl, info)
-  s' = s + c * tau (mod G.Order())
-  signature = (c,s')
-```
-
-The ECSDSA.Sign computation MUST be performed in a WSCD.
-
-#### Using threshold ECDSA for BlindProve with multiplicative blinding
-
-Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.
-
-## Hierarchical Deterministic Keys
-
-The following example illustrate the use of hierarchical deterministic keys.
-
-**Level 0.** A wallet starts with a root node containing a key encapsulation key pair `(pk_kem, sk_kem)` and a secure cryptographic device-backed blinding public key and secret key reference `(pk_bl, sk_bl_ref)`:
+**Level 0.** The holder seeds their wallet with a root node containing a fresh blinding key pair `(pk_root, sk_root)` managed in a secure cryptographic device:
 
 ```mermaid
 flowchart
-root["((pk_kem, sk_kem),<br>(pk_bl, sk_bl_ref))"]
+root["(pk_root, sk_root)"]
 style root stroke-width:4px
 ```
 
-**Level 1.** An initial (PID) attestation is based on trust in the root key, for example using a Wallet Instance Attestation. It results in several child nodes containing tuples `(j, kh, att, sk_kem)` of index `j`, key handle `kh`, attestation data `att`, and a newly generated key encapsulation key pair `(pk_kem, sk_kem)`:
+Now the holder wants to have an initial document, such as an person identification document. The holder shares with the issuer a proof of possession of `sk_root` and a newly generated key encapsulation key pair `(pk_kem, sk_kem)`. The issuer trusts `pk_root`, for example based on wallet trust evidence.
+
+**Level 1.** To achieve unlinkability at the readers side, the document will be represented as `n` one-time copies, in this example `n = 3`. Using key encapsulation, the issuer provides the holder with `n` documents `doc0_j` with associated unique proof of possession key pairs. These key pairs are `(pk_root, sk_root)` blinded with shared secret scalars `sk_blind0_j`. The issuer uses key encapsulation with `pk_root` to share key handles `kh0_j` which contain the information to compute the scalars.
 
 ```mermaid
 flowchart
-root["((pk_kem, sk_kem),<br>(pk_bl, sk_bl_ref))"]
-root --> l1_0["(0, kh<sub>1,0</sub>, att<sub>1,0</sub>,<br>(pk_kem<sub>1,0</sub>, sk_kem<sub>1,0</sub>))"]
-root --> l1_1["(1, kh<sub>1,1</sub>, att<sub>1,1</sub>,<br>(pk_kem<sub>1,1</sub>, sk_kem<sub>1,1</sub>))"]
-root --> l1_2["(2, kh<sub>1,2</sub>, att<sub>1,2</sub>,<br>(pk_kem<sub>1,2</sub>, sk_kem<sub>1,2</sub>))"]
+root["(pk_root, sk_root)"]
+root --kh0_0--> l1_0["(sk_blind0_0, doc0_0)"]
+root --kh0_1--> l1_1["(sk_blind0_1, doc0_1)"]
+root --kh0_2--> l1_2["(sk_blind0_2, doc0_2)"]
 style l1_0 stroke-width:4px
 style l1_1 stroke-width:4px
 style l1_2 stroke-width:4px
 ```
 
-When releasing attributes to a relying party, the wallet consumes an attestation, so its data may be removed from the tree. The key handle may need to be persisted in case the relying party will issue a new attestation based on it.
+When releasing a document to a reader, the wallet includes a proof of possession generated using `sk_root` blinded with the associated blinding scalar, for example `sk_blind0_0`. After releasing the document, it may not be released a second time, so its data may be removed from the tree. The blinding scalar needs to be persisted during the session in case the reader will issue a new document based on it.
 
 ```mermaid
 flowchart
-root["((pk_kem, sk_kem),<br>(pk_bl, sk_bl_ref))"]
-root --> l1_0["(0, kh<sub>1,0</sub>, nil,<br>(pk_kem<sub>1,0</sub>, sk_kem<sub>1,0</sub>))"]
-root --> l1_1["(1, kh<sub>1,1</sub>, att<sub>1,1</sub>,<br>(pk_kem<sub>1,1</sub>, sk_kem<sub>1,1</sub>))"]
-root --> l1_2["(2, kh<sub>1,2</sub>, att<sub>1,2</sub>,<br>(pk_kem<sub>1,2</sub>, sk_kem<sub>1,2</sub>))"]
+root["(pk_root, sk_root)"]
+root --> l1_0["(sk_blind0_0, nil)"]
+root --> l1_1["(sk_blind0_1, doc0_1)"]
+root --> l1_2["(sk_blind0_2, doc0_2)"]
 style l1_0 stroke-width:4px
 ```
 
-**Level 2.** When the relying party issues a new attestation, the related PoP key is derived from the presented key.
+**Level 2.** When the reader issues a new document, the related proof of possession key may be derived from the presented key. In that case, the reader creates `m` one-time document copies, associated with `m` key handles `kh_j` for key encapsulation. In this example, `m = 2`. After issuance, the wallet uses the key handles to compute associated blinding scalars `sk_blind1_j` so that the proof of possession keys can be computed using `sk_root` and `sk_blind1_j`. After this process, the wallet may remove the original `sk_blind0_0`.
 
 ```mermaid
 flowchart
-root["((pk_kem, sk_kem),<br>(pk_bl, sk_bl_ref))"]
-root --> l1_0["(0, kh<sub>1,0</sub>, nil,<br>(pk_kem<sub>1,0</sub>, sk_kem<sub>1,0</sub>))"]
-root --> l1_1["(1, kh<sub>1,1</sub>, att<sub>1,1</sub>,<br>(pk_kem<sub>1,1</sub>, sk_kem<sub>1,1</sub>))"]
-root --> l1_2["(2, kh<sub>1,2</sub>, att<sub>1,2</sub>,<br>(pk_kem<sub>1,2</sub>, sk_kem<sub>1,2</sub>))"]
-l1_0 --> l2_0["(0, kh<sub>2,0</sub>, att<sub>2,0</sub>,<br>(pk_kem<sub>2,0</sub>, sk_kem<sub>2,0</sub>))"]
-l1_0 --> l2_1["(1, kh<sub>2,1</sub>, att<sub>2,1</sub>,<br>(pk_kem<sub>2,1</sub>, sk_kem<sub>2,1</sub>))"]
+root["(pk_root, sk_root)"]
+root --> l1_0["(nil, nil)"]
+root --> l1_1["(sk_blind0_1, doc0_1)"]
+root --> l1_2["(sk_blind0_2, doc0_2)"]
+l1_0 --kh1_0--> l2_0["(sk_blind1_0, doc1_0)"]
+l1_0 --kh1_1--> l2_1["(sk_blind1_1, doc1_1)"]
 style l2_0 stroke-width:4px
 style l2_1 stroke-width:4px
 ```
 
-Note that while a tree representation is used, this is not a mandatory data structure. It could for example be flattened by combining blinds.
+Note that while a tree visualisation is used, HDK does not mandate this as a data structure or apply any tree structure properties in its algorithms.
 
-Note that key encapsulation key pairs are not reused across parent nodes in order to avoid linkability. Since they cannot be authenticated, they MAY be generated and stored outside of the WSCD. For example, they MAY be derived from attestation metadata using a secret key in the wallet.
+Note that key encapsulation key pairs are not reused across parent nodes in order to avoid linkability. Since they cannot be authenticated, they MAY be generated and processed outside of the secure cryptographic device.
 
-### Key generation
+### Cryptographic dependencies
 
-The user generates `((pk_kem, pk_bl), (sk_kem, sk_bl)) = ARKG.GenerateSeed()` once in their WSCD.
+HDK depends on the following cryptographic constructs. The parameters of an HDK instance are:
 
-### 5.2. Initial attestation issuance
+- `G`: An additive prime-order group with elements of type Element and scalars of type Scalar, consisting of the functions:
+    - Order(): Outputs the group order.
+    - Identity(): Outputs the identity Element of the group.
+    - IdentityScalar(): Outputs 0 if the group is used for additive blinding, 1 if the group if used for multiplicative blinding. Additive and multiplicative blinding will be explained in a later section.
+    - Add(A, B): Outputs the sum of Elements `A` and `B`.
+    - SerializeScalar(s): Maps a Scalar `s` to a canonical byte array of fixed length `Ns`.
+    - ScalarMult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
+    - ScalarBaseMult(k): Outputs the scalar multiplication between Scalar `k` and the group generator.
+- `KEM`: A key encapsulation mechanism [[draft-bradleylundberg-cfrg-arkg]], consisting of the functions:
+    - GenerateKeyPair(): Outputs a key pair `(pk, sk)`.
+- `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], consisting of the functions:
+    - GenerateSeed(): Outputs an ARKG seed pair `(pk, sk)` at the delegating party, where `pk = (pk_kem, pk_bl)` and `sk = (sk_kem, sk_bl)`.
+    - DerivePublicKey(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key.
+    - DerivePrivateKey(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
+- `PoP`: A proof of possession authentication scheme, consisting of the functions:
+    - Challenge(): Outputs `(challenge, state)` containing an opaque `challenge` and an opaque secret `state`.
+    - Authenticate(sk, challenge, transcript, info): Outputs `proof` using a secret key `sk` with `challenge`, session transcript `transcript`, and application-specific `info`.
+    - Verify(state, vk, challenge, transcript, info, proof): Outputs boolean `result` whether `proof` is a valid proof of possession of the secret key associated with verification key `vk` for `challenge`, `transcript` and `info`.
 
-Say the provider wants to issue `n` initial attestations.
+A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values, as well as an instance identification string `contextString`.
 
-Prerequisites:
+The output keys keys of `KEM` MUST be the output keys of `ARKG`.
 
-- The provider trusts `pk_bl` to be protected by a secure cryptographic device. For example, the provider may rely on an EUDI Wallet Instance Attestation.
-- The provider and the user agree on a ciphersuite identified by the byte array `contextString`.
+The input keys of `PoP` MUST be the output keys of `ARKG`.
 
-Steps:
+The PoP.Authenticate function MUST be executed within a secure cryptographic device.
 
-1. The provider shares challenge data including:
-    - a nonce;
-    - in the case of DH-based `PoP`, an ephemeral public key.
-2. The user determines `sk` using the shared challenge data. That is, in the case of DH-based `PoP`, the user performs a DH exchange with `sk_bl`; otherwise, `sk == sk_bl`.
-3. The user computes `signature = PoP.Sign(sk, info)` where `info` contains application-specific information including challenge data.
-4. The user shares `proof` and `pk_kem` with the provider in an attestation issuance request.
-5. The provider determines `vk` using `pk_bl` and, in the case of DH-based `PoP`, the ephemeral private key from step 1.
-6. The provider verifies `PoP.Verify(signature, vk, info)`.
-7. For each `j = 0, …, n-1`, the provider:
-    1. Computes `info = contextString || "derive" || I2OS(j)`.
-    2. Computes `(pk', kh) = ARKG.DerivePublicKey((pk_kem, pk_bl), info)`.
-    3. Issues an attestation with `PoP` public key `pk'` and with `kh` as metadata that is not necessarily signed, but authenticated.
-8. For each `j = 0, …, n-1`, the user stores `j`, `kh` and the attestation att<sub>1,j</sub>.
+### The BlindAuthenticate function
 
-### 5.3. Proof of possession
-
-Say the user has attributes at att<sub>i,j</sub> at level `i` with index `j` that are relevant to the relying party.
-
-Prerequisites:
-
-- The relying party trusts the provider of att<sub>i,j</sub>.
-- The relying party and the user agree on a ciphersuite identified by the byte array `contextString`.
-- The user knows indices `(j_1, ..., j_i)` and key handles `(kh_1, ..., kh_i)` and key encapsulation keys `(sk_kem_1, ..., sk_kem_(i-1))` leading to att<sub>i,j</sub>.
-
-Steps:
-
-1. The relying party shares challenge data including:
-    - a nonce;
-    - in the case of DH-based `PoP`, an ephemeral public key.
-2. The user computes:
-    - `tau(1) = ARKG.DeriveBlind(sk_kem, kh_1, contextString || "derive" || I2OS(j_1))`;
-    - `tau(k+1) = ARKG.DeriveBlind(sk_kem_k, kh_{k+1}, contextString || "derive" || I2OS(j_{k+1}))` for each `k = 1, ..., i-1`;
-    - `tau = reduce(BL.Combine, tau, Id_bl)`.
-3. The user computes `signature = BlindProve(sk_bl, tau, info, pk_rp)` where `pk_rp` is the relying party’s ephemeral public key from step 1 in the case of DH-based `PoP`, and empty otherwise.
-4. The user shares `signature` with the relying party in an attribute release.
-5. The relying party determines `vk` using att<sub>i,j</sub> and, in the case of DH-based `PoP`, the ephemeral private key from step 1.
-6. The relying party verifies `PoP.Verify(signature, vk, info)`.
-
-Note that the performance of this algorithm scales linearly relative to the number of keys to derive. For short-lived one-time-use keys, the amount `n` is likely to be relatively small. For improved performance in case of large `n`, the result can be computed by caching intermediate values while computing `ARKG.DeriveBlind` or otherwise breaking down the implementation of `ARKG.DeriveBlind`.
-
-### 5.4. Subsequent attestation issuance
-
-Say the provider wants to issue `n` attestations to the user based on prior attribute release from att<sub>i,j</sub> (see previous section).
-
-Prerequisites:
-
-- The user has a blind `tau` such that `BL.BlindPublicKey(pk_bl, tau) == pk_pop` and `pk_pop` is attested in att<sub>i,j</sub> (see previous section).
-- The provider trusts `pk_pop` to be associated with a sufficiently secured private key. For example, the provider may trust the att<sub>i,j</sub> provider to have verified this, or may assume security based on the application context.
-- The provider and the user agree on a ciphersuite identified by the byte array `contextString`.
-
-Steps:
-
-1. The user shares `pk_kem` (pk_kem<sub>i,j</sub> associated with att<sub>i,j</sub>) with the provider in an attestation issuance request.
-2. The provider, for each `j = 0, …, n-1`:
-    1. Computes `info = contextString || "derive" || I2OS(j)`.
-    2. Computes `(pk', kh) = ARKG.DerivePublicKey((pk_kem, pk_pop), info)`.
-    3. Issues an attestation with `PoP` public key `pk'` and with `kh` as metadata that is not necessarily signed, but authenticated.
-3. For each `j = 0, …, n-1`, the user stores `j`, `kh` and the attestation att<sub>i+1,j</sub>.
-
-## 6. Ciphersuites
-
-The RECOMMENDED ciphersuite is the one defined below.
-
-### 6.1. HDK(ECDH, P-256, SHA-256, ARKG-P256mul-ECDH-P256-HMAC-SHA256-HKDF-SHA256))
-
-The `contextString` value is `"HDK-ECDH-P256-SHA256-ARKG-P256mul-ECDH-P256-HMAC-SHA256-HKDF-SHA256-v1"`.
-
-- `PoP`: Applying ECDH to establish a shared secret using the WSCD, and creating and verifying signatures as defined below.
-- `BlindProve`: The ECDH implementation from Section 4.1.1.
-- `G`: The NIST curve `secp256r1` (P-256), where `Ns = 32`.
-    - ECDH(k, A): Implemented using `G.SerializeScalar(x)` where `x` is the $x$-coordinate of `G.ScalarMult(A, k)`.
-    - SerializeScalar(s): Implemented using the Field-Element-to-Octet-String conversion.
-- Hash `H(m)`: Implemented as `hash_to_field(msg=m, count=1)` from [[RFC9380]] using `expand_message_xmd` with SHA-256 with parameters `DST = contextString`, `F` set to the scalar field, `p` set to `G.Order()`, `m = 1`, and `L = 48`.
-- `BL`: Elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg-01]] Section 3.1 but with multiplicative instead of additive blinding and the parameter:
-    - `crv`: The NIST curve `secp256r1`.
-- `KEM`: ECDH as described in [[draft-bradleylundberg-cfrg-arkg-01]] Section 3.2 with the parameter:
-    - `crv`: The NIST curve `secp256r1`.
-- `MAC`: HMAC as described in [[draft-bradleylundberg-cfrg-arkg-01]] Section 3.4 with the parameter:
-    - `Hash`: SHA-256.
-- `KDF`: HKDF as described in [[draft-bradleylundberg-cfrg-arkg-01]] Section 3.5 with the parameter:
-    - `Hash`: SHA-256.
-- `L_bl`: 32
-- `L_mac`: 32
+The HDK scheme does not apply ARKG.DerivePrivateKey to the actual root key as a BL private key. The reason is that in HDK, the ARKG.DerivePrivateKey output cannot be computed within the secure cryptographic device for subsequent use in authentication. Instead, HDK applies ARKG.DerivePrivateKey to the G.IdentityScalar as a BL private key, and uses the output as a “blinding scalar” in the function defined below.
 
 ```
-def Sign(sk, info):
-  k = H(contextString || "prove" || sk)
-  signature = MAC.Tag(k, info)
+Inputs:
+- sk_root, a key blinding private key.
+- sk_blind, a blinding scalar.
+- challenge, a proof of possession challenge.
+- transcript, a session transcript.
+- info, a byte array of application-specific info.
 
-def Verify(signature, sk, info):
-  k = H(contextString || "prove" || sk)
-  signature' = MAC.Tag(k, info)
-  check signature == signature'
+Outputs:
+- proof, a proof of possession.
+
+def BlindAuthenticate(sk_root, sk_blind, challenge, transcript, info)
+```
+
+Implementations of this function typically perform pre-processing on the `challenge`, `transcript` and `info`, invoke PoP.Authenticate on the result with the root key, and perform post-processing on the `proof`.
+
+### Use cases
+
+#### Key generation
+
+The holder generates `((pk_kem, pk_root), (sk_kem, sk_root)) = ARKG.GenerateSeed()` once in their secure cryptographic device.
+
+#### Proof of possession
+
+Summary: The holder proves possession of the blinded public key `pk_bl` in an attestation `att` to the reader.
+
+Prerequisites:
+
+- The reader trusts the reader of `att`.
+- The reader and the holder agree on a ciphersuite identified by the byte array `contextString`.
+- The reader and the holder have obtained some application-specific information `info_pop`. This is optional; the byte string may be empty.
+- The holder has generated a root key pair `(pk_root, sk_root)` as described in the section “Key generation”.
+- The holder knows the blinding scalar `sk_blind` associated with `pk_root` and `pk_bl`.
+
+Note: If `pk_bl == pk_root`, then use `sk_blind == G.IdentityScalar()`.
+
+Steps:
+
+1. The reader computes `(challenge, state) = PoP.Challenge()`.
+2. The reader shares `challenge` with the holder.
+3. The holder computes `transcript` in an application-specific way.
+3. The holder computes `proof = PoP.BlindAuthenticate(sk_root, sk_blind, challenge, transcript, info_pop)`.
+4. The holder shares `proof` with the reader.
+4. The reader computes `transcript` in an application-specific way.
+6. The reader verifies `PoP.Verify(state, pk_bl, challenge, transcript, proof, info_pop)`.
+
+#### Attestation issuance
+
+Summmary: The reader issues `n` attestations to the holder, each with a different `PoP` public key.
+
+Prerequisites:
+
+- The holder has generated a root key pair `(pk_root, sk_root)` as described in the section “Key generation”.
+- The holder has proven possession of the private key associated with the public key `pk_bl` (see section above).
+- The reader trusts `pk_bl` to be protected by a sufficiently secure cryptographic device. For example, the reader may rely on wallet trust evidence or on the presentation of an attestation bound to this key.
+- The reader and the holder agree on a ciphersuite identified by the byte array `contextString`.
+- The reader and the holder have obtained some application-specific information `info_pop`. This can for example be an empty byte string.
+- The holder knows the blinding scalar `sk_blind` associated with `pk_root` and `pk_bl`.
+
+Note: If `pk_bl == pk_root`, then use `sk_blind == G.IdentityScalar()`.
+
+Steps:
+
+1. The holder computes `(pk_kem, sk_kem) = KEM.GenerateKeyPair()`.
+2. For each `j = 0, …, n-1`, the reader:
+    1. Computes `info_arkg = contextString || "derive" || I2OSP(j, 2)`.
+    2. Computes `(pk', kh) = ARKG.DerivePublicKey((pk_kem, pk_bl), info_arkg)`.
+    3. Issues an attestation `att_j` with `PoP` public key `pk'`.
+    4. Shares `att_j` and `kh` with the holder.
+    5. Deletes `kh`.
+3. For each `j = 0, …, n-1`, the holder:
+    1. Computes `info_arkg = contextString || "derive" || I2OSP(j, 2)`.
+    2. Computes `sk_blind_j = ARKG.DerivePrivateKey((sk_kem, sk_blind), kh, info_arkg)`.
+    3. Stores `(sk_blind_j, att_j)`.
+
+In step 2.2, the reader MAY cache intermediate values of computing ARKG.DerivePublicKey as a performance optimization.
+
+In step 2.4, the protocol application MUST ensure message integrity and sender authentication of `kh`.
+
+In step 3.2, the holder MAY cache intermediate values of computing ARKG.DerivePublicKey as a performance optimization.
+
+## Generic HDK instantiations
+
+### Using message authentication codes for proof of possession
+
+This method requires the following cryptographic constructs:
+
+- `ECDH`: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [[TR03111]], consisting of the functions:
+    - GenerateKeyPair(): Outputs a key pair `(pk, sk)`.
+    - CreateSharedSecret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
+- `H`: A cryptographically secure hash function.
+- `MAC`: A function taking byte string inputs (salt, ikm, message) applying cryptographically secure hash functions to obtain a message authentication code combining `salt` with input keying material `ikm` and `message`.
+
+The `PoP` parameter of HDK is instantiated as follows:
+
+```
+impl PoP(ECDH, MAC):
+    def Challenge():
+        (pk, sk) = ECDH.GenerateKeyPair()
+        challenge = pk
+        state = sk
+
+    def Authenticate(sk, challenge, transcript, info):
+        Z_AB = ECDH.CreateSharedSecret(sk, challenge)
+        salt = H(transcript)
+        proof = MAC(salt, Z_AB, info)
+
+    def Verify(state, vk, challenge, transcript, info, proof):
+        Z_AB = ECDH.CreateSharedSecret(state, vk)
+        salt = H(transcript)
+        result = proof == MAC(salt, Z_AB, info)
+```
+
+The `ARKG` parameter of HDK is instantiated with multiplicative blinding.
+
+The BlindAuthenticate function is defined as follows:
+
+```
+def BlindAuthenticate(sk_root, sk_blind, challenge, info):
+    pk = G.ScalarMult(challenge, sk_blind)
+    proof = PoP.Authenticate(sk_root, challenge, info)
+```
+
+> [!NOTE]
+> The computation of `pk` may also be implemented using ECDH.CreateSharedSecret.
+
+### Using a digital signature algorithm for proof of possession
+
+This method requires the following cryptographic constructs:
+
+- `RNG`: a random number generator, consisting of the functions:
+    - GenerateNonce(): Outputs a nonce for replay detection.
+- `DSA`: a digital signature algorithm, consisting of the functions:
+    - Sign(sk, message): Outputs the signature `(s1, s2)` created using private key `sk` over byte string `message`.
+    - Verify(signature, vk, message): Outputs whether `signature` is a signature over `message` using public key `vk`.
+    - Serialize((s1, s2)): Outputs the byte array serialization of the signature `(s1, s2)`.
+    - Deserialize(bytes): Outputs the signature `(s1, s2)` represented by byte string `bytes`.
+
+The input keys of `DSA` MUST be the output keys of `ARKG`.
+
+```
+impl PoP(RNG, DSA):
+    def Challenge():
+        challenge = ""
+        state = ""
+
+    def Authenticate(sk, challenge, transcript, info):
+        assert challenge == ""
+        signature = DSA.Sign(sk, info)
+        proof = DSA.Serialize(signature)
+
+    def Verify(state, vk, challenge, transcript, proof, info):
+        assert state == ""
+        assert challenge == ""
+        signature = DSA.Deserialize(proof)
+        result = DSA.Verify(signature, vk, info)
+```
+
+#### Using threshold EC-SDSA for additive blind authentication
+
+The BlindAuthenticate function is defined as follows:
+
+```
+def BlindAuthenticate(sk_root, sk_blind, challenge, info):
+    proof = PoP.Authenticate(sk_root, challenge, info)
+    (c, s) = DSA.Deserialize(proof)
+    s' = s + c * sk_blind mod G.Order()
+    proof = (c, s')
+```
+
+#### Using threshold ECDSA for multiplicative blind authentication
+
+Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.
+
+## Concrete HDK instantiations
+
+The RECOMMENDED instantiation is the HDK-ECDH-P256. This provides better privacy to the holder because it does not produce a potentially non-repudiable signature over reader-provided data. Secure cryptographic devices that enable a high level of assurance typically support managing ECDH keys with the P-256 elliptic curve.
+
+### HDK-ECDH-P256
+
+The `contextString` value is `"HDK-ECDH-P256-v1"`.
+
+- `G`: The NIST curve `secp256r1` (P-256) [[SEC2]].
+    - IdentityScalar(): 1.
+- `KEM`: ECDH as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.3 with the parameters `crv` set to `G`, `Hash` set to SHA-256 [[FIPS180-4]], `DST_ext` set to `ARKG-P256ADD-ECDH`.
+- `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256MUL-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1 but with multiplicative instead of additive blinding.
+- `PoP`: Proof of possession instance as described in the section “Using message authentication codes for proof of possession”, with parameters:
+    - `ECDH`: ECKA-DH with curve `G`
+    - `H`: SHA-256 [[FIPS180-4]]
+    - `MAC` is defined below, applying the following cryptographic constructs:
+        - `HKDF`: HKDF with `Hash` set to `H`
+        - `HMAC`: HMAC with `H` set to `H`
+
+```
+def MAC(salt, ikm, message):
+    prk = HKDF.Extract(salt, ikm)
+    okm = HKDF.Expand(prk, "EMacKey", 32)
+    mac = HMAC(okm, message)
 ```
 
 ## Security considerations
 
-TODO
+### Proofs of association
+
+Cryptographically, the holder could provide a proof of association between two blinded public keys. For example, by creating a Schnorr non-interactive zero-knowledge proof of knowledge of a combination of the blinding scalars. This could assure the reader that two documents are issued to the same holder, and thereby potentially describe the same subject. However, this capability SHOULD be treated with caution since:
+
+- This could produce a potentially non-repudiable proof that a certain combination of documents was revealed.
+- The semantics of such a proof may be unclear to the reader and in case of disputes.
+
+In general, use cases that require associated documents with a high level of assurance involve the processing of person identification data which can instead be used for claim-based holder and/or subject binding.
+
+### Confidentiality of key handles
+
+The key handles MUST be considered confidential, since they provide knowledge about the blinding factors. Compromise of this knowledge could introduce undesired linkability. In HDK, both the holder and the issuer know the key handle during issuance.
+
+In an alternative to HDK, the holder independently generates blinded key pairs and proofs of association, providing the issuer with zero knowledge about the blinding factors. However, this moves the problem: the proofs of association would now need to be considered confidential.
 
 ## References
 
-## Normative references
+### Normative references
 
 <dl>
+
+  <dt id=FIPS180-4>[FIPS180-4]<dd>
+
+[FIPS180-4]: #FIPS180-4
+National Institute of Standards and Technology (NIST), “Secure Hash Standard (SHS)”, [FIPS 180-4](https://csrc.nist.gov/pubs/fips/180-4/upd1/final), DOI 10.6028/NIST.FIPS.180-4, June 2012.
+
+  <dt id=ISO18013-5>[ISO18013-5]<dd>
+
+[ISO18013-5]: #ISO18013-5
+ISO/IEC, “Personal identification — ISO-compliant driving licence – Part 5: Mobile driving licence (mDL) application”, [ISO/IEC 18013-5:2021](https://www.iso.org/standard/69084.html), September 2019.
 
   <dt id=RFC2119>[RFC2119]<dd>
 
 [RFC2119]: #RFC2119
 Bradner, S., “Key words for use in RFCs to Indicate Requirement Levels”, BCP 14, [RFC 2119](https://www.rfc-editor.org/info/rfc2119), DOI 10.17487/RFC2119, March 1997.
+
+  <dt id=RFC8017>[RFC8017]<dd>
+
+[RFC8017]: #RFC8017
+Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch, “PKCS #1: RSA Cryptography Specifications Version 2.2”, BCP 14, [RFC 8017](https://www.rfc-editor.org/info/rfc8017), DOI 10.17487/RFC8017, November 2016.
 
   <dt id=RFC8174>[RFC8174]<dd>
 
@@ -370,17 +373,46 @@ Leiba, B., “Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words”, BCP 
 [RFC9380]: #RFC9380
 Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S., and C. A. Wood, “Hashing to Elliptic Curves”, [RFC 9380](https://www.rfc-editor.org/info/rfc9380), DOI 10.17487/RFC9380, August 2023.
 
+<dt id=SEC2>[SEC2]<dd>
+
+[SEC2]: #SEC2
+Certicom Research, “SEC 2: Recommended Elliptic Curve Domain Parameters”, [Version 2.0](https://www.secg.org/sec2-v2.pdf), January 2010.
+
+<dt id=TR03111>[TR03111]<dd>
+
+[TR03111]: #TR03111
+Federal Office for Information Security (BSI), “Elliptic Curve Cryptography”, [BSI TR-03111 Version 2.10](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03111/tr-03111.html), June 2018.
+
 </dl>
 
-## Informative references
+### Informative references
 
 <dl>
 
-  <dt id=draft-bradleylundberg-cfrg-arkg-01>[draft-bradleylundberg-cfrg-arkg-01]<dd>
+  <dt id=draft-bradleylundberg-cfrg-arkg>[draft-bradleylundberg-cfrg-arkg]<dd>
 
-[draft-bradleylundberg-cfrg-arkg-01]: #draft-bradleylundberg-cfrg-arkg-01
-Lundberg, E., and Bradley, J, “The Asynchronous Remote Key Generation (ARKG) algorithm
-”, [draft-bradleylundberg-cfrg-arkg-01](https://www.ietf.org/archive/id/draft-bradleylundberg-cfrg-arkg-01.html), March 2024.
+[draft-bradleylundberg-cfrg-arkg]: #draft-bradleylundberg-cfrg-arkg
+Lundberg, E., and J. Bradley, “The Asynchronous Remote Key Generation (ARKG) algorithm”, [draft-bradleylundberg-cfrg-arkg-latest](https://yubico.github.io/arkg-rfc/draft-bradleylundberg-cfrg-arkg.html), 24 May 2024.
+
+<dt id=draft-ietf-oauth-selective-disclosure-jwt>[draft-ietf-oauth-selective-disclosure-jwt]<dd>
+
+[draft-ietf-oauth-selective-disclosure-jwt]: #draft-ietf-oauth-selective-disclosure-jwt
+Fett, D., Yasuda, K., and B. Campbell, “Selective Disclosure for JWTs (SD-JWT)”, [draft-ietf-oauth-selective-disclosure-jwt-08](https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-08.html), 4 March 2024.
+
+<dt id=draft-irtf-cfrg-signature-key-blinding>[draft-irtf-cfrg-signature-key-blinding]<dd>
+
+[draft-irtf-cfrg-signature-key-blinding]: #draft-irtf-cfrg-signature-key-blinding
+Denis, F., Eaton, E., Lepoint, T., and C.A. Wood, “Key Blinding for Signature Schemes”, [draft-irtf-cfrg-signature-key-blinding-06](https://www.ietf.org/archive/id/draft-irtf-cfrg-signature-key-blinding-06.html#name-key-blinding), 1 April 2024.
+
+<dt id=draft-OpenID4VCI>[draft-OpenID4VCI]<dd>
+
+[draft-OpenID4VCI]: #draft-OpenID4VCI
+Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Credential Issuance”, [draft 13](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html), 8 February 2024.
+
+<dt id=draft-OpenID4VP>[draft-OpenID4VP]<dd>
+
+[draft-OpenID4VP]: #draft-OpenID4VP
+Terbu, O., Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Presentations”, [draft 20](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html), 29 November 2023.
 
 </dl>
 
