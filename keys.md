@@ -149,18 +149,6 @@ Outputs:
 def HDK-Public-Key(sk_bl)
 ```
 
-### The HDK-Challenge function
-
-The reader challenges proof of possession of a key by the holder. The reader does not need to know if the public key is blinded.
-
-```
-Outputs:
-- challenge, a proof of possession challenge.
-- state, an opaque secret of the reader.
-
-def HDK-Challenge()
-```
-
 ### The HDK-Prove function
 
 The holder proves possession of a key by blindly creating proof applying the device private key and the associated ARKG private key.
@@ -173,36 +161,17 @@ Parameters:
 
 Inputs:
 - sk_bl, a key blinding private key.
-- challenge, a proof of possession challenge.
+- pk_reader, a reader public key for a proof of possession.
 - transcript, a session transcript.
-- info, a byte array of application-specific info.
+- device_data, a byte array of application-specific device authentication data.
 
 Outputs:
 - proof, a proof of possession.
 
-def HDK-Prove(sk_bl, challenge, transcript, info)
+def HDK-Prove(sk_bl, pk_reader, transcript, device_data)
 ```
 
 Implementations of this function typically perform pre-processing on the `challenge`, `transcript` and `info`, invoke the device key operation on the result, and perform post-processing on the result of that operation.
-
-### The HDK-Verify function
-
-The reader verifies proof of possession.
-
-```
-Inputs:
-- state, an opaque secret of the reader.
-- pk, a (blinded) public key.
-- challenge, a proof of possession challenge.
-- transcript, a session transcript.
-- info, a byte array of application-specific info.
-- proof, an alleged proof.
-
-Outputs:
-- result, a boolean indicating whether the alleged proof of possession is valid.
-
-def HDK-Verify(state, pk, challenge, transcript, info, proof)
-```
 
 ### Using deterministic blinding key generation
 
@@ -242,18 +211,17 @@ Summary: **Holder** proves possession of the blinded public key `pk_bl` in an at
 Prerequisites:
 
 - **Holder** has an HDK instantiation identified by the byte array `contextString` with root key `sk_device`.
-- **Reader** and **Holder** have obtained some application-specific information `info_pop`. This is optional; the byte string may be empty.
+- **Reader** and **Holder** obtain some application-specific device authentication data `device_data`.
+- **Reader** and **Holder** obtain some application-specific session transcript `transcript`. This is optional; set `transcript = ""` otherwise.
 - **Holder** knows a valid HDK tree node `(sk_bl, doc)` where `doc` contains `pk_bl`.
 
 Steps:
 
-1. The reader computes `(challenge, state) = HDK-Challenge()`.
-2. The reader shares `challenge` with the holder.
-3. The holder computes `transcript` in an application-specific way.
-3. The holder computes `proof = HDK-Prove(sk_blind, challenge, transcript, info_pop)`.
-4. The holder shares `proof` with the reader.
-4. The reader computes `transcript` in an application-specific way.
-6. The reader verifies `HDK-Verify(state, pk_bl, challenge, transcript, proof, info_pop)`.
+1. **Reader** generates a reader key pair `(pk_reader, sk_reader)`. This step is conditional, set `pk_reader = ""` otherwise.
+2. **Reader** shares `pk_reader` in a challenge with the holder.
+3. **Holder** computes `proof = HDK-Prove(sk_blind, pk_reader, transcript, device_data)`.
+4. **Holder** shares `proof` with the reader.
+5. **Reader** verifies `proof`, optionally using `sk_reader`.
 
 #### Attestation issuance
 
@@ -301,6 +269,10 @@ This method requires the following cryptographic constructs:
     - H2(message): Outputs a byte array.
 - `MAC`: A function taking byte string inputs (salt, ikm, message) applying cryptographically secure hash functions to obtain a message authentication code combining `salt` with input keying material `ikm` and `message`.
 
+The reader MUST create a new reader key pair using ECDH-Generate-Key-Pair for each challenge.
+
+The reader MUST verify the proof using ECDH-Create-Shared-Secret.
+
 The proof of possession parameters of HDK are instantiated as follows:
 
 ```
@@ -311,28 +283,16 @@ def HDK-Public-Key(sk_bl):
     pk = EC-Scalar-Mult(sk_bl, pk_device)
     return pk
 
-def HDK-Challenge():
-    (pk, sk) = ECDH-Generate-Key-Pair()
-    challenge = pk
-    state = sk
-    return (challenge, state)
-
-def HDK-Prove(sk_bl, challenge, transcript, info):
+def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
     # Optionally implement using ECDH-Create-Shared-Secret.
-    P' = EC-Scalar-Mult(challenge, sk_bl)
+    P' = EC-Scalar-Mult(pk_reader, sk_bl)
 
     # Compute Z_AB within the secure cryptographic device.
     Z_AB = ECDH-Create-Shared-Secret(sk_device, P')
 
     salt = H2(transcript)
-    proof = MAC(salt, Z_AB, info)
+    proof = MAC(salt, Z_AB, device_data)
     return proof
-
-def HDK-Verify(state, pk, challenge, transcript, info, proof):
-    Z_AB = ECDH-Create-Shared-Secret(state, pk)
-    salt = H2(transcript)
-    result = proof == MAC(salt, Z_AB, info)
-    return result
 ```
 
 The `ARKG` parameter of HDK is instantiated with multiplicative blinding.
@@ -345,12 +305,16 @@ This method requires the following cryptographic constructs:
     - EC-Order(): Outputs the group order.
     - EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
 - `DSA`: an EC-SDSA (Schnorr) digital signature algorithm, consisting of the functions:
-    - DSA-Sign(sk, message): Outputs the signature `(c, r)` created using private key `sk` over byte string `message`.
-    - DSA-Verify(signature, vk, message): Outputs whether `signature` is a signature over `message` using public key `vk`.
+    - DSA-Sign(sk, message): Outputs the signature `(c, r)` created using private signing key `sk` over byte string `message`.
+    - DSA-Verify(signature, pk, message): Outputs whether `signature` is a signature over `message` using public verification key `pk`.
     - DSA-Serialize(c, r): Outputs the byte array serialization of the signature `(c, r)`.
     - DSA-Deserialize(bytes): Outputs the signature `(c, r)` represented by byte string `bytes`.
 
 The input keys of `DSA` MUST be the `ARKG` key blinding keys.
+
+The reader MUST NOT create a reader key pair.
+
+The reader MUST verify the proof using DSA-Verify.
 
 ```
 def HDK-Public-Key(sk_bl):
@@ -360,29 +324,19 @@ def HDK-Public-Key(sk_bl):
     pk = EC-Scalar-Mult(sk_bl, pk_device)
     return pk
 
-def HDK-Challenge():
-    challenge = ""
-    state = ""
-    return (challenge, state)
-
-def HDK-Prove(sk_bl, challenge, transcript, info):
-    assert challenge == ""
+def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
+    assert pk_reader == ""
 
     # Compute Z_AB within the secure cryptographic device.
-    signature = DSA-Sign(sk_device, info)
+    signature = DSA-Sign(sk_device, transcript || device_data)
 
     (c, s) = DSA-Deserialize(proof)
     s' = s + c * sk_blind mod EC-Order()
     proof = DSA-Serialize(c, s')
     return proof
-
-def HDK-Verify(state, pk, challenge, transcript, info, proof):
-    assert state == ""
-    assert challenge == ""
-    signature = DSA-Deserialize(proof)
-    result = DSA-Verify(signature, vk, info)
-    return result
 ```
+
+The application MUST design the formats of `transcript` and `device_data` such that prefix-suffix substitutions are impossible.
 
 ### Using threshold ECDSA for multiplicative blind authentication
 
