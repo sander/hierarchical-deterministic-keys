@@ -465,3 +465,5 @@ Terbu, O., Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable 
 ## Acknowledgements
 
 This design is based on ideas introduced to the EU Digital Identity domain by Peter Lee Altmann.
+
+Helpful feedback came from Emil Lundberg.
