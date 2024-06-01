@@ -389,6 +389,11 @@ In an alternative to HDK, the holder independently generates blinded key pairs a
 
 <dl>
 
+  <dt id=draft-bradleylundberg-cfrg-arkg>[draft-bradleylundberg-cfrg-arkg]<dd>
+
+[draft-bradleylundberg-cfrg-arkg]: #draft-bradleylundberg-cfrg-arkg
+Lundberg, E., and J. Bradley, “The Asynchronous Remote Key Generation (ARKG) algorithm”, [draft-bradleylundberg-cfrg-arkg-latest](https://yubico.github.io/arkg-rfc/draft-bradleylundberg-cfrg-arkg.html), 24 May 2024.
+
   <dt id=FIPS180-4>[FIPS180-4]<dd>
 
 [FIPS180-4]: #FIPS180-4
@@ -434,11 +439,6 @@ Federal Office for Information Security (BSI), “Elliptic Curve Cryptography”
 ### Informative references
 
 <dl>
-
-  <dt id=draft-bradleylundberg-cfrg-arkg>[draft-bradleylundberg-cfrg-arkg]<dd>
-
-[draft-bradleylundberg-cfrg-arkg]: #draft-bradleylundberg-cfrg-arkg
-Lundberg, E., and J. Bradley, “The Asynchronous Remote Key Generation (ARKG) algorithm”, [draft-bradleylundberg-cfrg-arkg-latest](https://yubico.github.io/arkg-rfc/draft-bradleylundberg-cfrg-arkg.html), 24 May 2024.
 
 <dt id=draft-ietf-oauth-selective-disclosure-jwt>[draft-ietf-oauth-selective-disclosure-jwt]<dd>
 
