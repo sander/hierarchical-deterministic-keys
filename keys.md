@@ -212,12 +212,12 @@ Prerequisites:
 
 - **Holder** has an HDK instantiation identified by the byte array `contextString` with root key `sk_device`.
 - **Reader** and **Holder** obtain some application-specific device authentication data `device_data`.
-- **Reader** and **Holder** obtain some application-specific session transcript `transcript`. This is optional; set `transcript = ""` otherwise.
+- **Reader** and **Holder** obtain some application-specific session transcript `transcript`. This is conditional; set `transcript = ""` otherwise.
 - **Holder** knows a valid HDK tree node `(sk_bl, doc)` where `doc` contains `pk_bl`.
 
 Steps:
 
-1. **Reader** generates a reader key pair `(pk_reader, sk_reader)`. This step is conditional, set `pk_reader = ""` otherwise.
+1. **Reader** generates a reader key pair `(pk_reader, sk_reader)`. This step is conditional; set `pk_reader = ""` otherwise.
 2. **Reader** shares `pk_reader` in a challenge with the holder.
 3. **Holder** computes `proof = HDK-Prove(sk_blind, pk_reader, transcript, device_data)`.
 4. **Holder** shares `proof` with the reader.
@@ -325,18 +325,17 @@ def HDK-Public-Key(sk_bl):
     return pk
 
 def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
+    assert transcript == ""
     assert pk_reader == ""
 
     # Compute Z_AB within the secure cryptographic device.
-    signature = DSA-Sign(sk_device, transcript || device_data)
+    signature = DSA-Sign(sk_device, device_data)
 
     (c, s) = DSA-Deserialize(proof)
     s' = s + c * sk_blind mod EC-Order()
     proof = DSA-Serialize(c, s')
     return proof
 ```
-
-The application MUST design the formats of `transcript` and `device_data` such that prefix-suffix substitutions are impossible.
 
 ### Using threshold ECDSA for multiplicative blind authentication
 
