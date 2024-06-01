@@ -295,8 +295,6 @@ def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
     return proof
 ```
 
-The `ARKG` parameter of HDK is instantiated with multiplicative blinding.
-
 ### Using threshold EC-SDSA signatures for proof of possession
 
 This method requires the following cryptographic constructs:
@@ -337,7 +335,7 @@ def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
     return proof
 ```
 
-### Using threshold ECDSA for multiplicative blind authentication
+### Using threshold ECDSA signatures for proof of possession
 
 Due to potential patent claims and potential related-key attacks, this document does not specify an implementation for threshold ECDSA.
 
@@ -349,7 +347,7 @@ The RECOMMENDED instantiation is the HDK-ECDH-P256. This provides better privacy
 
 The `contextString` value is `"HDK-ECDH-P256-v1"`.
 
-- `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256MUL-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1 but with multiplicative instead of additive blinding.
+- `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256ADD-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1.
 - `EC`: The NIST curve `secp256r1` (P-256) [[SEC2]].
 - `ECDH`: ECKA-DH with curve `G`
 - `H`: SHA-256 [[FIPS180-4]] with:
