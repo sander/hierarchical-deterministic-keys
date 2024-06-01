@@ -90,23 +90,23 @@ Note that key encapsulation key pairs are not reused across parent nodes in orde
 HDK depends on the following cryptographic constructs. The parameters of an HDK instance are:
 
 - `G`: An additive prime-order group with elements of type Element and scalars of type Scalar, consisting of the functions:
-    - Order(): Outputs the group order.
-    - Identity(): Outputs the identity Element of the group.
-    - IdentityScalar(): Outputs 0 if the group is used for additive blinding, 1 if the group if used for multiplicative blinding. Additive and multiplicative blinding will be explained in a later section.
-    - Add(A, B): Outputs the sum of Elements `A` and `B`.
-    - SerializeScalar(s): Maps a Scalar `s` to a canonical byte array of fixed length `Ns`.
-    - ScalarMult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
-    - ScalarBaseMult(k): Outputs the scalar multiplication between Scalar `k` and the group generator.
+    - G-Order(): Outputs the group order.
+    - G-Identity(): Outputs the identity Element of the group.
+    - G-Identity-Scalar(): Outputs 0 if the group is used for additive blinding, 1 if the group if used for multiplicative blinding. Additive and multiplicative blinding will be explained in a later section.
+    - G-Add(A, B): Outputs the sum of Elements `A` and `B`.
+    - G-Serialize-Scalar(s): Maps a Scalar `s` to a canonical byte array of fixed length `Ns`.
+    - G-Scalar-Mult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
+    - G-Scalar-Base-Mult(k): Outputs the scalar multiplication between Scalar `k` and the group generator.
 - `KEM`: A key encapsulation mechanism [[draft-bradleylundberg-cfrg-arkg]], consisting of the functions:
-    - GenerateKeyPair(): Outputs a key pair `(pk, sk)`.
+    - KEM-Generate-Key-Pair(): Outputs a key pair `(pk, sk)`.
 - `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], consisting of the functions:
-    - GenerateSeed(): Outputs an ARKG seed pair `(pk, sk)` at the delegating party, where `pk = (pk_kem, pk_bl)` and `sk = (sk_kem, sk_bl)`.
-    - DerivePublicKey(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key.
-    - DerivePrivateKey(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
+    - ARKG-Generate-Seed(): Outputs an ARKG seed pair `(pk, sk)` at the delegating party, where `pk = (pk_kem, pk_bl)` and `sk = (sk_kem, sk_bl)`.
+    - ARKG-Derive-Public-Key(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key.
+    - ARKG-Derive-Private-Key(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
 - `PoP`: A proof of possession authentication scheme, consisting of the functions:
-    - Challenge(): Outputs `(challenge, state)` containing an opaque `challenge` and an opaque secret `state`.
-    - Authenticate(sk, challenge, transcript, info): Outputs `proof` using a secret key `sk` with `challenge`, session transcript `transcript`, and application-specific `info`.
-    - Verify(state, vk, challenge, transcript, info, proof): Outputs boolean `result` whether `proof` is a valid proof of possession of the secret key associated with verification key `vk` for `challenge`, `transcript` and `info`.
+    - PoP-Challenge(): Outputs `(challenge, state)` containing an opaque `challenge` and an opaque secret `state`.
+    - PoP-Authenticate(sk, challenge, transcript, info): Outputs `proof` using a secret key `sk` with `challenge`, session transcript `transcript`, and application-specific `info`.
+    - PoP-Verify(state, vk, challenge, transcript, info, proof): Outputs boolean `result` whether `proof` is a valid proof of possession of the secret key associated with verification key `vk` for `challenge`, `transcript` and `info`.
 
 A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values, as well as an instance identification string `contextString`.
 
@@ -114,11 +114,11 @@ The output keys keys of `KEM` MUST be the output keys of `ARKG`.
 
 The input keys of `PoP` MUST be the output keys of `ARKG`.
 
-The PoP.Authenticate function MUST be executed within a secure cryptographic device.
+The PoP-Authenticate function MUST be executed within a secure cryptographic device.
 
-### The BlindAuthenticate function
+### The HDK-Blind-Authenticate function
 
-The HDK scheme does not apply ARKG.DerivePrivateKey to the actual root key as a BL private key. The reason is that in HDK, the ARKG.DerivePrivateKey output cannot be computed within the secure cryptographic device for subsequent use in authentication. Instead, HDK applies ARKG.DerivePrivateKey to the G.IdentityScalar as a BL private key, and uses the output as a “blinding scalar” in the function defined below.
+The HDK scheme does not apply ARKG-Derive-Private-Key to the actual root key as a BL private key. The reason is that in HDK, the ARKG-Derive-Private-Key output cannot be computed within the secure cryptographic device for subsequent use in authentication. Instead, HDK applies ARKG-Derive-Private-Key to the G-Identity-Scalar as a BL private key, and uses the output as a “blinding scalar” in the function defined below.
 
 ```
 Inputs:
@@ -131,7 +131,7 @@ Inputs:
 Outputs:
 - proof, a proof of possession.
 
-def BlindAuthenticate(sk_root, sk_blind, challenge, transcript, info)
+def HDK-Blind-Authenticate(sk_root, sk_blind, challenge, transcript, info)
 ```
 
 Implementations of this function typically perform pre-processing on the `challenge`, `transcript` and `info`, invoke PoP.Authenticate on the result with the root key, and perform post-processing on the `proof`.
@@ -140,7 +140,7 @@ Implementations of this function typically perform pre-processing on the `challe
 
 #### Key generation
 
-The holder generates `((pk_kem, pk_root), (sk_kem, sk_root)) = ARKG.GenerateSeed()` once in their secure cryptographic device.
+The holder generates `((pk_kem, pk_root), (sk_kem, sk_root)) = ARKG-Generate-Seed()` once in their secure cryptographic device.
 
 #### Proof of possession
 
@@ -154,17 +154,17 @@ Prerequisites:
 - The holder has generated a root key pair `(pk_root, sk_root)` as described in the section “Key generation”.
 - The holder knows the blinding scalar `sk_blind` associated with `pk_root` and `pk_bl`.
 
-Note: If `pk_bl == pk_root`, then use `sk_blind == G.IdentityScalar()`.
+Note: If `pk_bl == pk_root`, then use `sk_blind == G-Identity-Scalar()`.
 
 Steps:
 
-1. The reader computes `(challenge, state) = PoP.Challenge()`.
+1. The reader computes `(challenge, state) = PoP-Challenge()`.
 2. The reader shares `challenge` with the holder.
 3. The holder computes `transcript` in an application-specific way.
-3. The holder computes `proof = PoP.BlindAuthenticate(sk_root, sk_blind, challenge, transcript, info_pop)`.
+3. The holder computes `proof = HDK-Blind-Authenticate(sk_root, sk_blind, challenge, transcript, info_pop)`.
 4. The holder shares `proof` with the reader.
 4. The reader computes `transcript` in an application-specific way.
-6. The reader verifies `PoP.Verify(state, pk_bl, challenge, transcript, proof, info_pop)`.
+6. The reader verifies `PoP-Verify(state, pk_bl, challenge, transcript, proof, info_pop)`.
 
 #### Attestation issuance
 
@@ -183,23 +183,23 @@ Note: If `pk_bl == pk_root`, then use `sk_blind == G.IdentityScalar()`.
 
 Steps:
 
-1. The holder computes `(pk_kem, sk_kem) = KEM.GenerateKeyPair()`.
+1. The holder computes `(pk_kem, sk_kem) = KEM-Generate-Key-Pair()`.
 2. For each `j = 0, …, n-1`, the reader:
     1. Computes `info_arkg = contextString || "derive" || I2OSP(j, 2)`.
-    2. Computes `(pk', kh) = ARKG.DerivePublicKey((pk_kem, pk_bl), info_arkg)`.
+    2. Computes `(pk', kh) = ARKG-Derive-Public-Key((pk_kem, pk_bl), info_arkg)`.
     3. Issues an attestation `att_j` with `PoP` public key `pk'`.
     4. Shares `att_j` and `kh` with the holder.
     5. Deletes `kh`.
 3. For each `j = 0, …, n-1`, the holder:
     1. Computes `info_arkg = contextString || "derive" || I2OSP(j, 2)`.
-    2. Computes `sk_blind_j = ARKG.DerivePrivateKey((sk_kem, sk_blind), kh, info_arkg)`.
+    2. Computes `sk_blind_j = ARKG-Derive-Private-Key((sk_kem, sk_blind), kh, info_arkg)`.
     3. Stores `(sk_blind_j, att_j)`.
 
-In step 2.2, the reader MAY cache intermediate values of computing ARKG.DerivePublicKey as a performance optimization.
+In step 2.2, the reader MAY cache intermediate values of computing ARKG-Derive-Public-Key as a performance optimization.
 
 In step 2.4, the protocol application MUST ensure message integrity and sender authentication of `kh`.
 
-In step 3.2, the holder MAY cache intermediate values of computing ARKG.DerivePublicKey as a performance optimization.
+In step 3.2, the holder MAY cache intermediate values of computing ARKG-Derive-Public-Key as a performance optimization.
 
 ## Generic HDK instantiations
 
@@ -208,29 +208,28 @@ In step 3.2, the holder MAY cache intermediate values of computing ARKG.DerivePu
 This method requires the following cryptographic constructs:
 
 - `ECDH`: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [[TR03111]], consisting of the functions:
-    - GenerateKeyPair(): Outputs a key pair `(pk, sk)`.
-    - CreateSharedSecret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
+    - ECDH-Generate-Key-Pair(): Outputs a key pair `(pk, sk)`.
+    - ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
 - `H`: A cryptographically secure hash function.
 - `MAC`: A function taking byte string inputs (salt, ikm, message) applying cryptographically secure hash functions to obtain a message authentication code combining `salt` with input keying material `ikm` and `message`.
 
 The `PoP` parameter of HDK is instantiated as follows:
 
 ```
-impl PoP(ECDH, MAC):
-    def Challenge():
-        (pk, sk) = ECDH.GenerateKeyPair()
-        challenge = pk
-        state = sk
+def PoP-Challenge():
+    (pk, sk) = ECDH-Generate-Key-Pair()
+    challenge = pk
+    state = sk
 
-    def Authenticate(sk, challenge, transcript, info):
-        Z_AB = ECDH.CreateSharedSecret(sk, challenge)
-        salt = H(transcript)
-        proof = MAC(salt, Z_AB, info)
+def PoP-Authenticate(sk, challenge, transcript, info):
+    Z_AB = ECDH-Create-Shared-Secret(sk, challenge)
+    salt = H(transcript)
+    proof = MAC(salt, Z_AB, info)
 
-    def Verify(state, vk, challenge, transcript, info, proof):
-        Z_AB = ECDH.CreateSharedSecret(state, vk)
-        salt = H(transcript)
-        result = proof == MAC(salt, Z_AB, info)
+def PoP-Verify(state, vk, challenge, transcript, info, proof):
+    Z_AB = ECDH-Create-Shared-Secret(state, vk)
+    salt = H(transcript)
+    result = proof == MAC(salt, Z_AB, info)
 ```
 
 The `ARKG` parameter of HDK is instantiated with multiplicative blinding.
@@ -238,44 +237,43 @@ The `ARKG` parameter of HDK is instantiated with multiplicative blinding.
 The BlindAuthenticate function is defined as follows:
 
 ```
-def BlindAuthenticate(sk_root, sk_blind, challenge, info):
-    pk = G.ScalarMult(challenge, sk_blind)
-    proof = PoP.Authenticate(sk_root, challenge, info)
+def HDK-Blind-Authenticate(sk_root, sk_blind, challenge, info):
+    pk = G-Scalar-Mult(challenge, sk_blind)
+    proof = PoP-Authenticate(sk_root, challenge, info)
 ```
 
 > [!NOTE]
-> The computation of `pk` may also be implemented using ECDH.CreateSharedSecret.
+> The computation of `pk` may also be implemented using ECDH-Create-Shared-Secret.
 
 ### Using a digital signature algorithm for proof of possession
 
 This method requires the following cryptographic constructs:
 
 - `RNG`: a random number generator, consisting of the functions:
-    - GenerateNonce(): Outputs a nonce for replay detection.
+    - RNG-Generate-Nonce(): Outputs a nonce for replay detection.
 - `DSA`: a digital signature algorithm, consisting of the functions:
-    - Sign(sk, message): Outputs the signature `(s1, s2)` created using private key `sk` over byte string `message`.
-    - Verify(signature, vk, message): Outputs whether `signature` is a signature over `message` using public key `vk`.
-    - Serialize((s1, s2)): Outputs the byte array serialization of the signature `(s1, s2)`.
-    - Deserialize(bytes): Outputs the signature `(s1, s2)` represented by byte string `bytes`.
+    - DSA-Sign(sk, message): Outputs the signature `(s1, s2)` created using private key `sk` over byte string `message`.
+    - DSA-Verify(signature, vk, message): Outputs whether `signature` is a signature over `message` using public key `vk`.
+    - DSA-Serialize((s1, s2)): Outputs the byte array serialization of the signature `(s1, s2)`.
+    - DSA-Deserialize(bytes): Outputs the signature `(s1, s2)` represented by byte string `bytes`.
 
 The input keys of `DSA` MUST be the output keys of `ARKG`.
 
 ```
-impl PoP(RNG, DSA):
-    def Challenge():
-        challenge = ""
-        state = ""
+def PoP-Challenge():
+    challenge = ""
+    state = ""
 
-    def Authenticate(sk, challenge, transcript, info):
-        assert challenge == ""
-        signature = DSA.Sign(sk, info)
-        proof = DSA.Serialize(signature)
+def PoP-Authenticate(sk, challenge, transcript, info):
+    assert challenge == ""
+    signature = DSA-Sign(sk, info)
+    proof = DSA-Serialize(signature)
 
-    def Verify(state, vk, challenge, transcript, proof, info):
-        assert state == ""
-        assert challenge == ""
-        signature = DSA.Deserialize(proof)
-        result = DSA.Verify(signature, vk, info)
+def PoP-Verify(state, vk, challenge, transcript, proof, info):
+    assert state == ""
+    assert challenge == ""
+    signature = DSA-Deserialize(proof)
+    result = DSA-Verify(signature, vk, info)
 ```
 
 #### Using threshold EC-SDSA for additive blind authentication
@@ -283,9 +281,9 @@ impl PoP(RNG, DSA):
 The BlindAuthenticate function is defined as follows:
 
 ```
-def BlindAuthenticate(sk_root, sk_blind, challenge, info):
-    proof = PoP.Authenticate(sk_root, challenge, info)
-    (c, s) = DSA.Deserialize(proof)
+def HDK-Blind-Authenticate(sk_root, sk_blind, challenge, info):
+    proof = PoP-Authenticate(sk_root, challenge, info)
+    (c, s) = DSA-Deserialize(proof)
     s' = s + c * sk_blind mod G.Order()
     proof = (c, s')
 ```
@@ -315,8 +313,8 @@ The `contextString` value is `"HDK-ECDH-P256-v1"`.
 
 ```
 def MAC(salt, ikm, message):
-    prk = HKDF.Extract(salt, ikm)
-    okm = HKDF.Expand(prk, "EMacKey", 32)
+    prk = HKDF-Extract(salt, ikm)
+    okm = HKDF-Expand(prk, "EMacKey", 32)
     mac = HMAC(okm, message)
 ```
 
