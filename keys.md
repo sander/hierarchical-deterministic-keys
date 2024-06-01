@@ -378,6 +378,63 @@ The `contextString` value is `"HDK-ECSDSA-P256-v1"`.
 
 The holder MUST generate `sk_device` as a `DSA` private key in the secure cryptographic device.
 
+## Application considerations
+
+### Applying HDK in OpenID for Verifiable Credential Issuance
+
+In [[draft-OpenID4VCI]], the following terminology applies:
+
+|OpenID4VCI|HDK|
+|--|--|
+|Credential|attestation|
+|Verifier|reader|
+
+HDK enables holders and issuers to establish the cryptographic key material that issued attestations will be bound to.
+
+For asynchronous batch issuance, HDK defines an additional OpenID4VCI endpoint.
+
+#### The Multiple Batch Endpoint
+
+This endpoint issues multiple Credentials over time based on a single Credential Request.
+
+Communication with this endpoint MUST utilise TLS.
+
+The Client MUST present to the Multiple Batch Endpoint an Access Token that is valid for the issuance of the Credentials. The Client MAY access the endpoint multiple times with the same Access Token in order to obtain several batches.
+
+##### Multiple Batch Request
+
+The endpoint allows a Client to send a single Credential Request object to request the issuance of multiple Credentials at once, multiple times. A Multiple Batch Request MUST be sent as a JSON object using the `application/json` media type.
+
+The following parameters are used in the Multiple Batch Credential Request:
+
+- `credential_request`: REQUIRED. A single Credential Request object.
+- `key_generation_public_key`: REQUIRED. An ARKG public key.
+- `requested_amount`: REQUIRED. The requested amount of Credential copies.
+
+The Credential Issuer SHOULD verify a proof of possession of the provided ARKG key blinding public key. This MAY be done during a successful presentation of an earlier Credential bound to this public key upon authorization. This option ensures that the proof of possession keys in the Credentials to be issued are equally protected. Alternatively, the proof of possession MAY be provided as part of the Credential Request.
+
+##### Multiple Batch Response
+
+A successful Multiple Batch Response MUST contain all the requested Credentials. It MUST be sent as a JSON object using the `application/json` media type.
+
+The following parameters are used in the response:
+
+- `credential_responses`: REQUIRED. Array that contains Credential Response objects, and/or Deferred Credential Response objects. In total, the array MUST contain `requested_amount` objects.
+- `c_nonce`: OPTIONAL. The `c_nonce` as defined in the Credential Response section.
+- `c_nonce_expires_in`: OPTIONAL. The `c_nonce_expires_in` as defined in the Credential Response section.
+
+For compatibility with the HDK use case “Attestation issuance”, the Credential returned MUST be bound to a proof of possession public key generated using:
+
+```
+ARKG-Derive-Public-Key(key_generation_public_key, contextString || "derive")
+```
+
+##### Multiple Batch Error Response
+
+The endpoint MUST respond with an HTTP 400 (Bad Request) status code in case of an error, unless specified otherwise.
+
+Error code extensions defined in the Credential Error Response section apply.
+
 ## Security considerations
 
 ### Plausible deniability
