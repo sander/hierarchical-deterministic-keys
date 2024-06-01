@@ -12,6 +12,17 @@ See for context: [Privacy-preserving key management in the EU Digital Identity W
 
 This document specifies the algorithms and protocols to apply Hierarchical Deterministic Keys (HDKs) for managing proof of possession keys and for issuing and releasing documents. It is designed to be applicable to profiles of [[ISO18013-5]], [[draft-OpenID4VP]], [[draft-OpenID4VCI]] and [[draft-ietf-oauth-selective-disclosure-jwt]].
 
+Security objectives are:
+
+- **Parent-Binding**: Enable a issuer to issue an attestation that includes a public proof of possession [[RFC7800]] key with the corresponding private key being secured in the same device as the one that secures the key material included in the document used during authentication to the issuer.
+- **Reader-Unlinkability**: Readers cannot use the proof of possession key to determine if an attribute presentation belongs to the same identity subject as a previous attribute presentation. In practice, with today’s supported cryptography, this implies that each issued attestation includes a unique one-time-use proof of possession key, which prevents correlation across presentations.
+- **Weak-Issuer-Unlinkability**: Potentially colluding issuers cannot determine if an attestation issued by one issuer describes the same identity subject as another attestation issued by another issuer on the basis of any proof of possession key (i.e., both the key the issuer saw when authenticating the holder, and the key the issuer includes in the issued attestation).
+- **Plausible-Deniability**: Readers cannot prove to others that the holder presented certain attributes. In practice, with today’s supported cryptography, this implies the use of symmetric cryptography between the holder and the reader.
+
+Security objectives are not:
+
+- **Strong-Issuer-Unlinkability**: HDK does not protect against an issuer correlating multiple attribute presentations to a single identity subject. HDK assumes the use of qualified electronic seals, which in practice with today’s supported cryptography be blinded afterwards for presentation.
+
 With HDKs, it is feasible to manage many unique proof of possession keys in a digital identity wallet that is backed by a secure cryptographic device. Such devices often are not capable of the operations required to manage many related keys. This specification applies the Asynchronous Remote Key Generation algorithm [[draft-bradleylundberg-cfrg-arkg]] to this problem. For every issuance of a batch of reader-unlinkable documents, the user proves possession of a parent key applies ARKG with the issuer using ephemeral keys to efficiently create many child keys. The ARKG and blinded authentication algorithms can be executed within the general-purpose execution environment of the wallet solution, delegating only operations upon a single device key to the secure cryptographic device.
 
 This is an alternative to Key Blinding for Signature Schemes [[draft-irtf-cfrg-signature-key-blinding]], which would require a secure cryptographic device that supports the BlindKeySign operation. These are not yet widely available at the time of writing.
@@ -423,7 +434,7 @@ Error code extensions defined in the Credential Error Response section apply.
 
 ### Plausible deniability
 
-An instantiation based on ECDH and MAC provides better privacy to the holder than an instantiation based on a digital signature algorithm, because it does not produce a potentially non-repudiable signature over reader-provided data.
+An instantiation based on ECDH and MAC provides better privacy to the holder than an instantiation based on a digital signature algorithm, because it does not produce a potentially non-repudiable signature over reader-provided data. This meets the Plausible-Deniability security objective.
 
 ### Proofs of association
 
@@ -465,6 +476,11 @@ ISO/IEC, “Personal identification — ISO-compliant driving licence – Part 5
 
 [RFC2119]: #RFC2119
 Bradner, S., “Key words for use in RFCs to Indicate Requirement Levels”, BCP 14, [RFC 2119](https://www.rfc-editor.org/info/rfc2119), DOI 10.17487/RFC2119, March 1997.
+
+  <dt id=RFC7800>[RFC7800]<dd>
+
+[RFC7800]: #RFC7800
+Jones, M., Bradley, J., and H. Tschofenig, “Proof-of-Possession Key Semantics for JSON Web Tokens (JWTs)”, [RFC 7800](https://www.rfc-editor.org/info/rfc7800), DOI 10.17487/RFC7800, April 2016.
 
   <dt id=RFC8017>[RFC8017]<dd>
 
