@@ -380,6 +380,10 @@ The holder MUST generate `sk_device` as a `DSA` private key in the secure crypto
 
 ## Security considerations
 
+### Plausible deniability
+
+An instantiation based on ECDH and MAC provides better privacy to the holder than an instantiation based on a digital signature algorithm, because it does not produce a potentially non-repudiable signature over reader-provided data.
+
 ### Proofs of association
 
 Cryptographically, the holder could provide a proof of association between two blinded public keys. For example, by creating a Schnorr non-interactive zero-knowledge proof of knowledge of a combination of the blinding scalars. This could assure the reader that two documents are issued to the same holder, and thereby potentially describe the same subject. However, this capability SHOULD be treated with caution since:
