@@ -302,7 +302,7 @@ This method requires the following cryptographic constructs:
 - `EC`: An elliptic curve with elements of type Element and scalars of type Scalar, consisting of the functions:
     - EC-Order(): Outputs the group order.
     - EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
-- `DSA`: an EC-SDSA (Schnorr) digital signature algorithm, consisting of the functions:
+- `DSA`: an EC-SDSA (Schnorr) digital signature algorithm [[TR03111]], consisting of the functions:
     - DSA-Sign(sk, message): Outputs the signature `(c, r)` created using private signing key `sk` over byte string `message`.
     - DSA-Verify(signature, pk, message): Outputs whether `signature` is a signature over `message` using public verification key `pk`.
     - DSA-Serialize(c, r): Outputs the byte array serialization of the signature `(c, r)`.
@@ -349,7 +349,7 @@ The `contextString` value is `"HDK-ECDH-P256-v1"`.
 
 - `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256ADD-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1.
 - `EC`: The NIST curve `secp256r1` (P-256) [[SEC2]].
-- `ECDH`: ECKA-DH with curve `G`
+- `ECDH`: ECKA-DH with curve `EC`
 - `H`: SHA-256 [[FIPS180-4]] with:
     - `H1(message) = H(contextString || seed || message)`
     - `H2(message) = H(message)` for [[ISO18013-5]] compatibility
@@ -365,6 +365,18 @@ def MAC(salt, ikm, message):
 ```
 
 The holder MUST generate `sk_device` as an `ECDH` private key in the secure cryptographic device.
+
+### HDK-ECSDSA-P256
+
+The `contextString` value is `"HDK-ECSDSA-P256-v1"`.
+
+- `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256ADD-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1.
+- `EC`: The NIST curve `secp256r1` (P-256) [[SEC2]].
+- `DSA`: EC-SDSA with curve `EC`
+- `H`: SHA-256 [[FIPS180-4]] with:
+    - `H1(message) = H(contextString || seed || message)`
+
+The holder MUST generate `sk_device` as a `DSA` private key in the secure cryptographic device.
 
 ## Security considerations
 
