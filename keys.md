@@ -149,9 +149,9 @@ Outputs:
 def HDK-Public-Key(sk_bl)
 ```
 
-### The HDK-Prove function
+### The HDK-Authenticate function
 
-The holder proves possession of a key by blindly creating proof applying the device private key and the associated ARKG private key.
+The holder proves possession of a key by blindly creating proof applying the device private key and the associated ARKG private key. The HDK-Authenticate function creates the authentication data using which the holder can do this. The application-specific data for proof of possession is out of scope for HDK.
 
 Note that the HDK scheme does not apply ARKG-Derive-Private-Key to the actual device private key as a key blinding private key. The reason is that may secure cryptographic devices do not support computation of ARKG-Derive-Private-Key for subsequent use in authentication. Instead, HDK applies ARKG-Derive-Private-Key to the tree node’s key blinding private key, and combines the output as a “blinding scalar” with `sk_device` in the function defined below.
 
@@ -161,17 +161,22 @@ Parameters:
 
 Inputs:
 - sk_bl, a key blinding private key.
-- pk_reader, a reader public key for a proof of possession.
-- transcript, a session transcript.
-- device_data, a byte array of application-specific device authentication data.
+- reader_data, a byte array of application-specific reader data.
 
 Outputs:
-- proof, a proof of possession.
+- device_data, device data for creating a proof of possession.
 
-def HDK-Prove(sk_bl, pk_reader, transcript, device_data)
+def HDK-Authenticate(sk_bl, input)
 ```
 
-Implementations of this function typically perform pre-processing on the `challenge`, `transcript` and `info`, invoke the device key operation on the result, and perform post-processing on the result of that operation.
+Implementations of this function typically perform pre-processing on the `reader_data`, invoke the device key operation on the result, and perform post-processing on the output.
+
+A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can be verified using the HDK-Public-Key generated with the same `sk_bl`.
+
+Examples:
+
+- ECDH with `reader_data` being a public key and `device_data` consisting of a binary encoded x-coordinate of an ECDH operation with `sk_device` and `sk_bl`.
+- DSA with `reader_data` containing a nonce and `device_data` consisting of a digital signature created using `sk_device` and `sk_bl`.
 
 ### Using deterministic blinding key generation
 
@@ -211,17 +216,15 @@ Summary: **Holder** proves possession of the blinded public key `pk_bl` in an at
 Prerequisites:
 
 - **Holder** has an HDK instantiation identified by the byte array `contextString` with root key `sk_device`.
-- **Reader** and **Holder** obtain some application-specific device authentication data `device_data`.
-- **Reader** and **Holder** obtain some application-specific session transcript `transcript`. This is conditional; set `transcript = ""` otherwise.
+- **Reader** and **Holder** obtain some application-specific `reader_data`, possibly an empty string.
 - **Holder** knows a valid HDK tree node `(sk_bl, doc)` where `doc` contains `pk_bl`.
 
 Steps:
 
-1. **Reader** generates a reader key pair `(pk_reader, sk_reader)`. This step is conditional; set `pk_reader = ""` otherwise.
-2. **Reader** shares `pk_reader` in a challenge with the holder.
-3. **Holder** computes `proof = HDK-Prove(sk_blind, pk_reader, transcript, device_data)`.
-4. **Holder** shares `proof` with the reader.
-5. **Reader** verifies `proof`, optionally using `sk_reader`.
+1. **Holder** computes `device_data = HDK-Authenticate(sk_blind, pk_reader)`.
+2. **Holder** creates a proof of possession using `device_data`.
+3. **Holder** shares the proof with the reader.
+4. **Reader** verifies the proof.
 
 #### Attestation issuance
 
@@ -265,9 +268,6 @@ This method requires the following cryptographic constructs:
 - `ECDH`: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [[TR03111]] with elliptic curve `EC`, consisting of the functions:
     - ECDH-Generate-Key-Pair(): Outputs a key pair `(pk, sk)`.
     - ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
-- `H`: An extension with the function:
-    - H2(message): Outputs a byte array.
-- `MAC`: A function taking byte string inputs (salt, ikm, message) applying cryptographically secure hash functions to obtain a message authentication code combining `salt` with input keying material `ikm` and `message`.
 
 The reader MUST create a new reader key pair using ECDH-Generate-Key-Pair for each challenge.
 
@@ -283,16 +283,14 @@ def HDK-Public-Key(sk_bl):
     pk = EC-Scalar-Mult(sk_bl, pk_device)
     return pk
 
-def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
+def HDK-Authenticate(sk_bl, reader_data):
     # Optionally implement using ECDH-Create-Shared-Secret.
-    P' = EC-Scalar-Mult(pk_reader, sk_bl)
+    P' = EC-Scalar-Mult(reader_data, sk_bl)
 
     # Compute Z_AB within the secure cryptographic device.
     Z_AB = ECDH-Create-Shared-Secret(sk_device, P')
 
-    salt = H2(transcript)
-    proof = MAC(salt, Z_AB, device_data)
-    return proof
+    return Z_AB
 ```
 
 ### Using threshold EC-SDSA signatures for proof of possession
@@ -322,12 +320,9 @@ def HDK-Public-Key(sk_bl):
     pk = EC-Scalar-Mult(sk_bl, pk_device)
     return pk
 
-def HDK-Prove(sk_bl, pk_reader, transcript, device_data):
-    assert transcript == ""
-    assert pk_reader == ""
-
-    # Compute Z_AB within the secure cryptographic device.
-    signature = DSA-Sign(sk_device, device_data)
+def HDK-Authenticate(sk_bl, reader_data):
+    # Compute signature within the secure cryptographic device.
+    signature = DSA-Sign(sk_device, reader_data)
 
     (c, s) = DSA-Deserialize(proof)
     s' = s + c * sk_blind mod EC-Order()
@@ -352,17 +347,6 @@ The `contextString` value is `"HDK-ECDH-P256-v1"`.
 - `ECDH`: ECKA-DH with curve `EC`
 - `H`: SHA-256 [[FIPS180-4]] with:
     - `H1(message) = H(contextString || seed || message)`
-    - `H2(message) = H(message)` for [[ISO18013-5]] compatibility
-- `MAC` is defined below, applying the following cryptographic constructs:
-    - `HKDF`: HKDF with `Hash` set to `H`
-    - `HMAC`: HMAC with `H` set to `H`
-
-```
-def MAC(salt, ikm, message):
-    prk = HKDF-Extract(salt, ikm)
-    okm = HKDF-Expand(prk, "EMacKey", 32)
-    mac = HMAC(okm, message)
-```
 
 The holder MUST generate `sk_device` as an `ECDH` private key in the secure cryptographic device.
 
