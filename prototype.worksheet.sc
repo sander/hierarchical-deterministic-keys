@@ -109,7 +109,7 @@ assert(
 )
 
 // https://www.rfc-editor.org/rfc/rfc6090#section-4.2
-def ECDH(pk: Point, sk: BigInt): OS = sk.scalarMult(pk).x.toByteArray
+def ECDH(pk: Point, sk: BigInt): OS = sk.scalarMult(pk).x.os
 
 assert {
   val alice = randomScalar()
@@ -194,6 +194,9 @@ object ARKG:
   private def info_bl(info: OS) = "ARKG-Derive-Key-BL.".getBytes || info
   def generateSeed() = (KEM.generateKeyPair(), BL.generateKeyPair()) match
     case ((pk_kem, sk_kem), (pk_bl, sk_bl)) => ((pk_kem, pk_bl), (sk_kem, sk_bl))
+  def generateSeed(pk_device: Point) = (KEM.generateKeyPair(), BL.generateKeyPair()) match
+    case ((pk_kem, sk_kem), (pk_bl, sk_bl)) =>
+      ((pk_kem, HDK.publicKey(pk_device)(sk_bl)), (sk_kem, sk_bl))
   def derivePublicKey(pk: (Point, Point), info: OS) =
     val (pk_kem, pk_bl) = pk
     val (tau, c) = KEM.encaps(pk_kem, info_kem(info))
@@ -209,3 +212,42 @@ assert {
   val (pk_prime, kh) = ARKG.derivePublicKey(pk, info)
   pk_prime == ARKG.derivePrivateKey(sk, kh, info).scalarBaseMult
 }
+
+object HDK:
+  val contextString = "HDK-ECSDSA-P256-v1".getBytes
+  private def H1(msg: OS) = hashToField(contextString || "seed".getBytes, n)(msg)
+  def seed(randomness: OS) =
+    val sk_bl0 = H1(randomness)
+    Array.fill(randomness.length)(0.toByte).copyToArray(randomness)
+    sk_bl0
+  def publicKey(pk_device: Point)(sk_bl: BigInt) = sk_bl.scalarMult(pk_device)
+  def authenticate(sk_device: BigInt)(sk_bl: BigInt, reader_data: OS) =
+    val P = OS2ECP(reader_data)
+    val P_prime = sk_bl.scalarMult(P)
+    ECDH(P_prime, sk_device)
+
+// Work in progress
+
+val sk_device = randomScalar()
+val pk_device = sk_device.scalarBaseMult
+
+val randomness = util.Random.nextBytes(32)
+val sk_bl0 = HDK.seed(randomness)
+
+val (pk, sk) = ARKG.generateSeed()
+
+val dst = HDK.contextString || "derive".getBytes
+val (pk_prime, kh) = ARKG.derivePublicKey(pk, dst)
+
+val sk_bl1_0 = ARKG.derivePrivateKey(sk, kh, dst)
+
+val sk_reader = randomScalar()
+val pk_reader = sk_reader.scalarBaseMult
+val reader_data = ECP2OS(pk_reader)
+
+val device_data = HDK.authenticate(sk_device)(sk_bl0, reader_data)
+
+val check = ECDH(pk_prime, sk_reader)
+check sameElements device_data
+device_data.toHex
+check.toHex
