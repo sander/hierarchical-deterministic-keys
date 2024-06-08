@@ -114,11 +114,11 @@ Note that key encapsulation key pairs are not reused across parent nodes in orde
 HDK depends on the following cryptographic constructs. The parameters of an HDK instance are:
 
 - `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], encapsulating an asymmetric key blinding scheme instance `BL`, and consisting of the functions:
-    - ARKG-Generate-Seed(): Outputs an ARKG seed pair `(pk, sk)` at the delegating party, where `pk = (pk_kem, pk_bl)` and `sk = (sk_kem, sk_bl)`, and where `(pk_bl, sk_bl)` is a `BL` key pair.
-    - ARKG-Derive-Public-Key(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key.
-    - ARKG-Derive-Private-Key(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
+  - ARKG-Generate-Seed(): Outputs an ARKG seed pair `(pk, sk)` at the delegating party, where `pk = (pk_kem, pk_bl)` and `sk = (sk_kem, sk_bl)`, and where `(pk_bl, sk_bl)` is a `BL` key pair.
+  - ARKG-Derive-Public-Key(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key.
+  - ARKG-Derive-Private-Key(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
 - `H`: A cryptographically secure hash, consisting of the function:
-    - H1(message): Outputs a `BL` private key based on input `message`.
+  - H1(message): Outputs a `BL` private key based on input `message`.
 
 A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values.
 
@@ -195,7 +195,6 @@ HDK applies [[draft-bradleylundberg-cfrg-arkg]] § 2.2.1 by defining:
 
 ```
 Parameters:
-- sk_device, the device private key.
 - sk_bl, the parent key blinding private key.
 
 Outputs:
@@ -216,7 +215,7 @@ def BL-Generate-Key-Pair():
 2. **Holder** computes `sk_bl0 = HDK-Seed(randomness)`.
 3. **Holder** computes `pk_bl = HDK-Public(sk_bl0)`.
 4. **Holder** creates an initial attestation `doc0` containing `pk_bl`.
-3. **Holder** stores `sk_bl0`.
+5. **Holder** stores `sk_bl0`.
 
 The holder MAY seed multiple trees from a single `sk_device`.
 
@@ -250,16 +249,16 @@ Define `dst = contextString || "derive"`.
 
 Steps:
 
-1. **Holder** computes `(pk, sk) = ARKG-Generate-Seed()` with parameters `(sk_device, sk_bl)`.
+1. **Holder** computes `(pk, sk) = ARKG-Generate-Seed()` with parameter `sk_bl`.
 2. **Holder** shares `pk` with **Reader**.
 3. **Reader**, `n` times:
-    1. Computes `(pk', kh) = ARKG-Derive-Public-Key(pk, dst)`.
-    2. Issues an attestation `doc` containing public key `pk'` for proof of possession.
-    3. Shares `(doc, kh)` with **Holder**.
-    4. Deletes `kh`.
+   1. Computes `(pk', kh) = ARKG-Derive-Public-Key(pk, dst)`.
+   2. Issues an attestation `doc` containing public key `pk'` for proof of possession.
+   3. Shares `(doc, kh)` with **Holder**.
+   4. Deletes `kh`.
 4. **Holder**, for each `(doc, kh)` pair:
-    1. Computes `sk' = ARKG-Derive-Private-Key(sk, kh, dst)`.
-    2. Stores `(sk', doc)`.
+   1. Computes `sk' = ARKG-Derive-Private-Key(sk, kh, dst)`.
+   2. Stores `(sk', doc)`.
 5. **Holder** deletes `sk`.
 
 In step 3.1, the reader MAY cache intermediate values of computing HDK-Derive-Public-Key as a performance optimization.
@@ -275,10 +274,10 @@ In step 4.1, the holder MAY cache intermediate values of computing HDK-Derive-Pr
 This method requires the following cryptographic constructs:
 
 - `EC`: An elliptic curve with elements of type Element and scalars of type Scalar, consisting of the functions:
-    - EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
+  - EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
 - `ECDH`: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [[TR03111]] with elliptic curve `EC`, consisting of the functions:
-    - ECDH-Generate-Key-Pair(): Outputs a key pair `(pk, sk)`.
-    - ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
+  - ECDH-Generate-Key-Pair(): Outputs a key pair `(pk, sk)`.
+  - ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
 
 The reader MUST create a new reader key pair using ECDH-Generate-Key-Pair for each challenge.
 
@@ -309,13 +308,14 @@ def HDK-Authenticate(sk_bl, reader_data):
 This method requires the following cryptographic constructs:
 
 - `EC`: An elliptic curve with elements of type Element and scalars of type Scalar, consisting of the functions:
-    - EC-Order(): Outputs the group order.
-    - EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
+  - EC-Add(A, B): Outputs the sum between Elements `A` and `B`.
+  - EC-Order(): Outputs the order of the base Element.
+  - EC-Scalar-Base-Mult(k): Outputs the scalar multiplication between the base Element and Scalar `k`.
 - `DSA`: an EC-SDSA (Schnorr) digital signature algorithm [[TR03111]], consisting of the functions:
-    - DSA-Sign(sk, message): Outputs the signature `(c, r)` created using private signing key `sk` over byte string `message`.
-    - DSA-Verify(signature, pk, message): Outputs whether `signature` is a signature over `message` using public verification key `pk`.
-    - DSA-Serialize(c, r): Outputs the byte array serialization of the signature `(c, r)`.
-    - DSA-Deserialize(bytes): Outputs the signature `(c, r)` represented by byte string `bytes`.
+  - DSA-Sign(sk, message): Outputs the signature `(c, r)` created using private signing key `sk` over byte string `message`.
+  - DSA-Verify(signature, pk, message): Outputs whether `signature` is a signature over `message` using public verification key `pk`.
+  - DSA-Serialize(c, r): Outputs the byte array serialization of the signature `(c, r)`.
+  - DSA-Deserialize(bytes): Outputs the signature `(c, r)` represented by byte string `bytes`.
 
 The input keys of `DSA` MUST be the `ARKG` key blinding keys.
 
@@ -327,8 +327,7 @@ The reader MUST verify the proof using DSA-Verify.
 def HDK-Public-Key(sk_bl):
     Compute pk_device within the secure cryptographic device using sk_device.
 
-    # Optionally implement using ECDH-Create-Shared-Secret.
-    pk = EC-Scalar-Mult(sk_bl, pk_device)
+    pk = EC-Add(pk_device, EC-Scalar-Base-Mult(sk_bl))
     return pk
 
 def HDK-Authenticate(sk_bl, reader_data):
@@ -336,7 +335,7 @@ def HDK-Authenticate(sk_bl, reader_data):
     signature = DSA-Sign(sk_device, reader_data)
 
     (c, s) = DSA-Deserialize(proof)
-    s' = s + c * sk_blind mod EC-Order()
+    s' = s + c * sk_bl mod EC-Order()
     proof = DSA-Serialize(c, s')
     return proof
 ```
@@ -353,11 +352,17 @@ The RECOMMENDED instantiation is the HDK-ECDH-P256. This provides better privacy
 
 The `contextString` value is `"HDK-ECDH-P256-v1"`.
 
-- `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256ADD-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1.
+- `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256MUL-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1, but with multiplicative instead of additive blinding.
 - `EC`: The NIST curve `secp256r1` (P-256) [[SEC2]].
 - `ECDH`: ECKA-DH with curve `EC`
-- `H`: SHA-256 [[FIPS180-4]] with:
-    - `H1(message) = H(contextString || seed || message)`
+- `H`: SHA-256 [[FIPS180-4]] using `hash_to_field` from [[RFC9380]] Section 5 with:
+  - `H1(message) = hash_to_field(message, 1)` with:
+    - `DST`: `contextString`
+    - `F`: `GF(EC-Order())`
+    - `p`: `EC-Order()`
+    - `m`: 1
+    - `L`: 48
+    - `expand_message`: `expand_message_xmd`
 
 The holder MUST generate `sk_device` as an `ECDH` private key in the secure cryptographic device.
 
@@ -368,8 +373,14 @@ The `contextString` value is `"HDK-ECSDSA-P256-v1"`.
 - `ARKG`: ARKG instance as described in [[draft-bradleylundberg-cfrg-arkg]] with the identifier `ARKG-P256ADD-ECDH`, `KEM` as defined above, and `BL` with elliptic curve arithmetic as described in [[draft-bradleylundberg-cfrg-arkg]] Section 3.1.
 - `EC`: The NIST curve `secp256r1` (P-256) [[SEC2]].
 - `DSA`: EC-SDSA with curve `EC`
-- `H`: SHA-256 [[FIPS180-4]] with:
-    - `H1(message) = H(contextString || seed || message)`
+- `H`: SHA-256 [[FIPS180-4]] using `hash_to_field` from [[RFC9380]] Section 5 with:
+  - `H1(message) = hash_to_field(message, 1)` with:
+    - `DST`: `contextString`
+    - `F`: `GF(EC-Order())`
+    - `p`: `EC-Order()`
+    - `m`: 1
+    - `L`: 48
+    - `expand_message`: `expand_message_xmd`
 
 The holder MUST generate `sk_device` as a `DSA` private key in the secure cryptographic device.
 
@@ -379,10 +390,10 @@ The holder MUST generate `sk_device` as a `DSA` private key in the secure crypto
 
 In [[draft-OpenID4VCI]], the following terminology applies:
 
-|OpenID4VCI|HDK|
-|--|--|
-|Credential|attestation|
-|Verifier|reader|
+| OpenID4VCI | HDK         |
+| ---------- | ----------- |
+| Credential | attestation |
+| Verifier   | reader      |
 
 HDK enables holders and issuers to establish the cryptographic key material that issued attestations will be bound to.
 
@@ -460,51 +471,61 @@ In an alternative to HDK, the holder independently generates blinded key pairs a
   <dt id=draft-bradleylundberg-cfrg-arkg>[draft-bradleylundberg-cfrg-arkg]<dd>
 
 [draft-bradleylundberg-cfrg-arkg]: #draft-bradleylundberg-cfrg-arkg
+
 Lundberg, E., and J. Bradley, “The Asynchronous Remote Key Generation (ARKG) algorithm”, [draft-bradleylundberg-cfrg-arkg-latest](https://yubico.github.io/arkg-rfc/draft-bradleylundberg-cfrg-arkg.html), 24 May 2024.
 
   <dt id=FIPS180-4>[FIPS180-4]<dd>
 
 [FIPS180-4]: #FIPS180-4
+
 National Institute of Standards and Technology (NIST), “Secure Hash Standard (SHS)”, [FIPS 180-4](https://csrc.nist.gov/pubs/fips/180-4/upd1/final), DOI 10.6028/NIST.FIPS.180-4, June 2012.
 
   <dt id=ISO18013-5>[ISO18013-5]<dd>
 
 [ISO18013-5]: #ISO18013-5
+
 ISO/IEC, “Personal identification — ISO-compliant driving licence – Part 5: Mobile driving licence (mDL) application”, [ISO/IEC 18013-5:2021](https://www.iso.org/standard/69084.html), September 2019.
 
   <dt id=RFC2119>[RFC2119]<dd>
 
 [RFC2119]: #RFC2119
+
 Bradner, S., “Key words for use in RFCs to Indicate Requirement Levels”, BCP 14, [RFC 2119](https://www.rfc-editor.org/info/rfc2119), DOI 10.17487/RFC2119, March 1997.
 
   <dt id=RFC7800>[RFC7800]<dd>
 
 [RFC7800]: #RFC7800
+
 Jones, M., Bradley, J., and H. Tschofenig, “Proof-of-Possession Key Semantics for JSON Web Tokens (JWTs)”, [RFC 7800](https://www.rfc-editor.org/info/rfc7800), DOI 10.17487/RFC7800, April 2016.
 
   <dt id=RFC8017>[RFC8017]<dd>
 
 [RFC8017]: #RFC8017
+
 Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch, “PKCS #1: RSA Cryptography Specifications Version 2.2”, BCP 14, [RFC 8017](https://www.rfc-editor.org/info/rfc8017), DOI 10.17487/RFC8017, November 2016.
 
   <dt id=RFC8174>[RFC8174]<dd>
 
 [RFC8174]: #RFC8174
+
 Leiba, B., “Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words”, BCP 14, [RFC 8174](https://www.rfc-editor.org/info/rfc8174), DOI 10.17487/RFC8174, May 2017.
 
   <dt id=RFC9380>[RFC9380]<dd>
 
 [RFC9380]: #RFC9380
+
 Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S., and C. A. Wood, “Hashing to Elliptic Curves”, [RFC 9380](https://www.rfc-editor.org/info/rfc9380), DOI 10.17487/RFC9380, August 2023.
 
 <dt id=SEC2>[SEC2]<dd>
 
 [SEC2]: #SEC2
+
 Certicom Research, “SEC 2: Recommended Elliptic Curve Domain Parameters”, [Version 2.0](https://www.secg.org/sec2-v2.pdf), January 2010.
 
 <dt id=TR03111>[TR03111]<dd>
 
 [TR03111]: #TR03111
+
 Federal Office for Information Security (BSI), “Elliptic Curve Cryptography”, [BSI TR-03111 Version 2.10](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03111/tr-03111.html), June 2018.
 
 </dl>
@@ -516,21 +537,25 @@ Federal Office for Information Security (BSI), “Elliptic Curve Cryptography”
 <dt id=draft-ietf-oauth-selective-disclosure-jwt>[draft-ietf-oauth-selective-disclosure-jwt]<dd>
 
 [draft-ietf-oauth-selective-disclosure-jwt]: #draft-ietf-oauth-selective-disclosure-jwt
+
 Fett, D., Yasuda, K., and B. Campbell, “Selective Disclosure for JWTs (SD-JWT)”, [draft-ietf-oauth-selective-disclosure-jwt-08](https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-08.html), 4 March 2024.
 
 <dt id=draft-irtf-cfrg-signature-key-blinding>[draft-irtf-cfrg-signature-key-blinding]<dd>
 
 [draft-irtf-cfrg-signature-key-blinding]: #draft-irtf-cfrg-signature-key-blinding
+
 Denis, F., Eaton, E., Lepoint, T., and C.A. Wood, “Key Blinding for Signature Schemes”, [draft-irtf-cfrg-signature-key-blinding-06](https://www.ietf.org/archive/id/draft-irtf-cfrg-signature-key-blinding-06.html#name-key-blinding), 1 April 2024.
 
 <dt id=draft-OpenID4VCI>[draft-OpenID4VCI]<dd>
 
 [draft-OpenID4VCI]: #draft-OpenID4VCI
+
 Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Credential Issuance”, [draft 13](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html), 8 February 2024.
 
 <dt id=draft-OpenID4VP>[draft-OpenID4VP]<dd>
 
 [draft-OpenID4VP]: #draft-OpenID4VP
+
 Terbu, O., Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Presentations”, [draft 20](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html), 29 November 2023.
 
 </dl>
