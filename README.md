@@ -23,9 +23,9 @@ To address challenges 2–4, we aim to specify an HDK architecture. Quality crit
 
 - Must be interoperable with [ISO/IEC 18013-5:2021](https://www.iso.org/standard/69084.html).
 - Must contain freely accessible, unencumbered profiles of:
-    - PID Issuance Interface
-    - Attestation Issuance Interface
-    - Presentation Interface
+  - PID Issuance Interface
+  - Attestation Issuance Interface
+  - Presentation Interface
 - Must contain freely accessible, unencumbered algorithms to blind keys and proofs.
 - Should reuse existing open standards where appropriate.
 
@@ -41,4 +41,5 @@ To enable reuse, new contributions to the technical reports and specifications m
 
 - Previous introduction: [Privacy-preserving key management in the EU Digital Identity Wallet](context.md)
 - Specification: [Hierarchical Deterministic Keys](keys.md)
+  - Prototype: [prototype.worksheet.sc](prototype.worksheet.sc) to open in [Visual Studio Code](https://code.visualstudio.com) with [Scala (Metals)](https://marketplace.visualstudio.com/items?itemName=scalameta.metals)
 - Feedback: [Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)
