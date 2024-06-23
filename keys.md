@@ -12,16 +12,23 @@ See for context: [Privacy-preserving key management in the EU Digital Identity W
 
 This document specifies the algorithms and protocols to apply Hierarchical Deterministic Keys (HDKs) for managing proof of possession keys and for issuing and releasing documents. It is designed to be applicable to profiles of [[ISO18013-5]], [[draft-OpenID4VP]], [[draft-OpenID4VCI]] and [[draft-ietf-oauth-selective-disclosure-jwt]].
 
-Security objectives are:
+Security and privacy objectives are:
 
-- **Parent-Binding**: Enable a issuer to issue an attestation that includes a public proof of possession [[RFC7800]] key with the corresponding private key being secured in the same device as the one that secures the key material included in the document used during authentication to the issuer.
-- **Reader-Unlinkability**: Readers cannot use the proof of possession key to determine if an attribute presentation belongs to the same identity subject as a previous attribute presentation. In practice, with today’s supported cryptography, this implies that each issued attestation includes a unique one-time-use proof of possession key, which prevents correlation across presentations.
-- **Weak-Issuer-Unlinkability**: Potentially colluding issuers cannot determine if an attestation issued by one issuer describes the same identity subject as another attestation issued by another issuer on the basis of any proof of possession key (i.e., both the key the issuer saw when authenticating the holder, and the key the issuer includes in the issued attestation).
+- **Parent-Binding**: Enable a issuer to issue an attestation that includes a public proof of possession [[RFC7800]] key with the corresponding private key being secured in the same device as the one that secures the key material included in the document used during authentication to the issuer. When used with a device key pair that is protected against key extraction, this objective achieves what is in some literature called “Unforgeability” and “Non-Transferability”.
+- **Reader-Unlinkability**: Readers cannot use the proof of possession key to determine if an attribute presentation belongs to the same identity subject as a previous attribute presentation. In practice, with today’s supported cryptography, this implies that each issued attestation includes a unique one-time-use proof of possession key, which prevents correlation across presentations. This objective is in some literature called “Unlinkability with respect to Relying Parties”.
+- **Weak-Issuer-Unlinkability**: Potentially colluding issuers cannot determine if an attestation issued by one issuer describes the same identity subject as another attestation issued by another issuer on the basis of any proof of possession key (i.e., both the key the issuer saw when authenticating the holder, and the key the issuer includes in the issued attestation). This objective is in some literature called “Unlinkability with respect to Identity Providers” or “Unobservability”.
 - **Plausible-Deniability**: Readers cannot prove to others that the holder presented certain attributes. In practice, with today’s supported cryptography, this implies the use of symmetric cryptography between the holder and the reader.
+- **Issuer-Unforgeability**: Issuers cannot use another issuer’s document presentation to forge a new presentation. This objective is in some literature [[ePrint2021-963]] called “existential unforgeability under chosen message and epoch attack” or EUF-CMEA.
 
-Security objectives are not:
+The following are not security and privacy objectives for HDK:
 
-- **Strong-Issuer-Unlinkability**: HDK does not protect against an issuer correlating multiple attribute presentations to a single identity subject. HDK assumes the use of qualified electronic seals, which in practice with today’s supported cryptography be blinded afterwards for presentation.
+- **Strong-Issuer-Unlinkability**: HDK does not protect against an issuer correlating attribute presentations to a single identity subject. HDK assumes the use of qualified electronic seals, which in practice with today’s supported cryptography cannot be blinded afterwards for presentation. Therefore, an issuer could use the seal as a trace identifier. This objective is in some literature called “Unlinkability with respect to Identity Providers and Relying Parties” or “Untraceability”.
+
+The following security and privacy objectives are not in scope for HDK, but could be achieved in a scheme that includes HDK:
+
+- **Selective-Disclosure**: Holders can decide what information to disclose to readers, for example by applying [[ISO18013-5]] or [[draft-ietf-oauth-selective-disclosure-jwt]].
+- **Pseudonymous-Authentication**: Holders can securely authenticate towards different readers with different pseudonymous idnetifiers. This is not an objective of HDK itself, but HDK can be combined with other schemes to achieve this objective.
+- **Unconditional-Privacy**: Even when given a powerful quantum computer or unlimited computing power, attackers could not break the scheme’s privacy objectives. As long as no proof of association between keys is given, this holds for the listed privacy objectives. This objective is in some literature called “Everlasting Privacy”.
 
 With HDKs, it is feasible to manage many unique proof of possession keys in a digital identity wallet that is backed by a secure cryptographic device. Such devices often are not capable of the operations required to manage many related keys. This specification applies the Asynchronous Remote Key Generation algorithm [[draft-bradleylundberg-cfrg-arkg]] to this problem. For every issuance of a batch of reader-unlinkable documents, the user proves possession of a parent key applies ARKG with the issuer using ephemeral keys to efficiently create many child keys. The ARKG and blinded authentication algorithms can be executed within the general-purpose execution environment of the wallet solution, delegating only operations upon a single device key to the secure cryptographic device.
 
@@ -451,8 +458,9 @@ An instantiation based on ECDH and MAC provides better privacy to the holder tha
 
 Cryptographically, the holder could provide a proof of association between two blinded public keys. For example, by creating a Schnorr non-interactive zero-knowledge proof of knowledge of a combination of the blinding scalars. This could assure the reader that two documents are issued to the same holder, and thereby potentially describe the same subject. However, this capability SHOULD be treated with caution since:
 
-- This could produce a potentially non-repudiable proof that a certain combination of documents was revealed.
+- Depending on the proof mechanism, this could produce a potentially non-repudiable proof that a certain combination of documents was revealed.
 - The semantics of such a proof may be unclear to the reader and in case of disputes.
+- By disclosing public keys related to blinding scalars, the Unconditional-Privacy objective could be compromised.
 
 In general, use cases that require associated documents with a high level of assurance involve the processing of person identification data which can instead be used for claim-based holder and/or subject binding.
 
@@ -461,6 +469,16 @@ In general, use cases that require associated documents with a high level of ass
 The key handles MUST be considered confidential, since they provide knowledge about the blinding factors. Compromise of this knowledge could introduce undesired linkability. In HDK, both the holder and the issuer know the key handle during issuance.
 
 In an alternative to HDK, the holder independently generates blinded key pairs and proofs of association, providing the issuer with zero knowledge about the blinding factors. However, this moves the problem: the proofs of association would now need to be considered confidential.
+
+### Weak issuer unlinkability
+
+The HDK scheme does not provide technical controls to meet the Strong-Issuer-Unlinkability objective. Therefore, HDK issuers and readers could collude to trace presentations back to a known subject. Applications SHOULD provide other controls against such collusion, such as enforcement of legal requirements like [[EU2024-1183]] Article 45h.
+
+Note that [[EU2024-1183]] Article 5a point 16(a) requires the technical European Digital Identity framework to not allow issuers to obtain unauthorised tracking metadata. However, it does not require specifically that the wallet needs to avoid sharing such data with readers.
+
+Additionally, [[EU2024-1183]] Article 5a point 16(b) requires the technical framework to enable privacy-preserving techniques which ensure unlinkability. However, it does not require specifically full unlinkability. Also, the requirement seems to be limited to cases where attestation is not based on user identification.
+
+In the case of documents where issuer-reader collusion is a significant threat, applications SHOULD apply an alternative scheme.
 
 ## References
 
@@ -558,10 +576,22 @@ Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Credential 
 
 Terbu, O., Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Presentations”, [draft 20](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html), 29 November 2023.
 
+<dt id=EU2024-1183>[EU2024-1183]<dd>
+
+[EU2024-1183]: #EU2024-1183
+
+The European Parliament and the Council of the European Union, “Amending Regulation (EU) No 910/2014 as regards establishing the European Digital Identity Framework”, [(EU) 2024/1183](https://data.europa.eu/eli/reg/2024/1183/oj), April 2024.
+
+<dt id=ePrint2021-963>[ePrint2021-963]<dd>
+
+[ePrint2021-963]: #ePrint2021-963
+
+Eaton, E., Stebila, D., and R. Stracovsky, “Post-Quantum Key-Blinding for Authentication in Anonymity Networks”, [Cryptology ePrint Archive, Paper 2021/963](https://eprint.iacr.org/2021/963), July 2021.
+
 </dl>
 
 ## Acknowledgements
 
 This design is based on ideas introduced to the EU Digital Identity domain by Peter Lee Altmann.
 
-Helpful feedback came from Emil Lundberg.
+Helpful feedback came from Emil Lundberg and Remco Schaar.
