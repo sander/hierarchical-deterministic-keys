@@ -45,41 +45,7 @@ With the objectives detailed and requirements listed, this text next describes E
 
 ## Issue 1: root key control
 
-To achieve **LoA-High** in practice, the EUDIW instance can rely on a PoP key  associated with:
-
-- A strong possession factor;
-- A rate-limited PIN check as a knowledge factor.
-
-To resist high attack potential, the verification of both factors must actively involve the WSCD.
-
-The following include possible WSCD architectures:
-
-1. Local external standalone device, for example:
-    - Smart card, such as PIV Card, with WSCA applet
-    - Secure element, with WSCA applet
-2. Local internal standalone programmable cryptographic chip, for example:
-    - Smartphone eUICC with WSCA applet
-    - Smartphone eSIM with WSCA applet
-    - Smartphone eSE with WSCA applet
-3. Local internal preprogammed security platform, for example:
-    - Android trusted execution environment acting as WSCA
-    - Android StrongBox secure element acting as WSCA
-    - iOS Secure Enclave system-on-chip acting as WSCA
-    - TPM acting as WSCA
-4. Remote HSM, for example:
-    - QSCD with a local client application acting as WSCA, authorizing operations using options 1, 2 or 3 above, for example using:
-        - PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)
-        - Android/iOS security platform using SECDSA, described in [[SECDSA]] (granted patent claim by Wellet), applying asymmetric cryptography to enable detection of remote HSM corruption as described in [[SCAL3]]
-        - Secure element contained in passkey device with Universal Authentication Framework support for PIN verification, described in [[SCAL3-UAF]] (no patent claims known)
-        - Android/iOS security platform using threshold signatures, described in [[SCAL3-Thresholds]] (pending patent claim by Cleverbase)
-
-The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives. All operations critical for security need to be performed in the WSCD. Non-critical operations can be performed in a WCD or a WCA running in any environment (including hostile ones with limited sandboxing capabilities) such as in a smartphone’s rich execution environment or in a web browser.
-
-If the user enters the PIN in the WDA or WCA instead of in the WSCD, the WDA or WCA must process it directly after entering, the WDA or WCA must keep the plaintext PIN confidential, and the WDA or WCA must delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed to the WSCD.
-
-The rate-limiting of the PIN check may happen in the WCA instead of the WSCD only if this WCA capability is securely managed, e.g., under the ISMS of the EUDIW Solution Provider and not in local software that an attacker could modify undetectably.
-
-Assuming that the root key control is proven, the PID Provider may now derive PoP keys using the (long term) WSCD root key.
+To achieve **LoA-High** in practice, see [Secure cryptographic device](keys.md#secure-cryptographic-device).
 
 ## Issue 2: The HDKD approach
 
@@ -112,7 +78,7 @@ A coherent solution applying the HDKD approach must consist of the following com
     - Local threshold/aggregated ECSDSA (unlikely to be under patent claims, investigation required)
     - Local ECDH (unlikely to be under patent claims, investigation required)
 
-[HDKD_specs.md](HDKD_specs.md) details a proposal for a HDKD. Next, current work on how to utilize the HDKD in deriving PoP keys is presented.
+The [keys.md](keys.md) specification details a proposal for a HDKD. Next, current work on how to utilize the HDKD in deriving PoP keys is presented.
 
 ## Issue 3: Deriving PoP keys
 
@@ -142,26 +108,6 @@ European Commission, “Commission Implementing Regulation (EU) 2015/1502 of 8 S
 
 [RFC7800]: #RFC7800
 Jones, M., Bradley, J., and H. Tschofenig, “Proof-of-Possession Key Semantics for JSON Web Tokens (JWTs)”, [RFC 7800](https://www.rfc-editor.org/info/rfc7800), DOI 10.17487/RFC7800, April 2016.
-
-  <dt id=SCAL3>[SCAL3]<dd>
-
-[SCAL3]: #SCAL3
-Cleverbase ID B.V., [“SCAL3: Verify that systems operate under your sole control”](https://github.com/cleverbase/scal3) version de8c5ae, March 2024.
-
-  <dt id=SCAL3-Thresholds>[SCAL3-Thresholds]<dd>
-
-[SCAL3-Thresholds]: #SCAL3-Thresholds
-Dijkhuis, S., [“SCAL3 with Thresholds”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/thresholds.md) version de8c5ae, March 2024.
-
-  <dt id=SCAL3-UAF>[SCAL3-UAF]<dd>
-
-[SCAL3-UAF]: #SCAL3-UAF
-Dijkhuis, S., [“SCAL3 with UAF”](https://github.com/cleverbase/scal3/blob/main/docs/schemes/uaf.md) version de8c5ae, March 2024.
-
-  <dt id=SECDSA>[SECDSA]<dd>
-
-[SECDSA]: #SECDSA
-Verheul, E., “SECDSA: Mobile signing and authentication under classical ‘sole control’”, [Cryptology ePrint Archive Paper 2021/910](https://eprint.iacr.org/2021/910) version 2024-03-16, March 2024.
 
   <dt id=SOGIS-1.3>[SOG-IS-1.3]<dd>
 
