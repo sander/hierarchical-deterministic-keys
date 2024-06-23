@@ -1,3 +1,5 @@
+//> using scala "3.3.3"
+
 import scala.collection.mutable.WeakHashMap
 import java.security.MessageDigest
 import java.util.HexFormat
@@ -65,6 +67,11 @@ val random = new KeyGeneration:
   override def generate(): (Point, BigInt) = randomScalar() match
     case sk => (sk.scalarBaseMult, sk)
 
+extension (s: String) def parseHex: OS = HexFormat.of().parseHex(s)
+extension (b: OS)
+  def toHex: String = HexFormat.of().formatHex(b)
+  infix def ||(c: OS) = b concat c
+
 def strxor(b: OS, c: OS) = (b zip c).map { case (i, j) => (i ^ j).toByte }
 def SHA256(msg: OS) = MessageDigest.getInstance("SHA-256").digest(msg)
 def I2OSP(i: BigInt, len: Int): OS = Array.fill[Byte](len - i.os.length)(0) || i.os
@@ -79,11 +86,6 @@ def expandMessageXmd(msg: OS, DST: OS, lenInBytes: Int) =
   }
   b.flatten.drop(32).take(lenInBytes).toArray
 def hashToField(DST: OS, order: BigInt)(msg: OS) = OS2IP(expandMessageXmd(msg, DST, 48)) mod order
-
-extension (s: String) def parseHex: OS = HexFormat.of().parseHex(s)
-extension (b: OS)
-  def toHex: String = HexFormat.of().formatHex(b)
-  infix def ||(c: OS) = b concat c
 
 // https://www.rfc-editor.org/rfc/rfc9380.html#name-expand_message_xmdsha-256
 assert(
