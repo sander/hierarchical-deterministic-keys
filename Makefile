@@ -10,6 +10,18 @@ else
 	    -b main https://github.com/martinthomson/i-d-template $(LIBDIR)
 endif
 
+demo:
+	sbcl --non-interactive \
+		--eval '(ql:quickload "ironclad")' \
+		--load prototype.lisp \
+		--load prototype.demo.lisp
+
+repl:
+	rlwrap sbcl \
+		--eval '(ql:quickload "ironclad")' \
+		--load prototype.lisp \
+		--eval "(use-package 'prototype)"
+
 hdk.pdf:
 	mkdir -p build
 	cp -r media build
