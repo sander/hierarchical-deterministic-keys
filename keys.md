@@ -147,20 +147,25 @@ A concrete HDK instantiation MUST have a parameter `sk_device`, which represents
 
 ### The HDK-Seed function
 
-The provider seeds a new HDK tree by providing randomness. The generation of this randomness is out of scope for HDK.
+The solution provider seeds a new HDK tree by providing randomness. The generation of this randomness is out of scope for HDK.
 
 ```
 Inputs:
+- pk_device, a device public key.
 - randomness, a byte array.
 
 Outputs:
+- pk_bl0, a key blinding public key.
 - sk_bl0, a key blinding private key.
 
-def HDK-Seed(randomness):
+def HDK-Seed(pk_device, randomness):
     sk_bl0 = H1(randomness)
     Delete randomness.
+    Compute pk_bl0 associated with sk_bl0 and pk_device as in HDK-Public-Key.
     return sk_bl0
 ```
+
+The solution provider MUST generate the randomness using a cryptographically secure random number generator.
 
 ### The HDK-Public-Key function
 
@@ -230,12 +235,19 @@ def BL-Generate-Key-Pair():
 
 #### Seeding a new tree
 
-1. **Holder** proves possession of `sk_device` to **Provider**.
-2. **Provider** generates `randomness`.
-3. **Provider** computes `sk_bl0 = HDK-Seed(randomness)`.
-4. **Provider** computes `pk_bl0 = HDK-Public(sk_bl0)`.
-5. **Provider** issues an initial attestation `doc0` containing `pk_bl0`.
-6. **Holder** stores `sk_bl0` with `doc0`.
+Prerequisites:
+
+- **Holder** solely controls `sk_device` associated with `pk_device`.
+- **Provider** knows `pk_device` and is confident about this sole control.
+- **Provider** is confident that this device key pair is newly generated.
+
+Steps:
+
+1. **Provider** generates `randomness`.
+2. **Provider** computes `pk_bl0, sk_bl0 = HDK-Seed(pk_device, randomness)`.
+3. **Provider** issues an initial attestation `doc0` containing `pk_bl0`.
+4. **Provider** shares `sk_bl0` securely with **Holder**.
+5. **Holder** stores `sk_bl0` with `doc0`.
 
 The provider MUST NOT seed multiple trees from a single `sk_device`.
 

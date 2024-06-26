@@ -1,4 +1,5 @@
 //> using scala "3.3.3"
+//> using jvm 17
 
 import scala.collection.mutable.WeakHashMap
 import java.security.MessageDigest
@@ -224,7 +225,9 @@ trait Device:
 object HDK:
   val contextString = "HDK-ECDH-P256-v1".getBytes
   private def H1(msg: OS) = hashToField(contextString || "seed".getBytes, n)(msg)
-  def seed(randomness: OS) = H1(randomness)
+  def seed(pk_device: Point, randomness: OS) =
+    val sk_bl0 = H1(randomness)
+    (sk_bl0.scalarMult(pk_device), sk_bl0)
   def publicKey(sk_bl: BigInt)(using dev: Device) = sk_bl.scalarMult(dev.publicKey)
   def authenticate(sk_bl: BigInt, reader_data: OS)(using dev: Device) = dev
     .ECDH(sk_bl.scalarMult(OS2ECP(reader_data)))
@@ -241,10 +244,15 @@ class StubDevice extends Device:
 
 val dst = HDK.contextString || "derive".getBytes
 
-class Wallet(using Device):
-  private val sk_bl0 = HDK.seed(util.Random.nextBytes(32))
-  val trustEvidence = Document(HDK.publicKey(sk_bl0))
-  val index = collection.mutable.WeakHashMap(trustEvidence -> sk_bl0)
+class Provider:
+  def activate(pk_device: Point) =
+    val (pk_bl0, sk_bl0) = HDK.seed(pk_device, util.Random.nextBytes(32))
+    val trustEvidence = Document(pk_bl0)
+    (trustEvidence, sk_bl0)
+
+class Wallet(root: (Document, BigInt))(using Device):
+  val index = collection.mutable.WeakHashMap(root)
+  val trustEvidence = root._1
   def hdk(doc: Document) = HDK(index(doc))
   def request(parent: Document) =
     given KeyGeneration = hdk(parent)
@@ -268,7 +276,10 @@ class Reader:
 
 // HDK demo
 {
-  val wallet = Wallet(using StubDevice())
+  given device: Device = StubDevice()
+  val provider = Provider()
+  val activation = provider.activate(device.publicKey)
+  val wallet = Wallet(activation)
 
   val reader = Reader()
   val deviceData = wallet.authenticate(wallet.trustEvidence, reader.data)
