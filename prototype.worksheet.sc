@@ -1,6 +1,10 @@
 //> using scala "3.3.3"
 //> using jvm 17
 
+// Note: this prototype still implements HDK version ff5c761, fully based
+// on ARKG and not deterministic. In the current keys.md, HDK is simplified
+// but this prototype has not yet been updated.
+
 import scala.collection.mutable.WeakHashMap
 import java.security.MessageDigest
 import java.util.HexFormat
