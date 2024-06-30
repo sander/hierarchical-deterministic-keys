@@ -126,7 +126,6 @@ Outputs:
 - salt, the root salt.
 
 def HDK-Root(pk_device, seed):
-    pk = blind(pk_device, INIT)
     return HDK-Derive-Local((pk_device, INIT, seed), 0)
 ```
 
