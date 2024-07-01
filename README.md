@@ -13,7 +13,7 @@ The European Commission and Member States are developing a Wallet Toolbox to ena
 In this repository, Pilot participants contribute to a concrete interoperable solution based on the idea of Hierarchical Deterministic Keys (HDKs). This approach is being considered for the an update to the Analysis of selective disclosure and zero-knowledge proofs (ETSI TR 119476, work item [RTR/ESI-0019476v121](https://portal.etsi.org/webapp/workprogram/Report_WorkItem.asp?WKI_ID=69479)). The Pilot participants aim to evaluate various options, present an appropriate solution, and develop a common specification to enable testing interoperability.
 
 > [!NOTE]
-> This information is shared by participants of the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all Potential members.
+> This information is shared by participants of the [Digital Credentials for Europe (DC4EU) Consortium](https://www.dc4eu.eu), the [EU Digital Identity Wallet Consortium (EWC)](https://eudiwalletconsortium.org), and the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all Potential members.
 
 ## Approach
 
