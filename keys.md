@@ -101,8 +101,6 @@ The parameters of an HDK instance are:
 - `Nk`: The amount of bytes needed to create a uniformly random key.
 - `Ns`: The amount of bytes of a salt value with sufficient entropy.
 - `key(bytes)`: Deterministically outputs a key pair `(pk, sk)` from a uniformly random string of `Nk` bytes.
-- `blind(pk, sk)`: Outputs the blinded public key `pk'` associated with the private key `sk` and the public key `pk`.
-- `combine(sk1, sk2)`: Outputs the combination of private keys sk1 and sk2, such that `blind(blind(pk, sk1), sk2) == blind(pk, combine(sk1, sk2))`.
 - `serialize(pk)`: Serializes a public key `pk` to a fixed-size string.
 - `expand(msg, DST, L)`: Outputs a uniformly random string of `L` bytes using a cryptographic hash or extendable-output function and input byte strings `msg` and `DST`.
 - `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], encapsulating an asymmetric key blinding scheme instance `BL` and a key encapsulation mechanism `KEM`, and consisting of the functions:
@@ -149,9 +147,10 @@ Outputs:
 def HDK-Derive-Local((pk, sk, salt), index):
     msg = serialize(pk) || I2OSP(index, 4)
     okm = expand(msg, ID || salt, Nk + Ns)
-    (_, sk_blind) = key(okm[0:Nk])
-    sk' = combine(sk, sk_blind)
-    pk' = blind(pk, sk_blind)
+    tau = okm[0:Nk]
+    info = "HDK-Derive-Local"
+    sk' = BL-Blind-Private-Key(sk, tau, info)
+    pk' = BL-Blind-Public-Key(pk, tau, info)
     salt' = okm[Nk:]
     return (pk', sk', salt')
 ```
@@ -199,7 +198,7 @@ def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
     (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
     info = ID || "derive"
     sk' = ARKG-Derive-Private-Key(sk_arkg, kh, info)
-    pk' = blind(pk_device, sk')
+    pk' = ARKG-Derive-Public-Key(pk_arkg, kh, info)
     msg = serialize(pk')
     salt' = expand(msg, ID || salt, Ns)
     return (pk', sk', salt')
@@ -266,14 +265,11 @@ Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#usi
 These instantiations instantiate the following:
 
 ```
-def blind(pk, sk):
-    return EC-Scalar-Mult(pk, sk)
-
 def HDK-Root(pk_device, seed):
     msg = serialize(pk_device)
     okm = expand(msg, ID || seed, Nk + Ns)
     (_, sk') = key(okm[0:Nk])
-    pk' = blind(pk_device, sk_blind)
+    pk' = EC-Scalar-Mult(pk_device, sk_blind)
     salt' = okm[Nk:]
     return (pk', sk', salt')
 
@@ -303,14 +299,11 @@ The reader MUST NOT create an input byte string `reader_data` with sufficient en
 The reader MUST verify the proof using DSA-Verify.
 
 ```
-def blind(pk, sk):
-    return EC-Add(pk, EC-Scalar-Base-Mult(sk))
-
 def HDK-Root(pk_device, seed):
     msg = serialize(pk_device)
     okm = expand(msg, ID || seed, Nk + Ns)
     (_, sk') = key(okm[0:Nk])
-    pk' = blind(pk_device, sk_blind)
+    pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk_blind))
     salt' = okm[Nk:]
     return (pk', sk', salt')
 
