@@ -103,6 +103,7 @@ The parameters of an HDK instance are:
 - `Ns`: The amount of bytes of a salt value with sufficient entropy.
 - `key(bytes)`: Deterministically outputs a key pair `(pk, sk)` from a uniformly random string of `Nk` bytes.
 - `blind(pk, sk)`: Outputs the blinded public key `pk'` associated with the private key `sk` and the public key `pk`.
+- `combine(sk1, sk2)`: Outputs the combination of private keys sk1 and sk2, such that `blind(blind(pk, sk1), sk2) == blind(pk, combine(sk1, sk2))`.
 - `serialize(pk)`: Serializes a public key `pk` to a fixed-size string.
 - `expand(msg, DST, L)`: Outputs a uniformly random string of `L` bytes using a cryptographic hash or extendable-output function and input byte strings `msg` and `DST`.
 - `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], encapsulating an asymmetric key blinding scheme instance `BL` and a key encapsulation mechanism `KEM`, and consisting of the functions:
@@ -148,8 +149,9 @@ Outputs:
 def HDK-Derive-Local((pk, sk, salt), index):
     msg = serialize(pk) || I2OSP(index, 4)
     okm = expand(msg, ID || salt, Nk + Ns)
-    (_, sk') = key(okm[0:Nk])
-    pk' = blind(pk, sk')
+    (_, sk_blind) = key(okm[0:Nk])
+    sk' = combine(sk, sk_blind)
+    pk' = blind(pk, sk_blind)
     salt' = okm[Nk:]
     return (pk', sk', salt')
 ```
