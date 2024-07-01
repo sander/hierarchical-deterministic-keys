@@ -98,7 +98,6 @@ Blinding methods can be constructed such that the secure cryptographic device do
 The parameters of an HDK instance are:
 
 - `ID`: A domain separation tag, represented as a string of ASCII bytes.
-- `INIT`: A static key, used to derive a root key.
 - `Nk`: The amount of bytes needed to create a uniformly random key.
 - `Ns`: The amount of bytes of a salt value with sufficient entropy.
 - `key(bytes)`: Deterministically outputs a key pair `(pk, sk)` from a uniformly random string of `Nk` bytes.
@@ -109,6 +108,8 @@ The parameters of an HDK instance are:
 - `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], encapsulating an asymmetric key blinding scheme instance `BL` and a key encapsulation mechanism `KEM`, and consisting of the functions:
   - ARKG-Derive-Public-Key(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key, based on an ARKG public seed `pk = (pk_kem, pk_bl)` and application-specific information `info`.
   - ARKG-Derive-Private-Key(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
+  - BL-Blind-Public-Key(pk, tau, info): Outputs `pk` blinded with blinding factor `tau` and domain separation parameter `info`, both byte strings.
+  - BL-Blind-Private-Key(sk, tau, info): Outputs `sk` blinded with blinding factor `tau` and domain separation parameter `info`, both byte strings.
 
 A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values.
 
@@ -126,8 +127,7 @@ Outputs:
 - sk, the root private key.
 - salt, the root salt.
 
-def HDK-Root(pk_device, seed):
-    return HDK-Derive-Local((pk_device, INIT, seed), 0)
+def HDK-Root(pk_device, seed)
 ```
 
 ### The HDK-Derive-Local function
@@ -266,10 +266,16 @@ Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#usi
 These instantiations instantiate the following:
 
 ```
-INIT = 1
-
 def blind(pk, sk):
     return EC-Scalar-Mult(pk, sk)
+
+def HDK-Root(pk_device, seed):
+    msg = serialize(pk_device)
+    okm = expand(msg, ID || seed, Nk + Ns)
+    (_, sk') = key(okm[0:Nk])
+    pk' = blind(pk_device, sk_blind)
+    salt' = okm[Nk:]
+    return (pk', sk', salt')
 
 def HDK-Authenticate(sk_device, sk_hdk, reader_data):
     P' = EC-Scalar-Mult(reader_data, sk_hdk)
@@ -297,13 +303,16 @@ The reader MUST NOT create an input byte string `reader_data` with sufficient en
 The reader MUST verify the proof using DSA-Verify.
 
 ```
-INIT = 0
-
 def blind(pk, sk):
-    if sk == INIT:
-        return pk
-    else:
-        return EC-Add(pk, EC-Scalar-Base-Mult(sk))
+    return EC-Add(pk, EC-Scalar-Base-Mult(sk))
+
+def HDK-Root(pk_device, seed):
+    msg = serialize(pk_device)
+    okm = expand(msg, ID || seed, Nk + Ns)
+    (_, sk') = key(okm[0:Nk])
+    pk' = blind(pk_device, sk_blind)
+    salt' = okm[Nk:]
+    return (pk', sk', salt')
 
 def HDK-Authenticate(sk_device, sk_hdk, reader_data):
     # Compute signature within the secure cryptographic device.
