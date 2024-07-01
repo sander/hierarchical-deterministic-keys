@@ -103,11 +103,12 @@ The parameters of an HDK instance are:
 - `key(bytes)`: Deterministically outputs a key pair `(pk, sk)` from a uniformly random string of `Nk` bytes.
 - `serialize(pk)`: Serializes a public key `pk` to a fixed-size string.
 - `expand(msg, DST, L)`: Outputs a uniformly random string of `L` bytes using a cryptographic hash or extendable-output function and input byte strings `msg` and `DST`.
+- `BL`: An asymmetric key blinding scheme [[draft-bradleylundberg-cfrg-arkg]], consisting of the functions:
+  - BL-Blind-Public-Key(pk, tau, info): Outputs `pk` blinded with blinding factor `tau` and domain separation parameter `info`, both byte strings.
+  - BL-Blind-Private-Key(sk, tau, info): Outputs `sk` blinded with blinding factor `tau` and domain separation parameter `info`, both byte strings.
 - `ARKG`: An asynchronous remote key generation instance [[draft-bradleylundberg-cfrg-arkg]], encapsulating an asymmetric key blinding scheme instance `BL` and a key encapsulation mechanism `KEM`, and consisting of the functions:
   - ARKG-Derive-Public-Key(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key, based on an ARKG public seed `pk = (pk_kem, pk_bl)` and application-specific information `info`.
   - ARKG-Derive-Private-Key(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
-  - BL-Blind-Public-Key(pk, tau, info): Outputs `pk` blinded with blinding factor `tau` and domain separation parameter `info`, both byte strings.
-  - BL-Blind-Private-Key(sk, tau, info): Outputs `sk` blinded with blinding factor `tau` and domain separation parameter `info`, both byte strings.
 
 A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values.
 
