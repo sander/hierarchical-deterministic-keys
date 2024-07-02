@@ -195,14 +195,7 @@ Outputs:
 - sk', the next-level private key for the provided key handle.
 - salt', the next-level salt for the provided key handle.
 
-def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
-    (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
-    info = ID || "derive"
-    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, info)
-    pk' = ARKG-Derive-Public-Key(pk_arkg, kh, info)
-    msg = serialize(pk')
-    salt' = expand(msg, ID || salt, Ns)
-    return (pk', sk', salt')
+def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)
 ```
 
 ### The HDK-Authenticate function
@@ -274,6 +267,15 @@ def HDK-Root(pk_device, seed):
     salt' = okm[Nk:]
     return (pk', sk', salt')
 
+def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
+    (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
+    info = ID || "derive"
+    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, info)
+    pk' = EC-Scalar-Mult(pk_device, sk')
+    msg = serialize(pk')
+    salt' = expand(msg, ID || salt, Ns)
+    return (pk', sk', salt')
+
 def HDK-Authenticate(sk_device, sk_hdk, reader_data):
     P' = EC-Scalar-Mult(reader_data, sk_hdk)
 
@@ -306,6 +308,15 @@ def HDK-Root(pk_device, seed):
     (_, sk') = key(okm[0:Nk])
     pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk_blind))
     salt' = okm[Nk:]
+    return (pk', sk', salt')
+
+def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
+    (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
+    info = ID || "derive"
+    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, info)
+    pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk'))
+    msg = serialize(pk')
+    salt' = expand(msg, ID || salt, Ns)
     return (pk', sk', salt')
 
 def HDK-Authenticate(sk_device, sk_hdk, reader_data):
