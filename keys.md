@@ -263,14 +263,13 @@ def HDK-Root(pk_device, seed):
     msg = serialize(pk_device)
     okm = expand(msg, ID || seed, Nk + Ns)
     (_, sk') = key(okm[0:Nk])
-    pk' = EC-Scalar-Mult(pk_device, sk_blind)
+    pk' = EC-Scalar-Mult(pk_device, sk')
     salt' = okm[Nk:]
     return (pk', sk', salt')
 
 def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
     (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
-    info = ID || "derive"
-    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, info)
+    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, "")
     pk' = EC-Scalar-Mult(pk_device, sk')
     msg = serialize(pk')
     salt' = expand(msg, ID || salt, Ns)
@@ -312,8 +311,7 @@ def HDK-Root(pk_device, seed):
 
 def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
     (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
-    info = ID || "derive"
-    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, info)
+    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, "")
     pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk'))
     msg = serialize(pk')
     salt' = expand(msg, ID || salt, Ns)
@@ -473,7 +471,7 @@ The following parameters are used in the response:
 For compatibility with ARKG, the Credential returned MUST be bound to a proof of possession public key generated using:
 
 ```
-ARKG-Derive-Public-Key(key_generation_public_key, contextString || "derive")
+ARKG-Derive-Public-Key(key_generation_public_key, "")
 ```
 
 ##### Multiple Batch Error Response

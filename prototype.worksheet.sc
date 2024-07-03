@@ -1,10 +1,6 @@
 //> using scala "3.3.3"
 //> using jvm 17
 
-// Note: this prototype still implements HDK version ff5c761, fully based
-// on ARKG and not deterministic. In the current keys.md, HDK is simplified
-// but this prototype has not yet been updated.
-
 import scala.collection.mutable.WeakHashMap
 import java.security.MessageDigest
 import java.util.HexFormat
@@ -65,13 +61,6 @@ assert {
   k1.scalarBaseMult + k2.scalarBaseMult == (k1 + k2).scalarBaseMult
 }
 
-trait KeyGeneration:
-  def generate(): (Point, BigInt)
-
-val random = new KeyGeneration:
-  override def generate(): (Point, BigInt) = randomScalar() match
-    case sk => (sk.scalarBaseMult, sk)
-
 extension (s: String) def parseHex: OS = HexFormat.of().parseHex(s)
 extension (b: OS)
   def toHex: String = HexFormat.of().formatHex(b)
@@ -129,13 +118,12 @@ assert {
 val DST_ext = "ARKG-P256MUL-ECDH".getBytes
 
 object BL:
-  def generateKeyPair()(using kg: KeyGeneration) = kg.generate()
+  def generateKeyPair() = randomScalar() match { case sk => (sk.scalarBaseMult, sk) }
   private def h(info: OS) = hashToField("ARKG-BL-EC.".getBytes || DST_ext || info, n)
   def blindPublicKey(pk: Point, tau: OS, info: OS) = h(info)(tau).scalarMult(pk)
   def blindPrivateKey(sk: BigInt, tau: OS, info: OS) = sk * h(info)(tau)
 
 assert {
-  given KeyGeneration = random
   val (pk, sk) = BL.generateKeyPair()
   val tau = "tau".getBytes
   val info = "info".getBytes
@@ -203,7 +191,7 @@ assert {
 object ARKG:
   private def info_kem(info: OS) = "ARKG-Derive-Key-KEM.".getBytes || info
   private def info_bl(info: OS) = "ARKG-Derive-Key-BL.".getBytes || info
-  def generateSeed()(using KeyGeneration) = (KEM.generateKeyPair(), BL.generateKeyPair()) match
+  def generateSeed() = (KEM.generateKeyPair(), BL.generateKeyPair()) match
     case ((pk_kem, sk_kem), (pk_bl, sk_bl)) => ((pk_kem, pk_bl), (sk_kem, sk_bl))
   def derivePublicKey(pk: (Point, Point), info: OS) =
     val (pk_kem, pk_bl) = pk
@@ -215,7 +203,6 @@ object ARKG:
     BL.blindPrivateKey(sk_bl, tau, info_bl(info))
 
 assert {
-  given KeyGeneration = random
   val (pk, sk) = ARKG.generateSeed()
   val info = "info".getBytes
   val (pk_prime, kh) = ARKG.derivePublicKey(pk, info)
@@ -224,80 +211,98 @@ assert {
 
 trait Device:
   def ECDH(pk: Point): OS
-  def publicKey: Point
+  def pk: Point
 
+class StubDevice extends Device:
+  val (pk, sk) = randomScalar() match { case sk => (sk.scalarBaseMult, sk) }
+  override def ECDH(pk: Point): OS = sk.scalarMult(pk).x.os
+
+case class HDK(pk: Point, sk: BigInt, salt: OS)
 object HDK:
-  val contextString = "HDK-ECDH-P256-v1".getBytes
-  private def H1(msg: OS) = hashToField(contextString || "seed".getBytes, n)(msg)
-  def seed(pk_device: Point, randomness: OS) =
-    val sk_bl0 = H1(randomness)
-    (sk_bl0.scalarMult(pk_device), sk_bl0)
-  def publicKey(sk_bl: BigInt)(using dev: Device) = sk_bl.scalarMult(dev.publicKey)
-  def authenticate(sk_bl: BigInt, reader_data: OS)(using dev: Device) = dev
-    .ECDH(sk_bl.scalarMult(OS2ECP(reader_data)))
+  private val ID = "HDK-ECDH-P256-v1".getBytes
+  private val Nk = 48
+  private val Ns = 32
+  private def key(b: OS) = (BigInt(1, b) % (n - 1)) + 1 match { case sk => (sk.scalarBaseMult, sk) }
+  def root(pk_device: Point, seed: OS) =
+    val okm = expandMessageXmd(ECP2OS(pk_device), ID || seed, Nk + Ns)
+    val (_, sk_prime) = key(okm.take(Nk))
+    HDK(sk_prime.scalarMult(pk_device), sk_prime, okm.drop(Nk))
+  def deriveLocal(hdk: HDK, index: Int) =
+    val okm = expandMessageXmd(ECP2OS(hdk.pk) || I2OSP(index, 4), ID || hdk.salt, Nk + Ns)
+    val tau = okm.take(Nk)
+    val info = "HDK-Derive-Local".getBytes
+    HDK(BL.blindPublicKey(hdk.pk, tau, info), BL.blindPrivateKey(hdk.sk, tau, info), okm.drop(Nk))
+  def seedRemote(hdk: HDK) =
+    val (pk_kem, sk_kem) = key(expandMessageXmd("seed".getBytes, ID || hdk.salt, Nk))
+    ((pk_kem, hdk.pk), (sk_kem, hdk.sk))
+  def deriveRemote(pk_device: Point, hdk: HDK, kh: OS) =
+    val (pk_arkg, sk_arkg) = seedRemote(hdk)
+    val sk_prime = ARKG.derivePrivateKey(sk_arkg, kh, Array.emptyByteArray)
+    val pk_prime = sk_prime.scalarMult(pk_device)
+    val salt_prime = expandMessageXmd(ECP2OS(pk_prime), ID || hdk.salt, Ns)
+    HDK(pk_prime, sk_prime, salt_prime)
+  def authenticate(sk_hdk: BigInt, reader_data: OS)(using device: Device) =
+    val P_prime = sk_hdk.scalarMult(OS2ECP(reader_data))
+    device.ECDH(P_prime)
 
-  // https://yubico.github.io/arkg-rfc/draft-bradleylundberg-cfrg-arkg.html#name-deterministic-key-generatio
-  def apply(sk_bl: BigInt)(using Device) = new KeyGeneration:
-    override def generate(): (Point, BigInt) = (publicKey(sk_bl), sk_bl)
+assert {
+  val device = StubDevice()
+  val root = HDK.root(device.pk, "some seed".getBytes)
+  val derived = HDK.deriveLocal(root, 0)
+  val seed = HDK.seedRemote(derived)
+  val (pk_remote, kh) = ARKG.derivePublicKey(seed._1, Array.emptyByteArray)
+  val hdk = HDK.deriveRemote(device.pk, derived, kh)
+  pk_remote == hdk.pk
+}
 
 case class Document(pk_pop: Point)
 
-class StubDevice extends Device:
-  val (publicKey, sk_device) = random.generate()
-  override def ECDH(pk: Point): OS = sk_device.scalarMult(pk).x.os
+object Provider:
+  def activate(pk_hdk: Point) = Document(pk_hdk)
 
-val dst = HDK.contextString || "derive".getBytes
-
-class Provider:
-  def activate(pk_device: Point) =
-    val (pk_bl0, sk_bl0) = HDK.seed(pk_device, util.Random.nextBytes(32))
-    val trustEvidence = Document(pk_bl0)
-    (trustEvidence, sk_bl0)
-
-class Wallet(root: (Document, BigInt))(using Device):
-  val index = collection.mutable.WeakHashMap(root)
-  val trustEvidence = root._1
-  def hdk(doc: Document) = HDK(index(doc))
+class Wallet(seed: OS)(using device: Device):
+  enum Edge:
+    case Index(value: Int)
+    case KeyHandle(value: OS)
+  val index = collection.mutable.WeakHashMap[Document, List[Edge]]()
+  val root = HDK.root(device.pk, seed)
+  given Conversion[List[Edge], HDK] = _.foldLeft(root) {
+    case (h, Edge.Index(i))      => HDK.deriveLocal(h, i)
+    case (h, Edge.KeyHandle(kh)) => HDK.deriveRemote(device.pk, h, kh)
+  }
+  def activate(trustEvidence: Document) = index += trustEvidence -> Nil
+  def authenticate(doc: Document, readerData: OS) = HDK.authenticate(index(doc).sk, readerData)
   def request(parent: Document) =
-    given KeyGeneration = hdk(parent)
-    val (pk, sk) = ARKG.generateSeed()
-    def accept(doc: Document, kh: OS) =
-      val sk_bl_prime = ARKG.derivePrivateKey(sk, kh, dst)
-      index.addOne(doc -> sk_bl_prime)
+    val (pk, sk) = HDK.seedRemote(index(parent))
+    def accept(doc: Document, kh: OS) = index += doc -> (index(parent) :+ Edge.KeyHandle(kh))
     (pk, accept)
-  def authenticate(doc: Document, readerData: OS) = HDK.authenticate(index(doc), readerData)
 
 class Reader:
-  private val (pk_reader, sk_reader) = random.generate()
-  def verify(doc: Document, device_data: OS) = ECDH(doc.pk_pop, sk_reader) sameElements device_data
-  def data = ECP2OS(pk_reader)
-  def issue(pk: (Point, Point), n: Int): Map[Document, OS] =
-    val entries =
-      for (i <- 0 until n) yield
-        val (pk_prime, kh) = ARKG.derivePublicKey(pk, dst)
-        Document(pk_prime) -> kh
-    entries.toMap
+  private val (pk, sk) = randomScalar() match { case sk => (sk.scalarBaseMult, sk) }
+  def verify(doc: Document, device_data: OS) = ECDH(doc.pk_pop, sk) sameElements device_data
+  def data = ECP2OS(pk)
+  def issue(pk: (Point, Point), n: Int) = (for (i <- 0 until n) yield
+    val (pk_prime, kh) = ARKG.derivePublicKey(pk, Array.emptyByteArray)
+    Document(pk_prime) -> kh
+  ).toMap
 
 // HDK demo
 {
-  given device: Device = StubDevice()
-  val provider = Provider()
-  val activation = provider.activate(device.publicKey)
-  val wallet = Wallet(activation)
+  val wallet = Wallet("some seed".getBytes)(using StubDevice())
+  val trustEvidence = Provider.activate(wallet.root.pk)
+  wallet.activate(trustEvidence)
 
   val reader = Reader()
-  val deviceData = wallet.authenticate(wallet.trustEvidence, reader.data)
-  assert(reader.verify(wallet.trustEvidence, deviceData))
+  val deviceData = wallet.authenticate(trustEvidence, reader.data)
+  assert(reader.verify(trustEvidence, deviceData))
 
-  val (pk, accept) = wallet.request(wallet.trustEvidence)
+  val (pk, accept) = wallet.request(trustEvidence)
   val issuance = reader.issue(pk, 9)
   for ((doc, kh) <- issuance) accept(doc, kh)
   assert(issuance.size == 9)
   assert(wallet.index.size == 10)
 
   for (doc <- issuance.keys) do
-    assert {
-      val reader = Reader()
-      reader.verify(doc, wallet.authenticate(doc, reader.data))
-    }
+    val reader = Reader()
+    assert { reader.verify(doc, wallet.authenticate(doc, reader.data)) }
 }
