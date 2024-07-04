@@ -8,12 +8,12 @@
 
 ## Context
 
-For a general introduction, see [Hierarchical Deterministic Keys for the European Digital Identity Wallet](README.md). In the current document, the authors develop and share structured feedback on one part of the Wallet Toolbox: the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/) (ARF). the purpose of this feedback is to enable implementation of Hierarchical Deterministc Keys.
+For a general introduction, see [Hierarchical Deterministic Keys for the European Digital Identity Wallet](README.md). In the current document, the authors develop and share structured feedback on one part of the Wallet Toolbox: the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/) (ARF). The purpose of this feedback is to enable implementation of [Hierarchical Deterministc Keys](keys.md) (HDKs).
 
 By enabling Hierarchical Deterministic Keys, we aim for interoperability with a concrete and desirable cryptographic architecture in the context of person identification data and some (qualified) electronic attestations of attributes. We do not suggest to mandate the application of this cryptographic architecture for all digital identity documents. Instead, we aim to address two risks to the ARF and subsequently the implementing acts: the risk of accidentally disabling desirable technical solutions, and the risk of accidentally requiring undesirable technical solutions.
 
 > [!NOTE]
-> This information is shared by participants of the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all Potential members.
+> This information is shared by participants of the [Digital Credentials for Europe (DC4EU) Consortium](https://www.dc4eu.eu), the [EU Digital Identity Wallet Consortium (EWC)](https://eudiwalletconsortium.org), and the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all consortium members.
 
 ## Feedback on the high level requirements
 
@@ -21,30 +21,13 @@ The original requirement texts are copied from ARF 1.4.0.
 
 ### Topic 9 - Wallet Trust Evidence
 
-This topic currently specifies a very specific technical solution. To be applicable to HDK, the requirements need to be either at a higher level, or more open to different technical solutions. The feedback below includes details about HDK to propose more open requirements.
-
-In HDK, the WSCA generates the Wallet Trust Evidence (WTE) public key. The Wallet Provider issues WTE based on:
-
-- app and/or key attestation of the device public key;
-- proof of possession of the device private key.
-
-Subsequently, the Wallet Provider issues Issuer Trust Evidence (ITE) over the HDK-Public-Key value at root nodes, which the Wallet Instance generates using HDK-Seed. The Wallet Provider bases ITE on:
-
-- WTE;
-- proof of knowledge of the root node’s key blinding private key.
-
-The Wallet Instance derives new HDK-Public-Key values from the root nodes. The Wallet Instance creates proofs of possession using HDK-Authenticate, which depends on WSCA authentication.
-
-> [!WARNING]
-> This aspect of the design and associated feedback might get revisited in [#31](https://github.com/sander/hierarchical-deterministic-keys/issues/31).
-
-To enable HDK, the following changes to Topic 9 are needed.
+This topic currently specifies a very specific technical solution. To be applicable to HDKs, the requirements need to be either at a higher level, or more open to different technical solutions. The feedback below proposes more open requirements in Topic 9.
 
 |Index|Proposed change|Rationale|
 |--|--|--|
-|WTE_*|Split WTE requirements into WTE requirements and ITE requirements. The WTE audience must be limited to the Wallet Provider. The ITE audience must be limited to authorised PID Providers, who use ITE to validate Wallet Instances.|This makes explicit the associated security and privacy conditions. This does not preclude solutions other than HDK from applying a single method to create both WTE and ITE.|
+|WTE_*|Split WTE requirements into WTE requirements and Issuer Trust Evidence (ITE) requirements. Limit the WTE audience to authorised Person Identification Data (PID) Providers. Make requesting ITE optional to other providers.|Splitting requirements makes explicit the associated security and privacy conditions. HDK splits the WTE and ITE solutions as well. Splitting the requirements does not preclude solutions other than HDK from applying a single solution to create both WTE and ITE.|
 |WTE_01–09|None.|N/A|
-|WTE_10|Modify: “A WSCA SHALL generate a new key pair for a new WTE on request of the Wallet Provider via the Wallet Instance. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register <ins>a unique identifier of</ins> the new key as a WTE key in an internal registry. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register the WTE key as an independent (i.e., non-associated) key in an internal registry.”<br><br>Add: “<ins>A Wallet Instance SHALL generate a new key pair for a new ITE on request of the Wallet Provider, with the same WSCA-enforced access controls (see WTE_02) as a valid WTE key. The Wallet Instance SHALL register the new key as an ITE key in an internal registry. The Wallet Instance SHALL register the ITE key as associated with the WTE in an internal registry.</ins>”|This is essential to the HDK architecture, where the WSCA is responsible only for WTE key pairs, and the other key management happens within the Wallet Instance. This does not preclude solutions other than HDK from having the Wallet Instance delegate this functionality to a WSCA.|
+|WTE_10|Modify: “A WSCA SHALL generate a new key pair for a new WTE on request of the Wallet Provider via the Wallet Instance. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register <ins>a unique identifier of</ins> the new key as a WTE key in an internal registry. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register the WTE key as an independent (i.e., non-associated) key in an internal registry.”<br><br>Add: “<ins>A Wallet Instance SHALL generate a new key pair for a new ITE on request of the Wallet Provider, with the same WSCA-enforced access controls (see WTE_02) as a valid WTE key. The Wallet Instance SHALL register the new key in an internal registry. The Wallet Instance SHALL register the ITE key as associated with the WTE in an internal registry.</ins>”|This change is essential to the HDK architecture, where the WSCA is responsible only for device key pairs, and the other keys are managed as HDKs within the Wallet Instance. This change does not preclude solutions other than HDK from having the Wallet Instance delegate this functionality to a WSCA.|
 |WTE_10–11|None.|N/A|
 |WTE_13|Modify: “During PID or attestation issuance, a <del>WSCA</del> <ins>Wallet Instance</ins> SHALL generate a new key pair for a new PID or attestation, on request of the PID Provider or Attestation Provider <del>via the Wallet Instance</del>. <ins>Only if the Wallet Instance uses asynchronous remote key generation, it MAY delegate key generation to the PID Provider or Attestation Provider.</ins> The PID Provider or Attestation Provider SHALL indicate a single <del>WTE</del> <ins>ITE</ins> public key (see WTE_10) with which the new PID or attestation key must be associated<ins>, along with data identifying the method to be used for association</ins>. This indication can either be direct, by providing the <del>WTE</del> <ins>ITE</ins> public key value, or indirect, by providing a public key value that has been associated with the <del>WTE</del> <ins>ITE</ins> key previously. In the latter case, the <del>WSCA</del> <ins>Wallet Instance</ins> SHALL look up the associated <del>WTE</del> <ins>ITE</ins> key in its internal registry.<br>The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register the new key in an internal registry as an attestation key. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register the association between the new private key and the <del>WTE</del> <ins>ITE</ins> private key in an internal registry.”|In HDK, the PID Provider or Attestation Provider asynchronously, remotely generate batches of single-use keys. These keys are under sole control of the User by association to an ITE public key.|
 |WTE_14|Modify: “During PID or attestation issuance, a WSCA SHALL prove possession of the private key corresponding to the new PID or attestation public key, on request of the PID Provider or Attestation Provider via the Wallet Instance, for example by signing a challenge with that private key<ins> or, in the case of asynchronous remote key generation, by proving possession of the key indicated in WTE_13</ins>.”|In HDK, a single proof of possession is sufficient to issue one or more batches of PID or attestations with unique single-use keys.|
