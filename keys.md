@@ -30,7 +30,7 @@ The following notation is used throughout the document.
 
 ## The Hierarchical Deterministic Keys algorithm
 
-An HDK instantiation applies local key derivation to create many key pairs from a single seed value. It applies asynchronous remote key generation to enable providers to derive more key pairs. Additionally, an HDK instantiation applies these key pairs to blind a single key pair and proofs of its possession.
+An HDK instantiation applies local key derivation to create many key pairs from a single seed value. It applies asynchronous remote key generation to enable providers to derive more key pairs. Additionally, an HDK instantiation applies these key pairs to blind a single key pair and proofs of its possession, such as required in [[RFC7800]].
 
 ### Introductory examples
 
@@ -375,7 +375,7 @@ The holder MUST generate `sk_device` as a `DSA` private key in the secure crypto
 
 The HDK algorithm assumes that the holder controls a secure cryptographic device that protects the device key pair `(pk_device, sk_device)`. The device key is under sole control of the holder.
 
-In the context of [[EU2024-1183]], this device is typically called a Wallet Secure Cryptographic Device (WSCD), running a personalised Wallet Secure Cryptographic Application (WSCA) that exposes a Secure Cryptographic Interface (SCI) to a Wallet Instance (WI) running on a User Device (UD). The WSCD is certified to protect access to the device private key with high attack potential resistance to achieve high level of assurance authentication. This typically means that the key is associated with a strong possession factor and with a rate-limited Personal Identification Number (PIN) check as a knowledge factor, and the verification of both factors actively involve the WSCD.
+In the context of [[EU2024-1183]], this device is typically called a Wallet Secure Cryptographic Device (WSCD), running a personalised Wallet Secure Cryptographic Application (WSCA) that exposes a Secure Cryptographic Interface (SCI) to a Wallet Instance (WI) running on a User Device (UD). The WSCD is certified to protect access to the device private key with high attack potential resistance to achieve high level of assurance authentication as per [[EU2015-1502]]. This typically means that the key is associated with a strong possession factor and with a rate-limited Personal Identification Number (PIN) check as a knowledge factor, and the verification of both factors actively involve the WSCD.
 
 The HDK algorithm can support any of the following WSCD architectures:
 
@@ -603,6 +603,11 @@ Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Credential 
 [draft-OpenID4VP]: #draft-OpenID4VP
 
 Terbu, O., Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable Presentations”, [draft 20](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html), 29 November 2023.
+
+<dt id=EU2015-1502>[EU2015-1502]<dd>
+
+[EU2015-1502]: #EU2015-1502
+European Commission, “Commission Implementing Regulation (EU) 2015/1502 of 8 September 2015 on setting out minimum technical specifications and procedures for assurance levels for electronic identification means”, [(EU) 2015/1502](https://eur-lex.europa.eu/legal-content/TXT/?uri=CELEX%3A32015R1502), September 2015.
 
 <dt id=EU2024-1183>[EU2024-1183]<dd>
 
