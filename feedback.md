@@ -42,11 +42,11 @@ This topic currently specifies a very specific technical solution. To be applica
 |WTE_25–26|None.|N/A|
 |WTE_27|Add: “The common OpenID4VCI protocol SHALL enable a PID Provider or Attestation Provider to indicate in the Token Response:<br><ins>• in the case of delegated key generation, data enabling the Wallet Instance to prove possession of the private key associated with the new PID or attestation key</ins>”|This is essential to enable application of HDK to batch issuance.|
 |WTE_28–30|None.|N/A|
-|WTE_31|TBD|TBD|
+|WTE_31|A <del>WSCA</del> <ins>Wallet Instance</ins> SHALL register each newly generated key pair as either a WTE key or an attestation key<del>, depending on information provided by the Wallet Instance in the key generation request</del>. The internal registry used by the <del>WSCA</del> <ins>Wallet Instance</ins> for this purpose SHALL be protected against modification by external parties.|See WTE_10.|
 |WTE_32|None.|N/A|
 |WTE_33|Modify: “A <del>WSCA</del> <ins>Wallet Instance</ins> SHALL associate each newly generated attestation key with a WTE key <del>indicated by the Wallet Instance</del>. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL record the association between these keys in an internal registry, which SHALL be protected against modification by external parties.”|In HDK, the Wallet Instance maintains the associations.|
 |WTE_34|Drop.|This is an implementation detail only to some technical solutions.|
-|WTE_35|TBD|TBD|
+|WTE_35|A <del>WSCA</del> <ins>Wallet Instance</ins> SHALL consider two keys to be associated if they are associated to a common WTE key.|See WTE_10.|
 |WTE_36|Modify: “A <del>WSCA</del> <ins>Wallet Instance</ins> SHOULD be able to generate a proof of association for two or more public keys. The <del>WSCA</del> <ins>Wallet Instance</ins> SHALL generate such a proof <del>if and</del> only if the corresponding private keys are protected by <del>that</del> <ins>a single</ins> WSCA, and the <del>WSCA</del> <ins>Wallet Instance</ins> has internally registered an association between these private keys.”|In HDK, the Wallet Instance manages such associations. This does not preclude solutions other than HDK to delegate this to the WSCA.|
 |WTE_+|New: “<ins>A PID Provider SHALL for newly generated attestation keys only support cryptographic algorithms and parameters as agreed in SOG-IS. A PID Provider SHALL support ECDH-MAC. A PID Provider MAY support EC-SDSA-opt.|With the currently more common ECDSA algorithm, Wallet Providers can in practice only implement the WTE and ACP requirements with licenses to (pending) patents. In contrast, ECDH-MAC appears unencumbered, and also provides better privacy. In case the PID Provider requires non-repudiation, EC-SDSA-opt is an agreed algorithm that also provides a viable unencumbered alternative.|
 
@@ -59,7 +59,7 @@ To enable HDK, the following changes to Topic 18 are needed.
 |Index|Proposed change|Rationale|
 |--|--|--|
 |ACP_01–03|None.|N/A|
-|ACP_04|Drop or modify: “If (as a result of ACP_03) a Wallet Instance determines it must release multiple attestations to a Relying Party in a combined presentation of attributes, it <del>SHALL request</del><ins>MAY generate</ins> a proof of association between the public keys of these attestations<del> from the WSC</del>.”|Proof of association is not necessary in the case of attribute-based binding. It could introduce disproportional complications. See [Proof of association](keys.md#proofs-of-association).|
+|ACP_04|Drop or modify: “If (as a result of ACP_03) a Wallet Instance determines it must release multiple attestations to a Relying Party in a combined presentation of attributes, it <del>SHALL request</del><ins>MAY generate</ins> a proof of association between the public keys of these attestations<del> from the WSC</del>.”|Proof of association is not necessary in the case of attribute-based binding. It could introduce disproportional complications. For example, depending on the proof mechanism, this could produce a potentially non-repudiable proof that a certain combination of documents was revealed. Also, by disclosing public keys related to blinding scalars, it will be more difficult for solutions to guarantee unconditional privacy.|
 |ACP_05|Drop.|It is up to the User whether to authorise sharing a proof of association with another party.|
 |ACP_06–08|None.|N/A|
 |ACP_09|Drop.|With HDK, proof of association is not essential.|
