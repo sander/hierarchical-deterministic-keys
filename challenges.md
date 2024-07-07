@@ -36,7 +36,7 @@
     <td>Hardware security module</td>
   </tr>
   <tr>
-    <td rowspan="3">Managing many associated keys</td>
+    <td rowspan="3">Managing many associated keys (relying party unlinkability)</td>
     <td>Synchronous</td>
     <td>Flat key registry with proof of association</td>
     <td>See whitepaper on proof of association.</td>
@@ -74,9 +74,9 @@
   </tr>
   <tr>
     <td rowspan="2">Privacy across interactions</td>
-    <td>Weak unlinkability</td>
+    <td>Weak provider unlinkability</td>
     <td>One-time-use documents</td>
-    <td>Users could still be tracked across corrupt data providers and readers.</td>
+    <td>Users could still be tracked across corrupt data providers and readers, using the provider’s document authenticity seal.</td>
   </tr>
   <tr>
     <td>Full unlinkability</td>
