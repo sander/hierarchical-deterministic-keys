@@ -1,6 +1,6 @@
 # Hierarchical Deterministic Keys for the European Digital Identity Wallet
 
-## Context
+## Background
 
 The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183/oj) requires secure cryptography in wallet solutions. The regulatory requirements bring several implementation challenges:
 
@@ -12,12 +12,34 @@ The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183
 6. How might a wallet solution prove possession of blinded keys?
 7. How might a wallet solution create qualified electronic signatures or seals?
 
-The European Commission and Member States are developing a Wallet Toolbox to enable interoperable solutions to challenges such as these. This Toolbox includes the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/). The Large Scale Pilots are implementing and testing the wallet to generate feedback on this Toolbox.
+The European Commission and Member States are developing a Wallet Toolbox to enable interoperable solutions to challenges such as these. This Toolbox includes the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/) (ARF). The Large Scale Pilots are implementing and testing the wallet to generate feedback on this Toolbox.
 
 In this repository, Pilot participants contribute to concrete interoperable solutions based on the ideas of Hierarchical Deterministic Keys (HDKs) and blinded key proof of possession. This approach is introduced in the Analysis of selective disclosure and zero-knowledge proofs ([ETSI TR 119476 version 1.2.1](https://www.etsi.org/deliver/etsi_tr/119400_119499/119476/01.02.01_60/tr_119476v010201p.pdf)). The Pilot participants aim to evaluate various options, present an appropriate solution, and develop a common specification to enable testing interoperability.
 
 > [!NOTE]
 > This information is shared by participants of the [Digital Credentials for Europe (DC4EU) Consortium](https://www.dc4eu.eu), the [EU Digital Identity Wallet Consortium (EWC)](https://eudiwalletconsortium.org), and the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all consortium members.
+
+## Position
+
+The participants share the following position.
+
+As of today, ARF 1.4 provides no complete and interoperable solution for key management, that can be industrially deployed at scale and used across the whole ecosystem.
+
+HDK is a viable solution to some EU Digital Identity Wallet key management challenges. It enables the management of an unlimited amount a keys using a single secret. It also allows the use of existing secure cryptographic devices with common algorithms.
+
+HDK is applicable to specific credential schemes, including one-time-use attestations and BBS#.
+
+We want to start a dialogue with the European Commission about the proposed solution in this document, and how to include this in the Toolbox. We have specific feedback on the ARF high-level requirements to make sure that the EU Digital Identity implementation addresses the key management challenges in an interoperable and scalable way. This should provide a solid basis for legislation in the Implementing Acts.
+
+Expert participants from DC4EU:
+
+- Nikos Voutsinas (GUnet)
+
+Expert participants from Potential:
+
+- Antoine Dumanois (Orange)
+- Sander Dijkhuis (Cleverbase)
+- Zeff Sherriff (Bundesdruckerei)
 
 ## Contents
 
