@@ -44,6 +44,7 @@ Solutions MAY omit application of the asynchronous remote key generation functio
 The following example illustrates the use of key derivation. An HDK tree is defined by an initial public key and a seed value, which is a byte array containing sufficient entropy. Now tree nodes are constructed as follows.
 
 ```mermaid
+%%{init: {"flowchart": { "htmlLabels": false}} }%%
 flowchart
 subgraph Confidential static data
 pk_device(["pk_device"])
@@ -82,6 +83,7 @@ The next concept to illustrate is blinding. Blinding enables a solution instance
 In this example, a document is issued in such a way that it can be presented with proof of possession using `pk` as derived using HDK. The solution instance applies the HDK-Authenticate function to the associated `sk` along with the device private key `sk_device` and reader-provided `reader_data`. The output is `device_data`, which the solution instance can subsequently use to prove possession to the reader. The reader does not need to be aware that HDK was used.
 
 ```mermaid
+%%{init: {"flowchart": { "htmlLabels": false}} }%%
 flowchart LR
 subgraph In secure cryptographic device
   sk_device
