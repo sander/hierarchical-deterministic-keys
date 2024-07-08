@@ -112,6 +112,9 @@ The parameters of an HDK instantiation are:
 - `ARKG`: An asynchronous remote key generation instantiation [[draft-bradleylundberg-cfrg-arkg]], encapsulating an asymmetric key blinding scheme instantiation `BL` and a key encapsulation mechanism `KEM`, and consisting of the functions:
   - ARKG-Derive-Public-Key(pk, info): Outputs `(pk', kh)` where `pk'` is a derived public key and `kh` is a key handle to derive the associated private key, based on an ARKG public seed `pk = (pk_kem, pk_bl)` and application-specific information `info`.
   - ARKG-Derive-Private-Key(sk, kh, info): Outputs `sk'`, a blinded private key Scalar based on ARKG private seed `sk = (sk_kem, sk_bl)`, a key handle `kh`, and application-specific information `info`.
+- `HDK-Root(pk_device, seed)`: See [The HDK-Root function](#the-hdk-root-function).
+- `HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)`: See [The HDK-Derive-Remote function](#the-hdk-derive-remote-function).
+- `HDK-Authenticate(sk_device, sk_hdk, reader_data)`: See [The HDK-Authenticate function](#the-hdk-authenticate-function).
 
 A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values.
 
