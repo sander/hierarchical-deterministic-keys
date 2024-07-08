@@ -212,7 +212,7 @@ def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)
 
 ### The HDK-Authenticate function
 
-A solution instance authenticates the device by blindly creating proof applying the device private key and an HDK private key. This yields device data which it can use to prove possession of the device-bound document. The application-specific data for proof of possession is out of scope for HDK.
+A solution instance authenticates the device by creating a blinded proof applying the device private key and an HDK private key. This yields device data which it can use to prove possession of the device-bound document. The application-specific data for proof of possession is out of scope for HDK.
 
 ```
 Inputs:
@@ -312,7 +312,7 @@ def HDK-Root(pk_device, seed):
     msg = serialize(pk_device)
     okm = expand(msg, ID || seed, Nk + Ns)
     (_, sk') = key(okm[0:Nk])
-    pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk_blind))
+    pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk'))
     salt' = okm[Nk:]
     return (pk', sk', salt')
 
