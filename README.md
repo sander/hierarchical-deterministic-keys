@@ -21,7 +21,9 @@ In this repository, Pilot participants contribute to concrete interoperable solu
 
 This repository contains an overview of **[Key management challenges](challenges.md)**.
 
-To address challenges 5 and 6, this repository contains a freely accessible, unencumbered specification of **[Hierarchical Deterministic Keys](keys.md)**.
+To address challenges 5 and 6, this repository contains a freely accessible, unencumbered specification of **[Hierarchical Deterministic Keys](keys.md)**. This enables an EU Digital Identity Wallet deployment that distributes key management efficiently:
+
+![A wallet architecture using Hierarchical Deterministic Keys associated with keys protected using a wallet secure cryptographic device, optionally using Asynchronous Remote Key Generation (ARKG).](media/deployment.svg)
 
 To illustrate and validate the specifications, this repository contains a **[Prototype worksheet](prototype.worksheet.sc)**. This is easiest to run in [Visual Studio Code](https://code.visualstudio.com) with [Scala (Metals)](https://marketplace.visualstudio.com/items?itemName=scalameta.metals).
 
