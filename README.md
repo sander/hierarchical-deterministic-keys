@@ -4,8 +4,8 @@
 
 The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183/oj) requires secure cryptography in wallet solutions. The regulatory requirements bring several implementation challenges:
 
-1. How might a data provider protect document authenticity?
-2. How might a data provider prevent tracking based on document authenticity signatures?
+1. How might an issuer protect document authenticity?
+2. How might an issuer prevent tracking based on document authenticity signatures?
 3. How might a wallet solution enable binding documents to a personalised device with a high level of assurance?
 4. How might a wallet solution enable relying parties to verify possession of the device?
 5. How might a wallet solution blind verification keys for each proof, preventing relying party tracking?

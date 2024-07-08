@@ -87,8 +87,8 @@ Proof of association relates to three WSCD security requirements, which we propo
 
 |ID|Requirement|Proposed change|Rationale|
 |--|--|--|--|
-|ICW|**InCertWSCD:** Enable data providers to verify that a new proof of possession (PoP) public key is bound to a certified WSCD.|Clarify that the Wallet Provider needs to meet this requirement, and it is not a WSCD certification requirement.|HDK enables Wallet Providers to meet this requirement, based on WSCDs that are not designed to issue WTE.|
-|SW1|**SameWSCD1:** Enable data providers to verify that a new PoP public key is bound to the same certified WSCD as the PoP public key of the PID.|Clarify that the Wallet Instance needs to meet this requirement, and it is not a WSCD certification requirement.|HDK enables Wallet Instances to meet this requirement, based on blinding of a single WSCD-bound key to multiple PoP public keys.|
+|ICW|**InCertWSCD:** Enable issuers to verify that a new proof of possession (PoP) public key is bound to a certified WSCD.|Clarify that the Wallet Provider needs to meet this requirement, and it is not a WSCD certification requirement.|HDK enables Wallet Providers to meet this requirement, based on WSCDs that are not designed to issue WTE.|
+|SW1|**SameWSCD1:** Enable issuers to verify that a new PoP public key is bound to the same certified WSCD as the PoP public key of the PID.|Clarify that the Wallet Instance needs to meet this requirement, and it is not a WSCD certification requirement.|HDK enables Wallet Instances to meet this requirement, based on blinding of a single WSCD-bound key to multiple PoP public keys.|
 |SW2|**SameWSCD2:** Enable readers to verify that two PoP public keys are bound to a certified WSCD, and to the same certified WSCD as a PID PoP public key.|See SW1.|See SW1.|
 
 Requirement SW2 is intended to address the threat of credential pooling with app hooking used to achieve unauthorised transactions. Note that this threat can also be mitigated by using claim-based binding reinforced using SameWSCD1. It is not evident that SameWSCD2 should be mandatory.
@@ -116,5 +116,5 @@ Note that proof of association may also be possible using additive blinding. In 
 The proposal is demonstrated by three example WTE architectures: Optimally Efficient, Privacy Friendly, PID-Bound. The HDK architecture enables a variant of the PID-Bound WTE architecture:
 
 - Wallet Providers issue WTE for PID Providers bound to blinded device keys, based on a Wallet Instance’s proof of knowledge of the associated blinding key;
-- Any data provider can generate keys associated with any previously presented attestation’s key, without requiring additional metadata such as WTE or ITE or a proof of association;
+- Any issuer can generate keys associated with any previously presented attestation’s key, without requiring additional metadata such as WTE or ITE or a proof of association;
 - Optionally, an Attestation Provider may request ITE if additional metadata is required.

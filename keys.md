@@ -67,7 +67,7 @@ The instance computes the Level `n > 0` value is using a deterministic function 
 
 #### Remote key derivation example
 
-Instead of a locally generated index, an HDK can also be derived using a key handle as per Asynchronous Remote Key Generation (ARKG) [[draft-bradleylundberg-cfrg-arkg]]. To enable ARKG, the instance uses HDK-Seed-Remote and provides the output public key to a data provider. The data provider returns a key handle, using which the instance can derive a next-level key pair and seed using HDK-Derive-Remote.
+Instead of a locally generated index, an HDK can also be derived using a key handle as per Asynchronous Remote Key Generation (ARKG) [[draft-bradleylundberg-cfrg-arkg]]. To enable ARKG, the instance uses HDK-Seed-Remote and provides the output public key to an issuer. The issuer returns a key handle, using which the instance can derive a next-level key pair and seed using HDK-Derive-Remote.
 
 Locally derived parents can have remotely derived children. Remotely derived parents can have locally derived children.
 
@@ -179,7 +179,7 @@ def HDK-Seed-Remote((pk, sk, salt)):
     return ((pk_kem, pk_bl), (sk_kem, sk_bl))
 ```
 
-Given an ARKG public seed `pk`, a data provider can derive a key handle `kh` and blinded public key `pk'` using:
+Given an ARKG public seed `pk`, an issuer can derive a key handle `kh` and blinded public key `pk'` using:
 
 ```
 (pk', kh) = ARKG-Derive-Public-Key(pk, "")
@@ -417,7 +417,7 @@ The rate-limiting of the PIN check MUST be managed within the WSCD or on securel
 
 ### Trust evidence
 
-Some data providers could require evidence from a solution provider of the security of the holder’s cryptographic device. This evidence is in the context of [[EU2024-1183]] divided into initial “Wallet Trust Evidence” and related “Issuer Trust Evidence”. Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.
+Some issuers could require evidence from a solution provider of the security of the holder’s cryptographic device. This evidence is in the context of [[EU2024-1183]] divided into initial “Wallet Trust Evidence” and related “Issuer Trust Evidence”. Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.
 
 #### Wallet Trust Evidence
 
@@ -425,22 +425,22 @@ The Wallet Trust Evidence public key is the root HDK public key. To achieve read
 
 #### Issuer Trust Evidence
 
-The Issuer Trust Evidence public key can be any non-root HDK public key. The solution provider MUST verify that the wallet knows the associated private key before issuing Issuer Trust Evidence. The solution provider MUST ensure that `sk_device` is under sole control of the instance user. To achieve reader unlinkability, the instance MUST limit access of Issuer Trust Evidence to a single data provider. Subsequent data providers within the same HDK tree do not need to receive any Issuer Trust Evidence, since they can derive equally secure keys by applying ARKG to presented keys attested by trusted (other) data providers.
+The Issuer Trust Evidence public key can be any non-root HDK public key. The solution provider MUST verify that the wallet knows the associated private key before issuing Issuer Trust Evidence. The solution provider MUST ensure that `sk_device` is under sole control of the instance user. To achieve reader unlinkability, the instance MUST limit access of Issuer Trust Evidence to a single issuer. Subsequent issuers within the same HDK tree do not need to receive any Issuer Trust Evidence, since they can derive equally secure keys by applying ARKG to presented keys attested by trusted (other) issuers.
 
 ### Applying HDK in OpenID for Verifiable Credential Issuance
 
 In [[draft-OpenID4VCI]], the following terminology applies:
 
-| OpenID4VCI        | HDK           |
-| ----------------- | ------------- |
-| Credential        | attestation   |
-| Credential Issuer | data provider |
-| Verifier          | reader        |
-| Wallet            | instance      |
+| OpenID4VCI        | HDK         |
+| ----------------- | ----------- |
+| Credential        | attestation |
+| Credential Issuer | issuer      |
+| Verifier          | reader      |
+| Wallet            | instance    |
 
-HDK enables instances and data providers cooperatively to establish the cryptographic key material that issued attestations will be bound to.
+HDK enables instances and issuers cooperatively to establish the cryptographic key material that issued attestations will be bound to.
 
-For asynchronous batch issuance, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in [openid/OpenID4VCI#359](https://github.com/openid/OpenID4VCI/issues/359). In the update, the wallet instance shares an ARKG public seed with the data provider, and the data provider shares a key handle for each attestation, generated using:
+For asynchronous batch issuance, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in [openid/OpenID4VCI#359](https://github.com/openid/OpenID4VCI/issues/359). In the update, the wallet instance shares an ARKG public seed with the issuer, and the issuer shares a key handle for each attestation, generated using:
 
 ```
 ARKG-Derive-Public-Key(key_generation_public_key, "")
