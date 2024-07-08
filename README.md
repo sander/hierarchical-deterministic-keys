@@ -1,6 +1,8 @@
 # Hierarchical Deterministic Keys for the European Digital Identity Wallet
 
-The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183/oj) requires secure and privacy-preserving cryptography in wallet solutions. The regulatory requirements bring several implementation challenges:
+## Context
+
+The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183/oj) requires secure cryptography in wallet solutions. The regulatory requirements bring several implementation challenges:
 
 1. How might a data provider protect document authenticity?
 2. How might a data provider prevent tracking based on document authenticity signatures?

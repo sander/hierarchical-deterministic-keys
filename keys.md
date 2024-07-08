@@ -333,7 +333,7 @@ Due to potential patent claims and potential related-key attacks, this document 
 
 ## Concrete HDK instantiations
 
-The RECOMMENDED instantiation is the HDK-ECDH-P256. This provides better privacy to the holder because it does not produce a potentially non-repudiable signature over reader-provided data. Secure cryptographic devices that enable a high level of assurance typically support managing ECDH keys with the P-256 elliptic curve.
+The RECOMMENDED instantiation is the HDK-ECDH-P256. This avoids the risk of having the holder unknowingly producing a potentially non-repudiable signature over reader-provided data. Secure cryptographic devices that enable a high level of assurance typically support managing ECDH keys with the P-256 elliptic curve.
 
 ### HDK-ECDH-P256
 
@@ -436,7 +436,7 @@ In [[draft-OpenID4VCI]], the following terminology applies:
 
 HDK enables instance users and data providers cooperatively to establish the cryptographic key material that issued attestations will be bound to.
 
-For asynchronous batch issuance, HDK defines an additional OpenID4VCI endpoint.
+For asynchronous batch issuance, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in [openid/OpenID4VCI#359](https://github.com/openid/OpenID4VCI/issues/359).
 
 #### The Multiple Batch Endpoint
 
@@ -481,20 +481,6 @@ The endpoint MUST respond with an HTTP 400 (Bad Request) status code in case of 
 Error code extensions defined in the Credential Error Response section apply.
 
 ## Security considerations
-
-### Plausible deniability
-
-An instantiation based on ECDH and MAC provides better privacy to the holder than an instantiation based on a digital signature algorithm, because it does not produce a potentially non-repudiable signature over reader-provided data.
-
-### Proofs of association
-
-Cryptographically, the holder could provide a proof of association between two blinded public keys. For example, by creating a Schnorr non-interactive zero-knowledge proof of knowledge of a combination of the blinding scalars. This could assure the reader that two documents are issued to the same holder, and thereby potentially describe the same subject. However, this capability SHOULD be treated with caution since:
-
-- Depending on the proof mechanism, this could produce a potentially non-repudiable proof that a certain combination of documents was revealed.
-- The semantics of such a proof may be unclear to the reader and in case of disputes.
-- By disclosing public keys related to blinding scalars, the Unconditional-Privacy objective could be compromised.
-
-In general, use cases that require associated documents with a high level of assurance involve the processing of person identification data which can instead be used for claim-based holder and/or subject binding.
 
 ### Confidentiality of key handles
 
