@@ -35,6 +35,8 @@ The following notation is used throughout the document.
 
 An HDK instantiation applies local key derivation to create many key pairs from a single seed value. It applies asynchronous remote key generation to enable providers to derive more key pairs. Additionally, an HDK instantiation applies these key pairs to blind a single key pair and proofs of its possession, such as required in [[RFC7800]].
 
+Solutions MAY omit application of the asynchronous remote key generation functionality. In this case, a solution instance can only derive keys locally.
+
 ### Introductory examples
 
 #### Local key derivation example
