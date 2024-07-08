@@ -29,7 +29,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 The following notation is used throughout the document.
 
 - byte: A sequence of eight bits.
-- I2OSP(n, w): Convert non-negative integer `n` to a `w`-length, big-endian byte string, as described in [[RFC8017]].
+- `I2OSP(n, w)`: Convert non-negative integer `n` to a `w`-length, big-endian byte string, as described in [[RFC8017]].
 
 ## The Hierarchical Deterministic Keys algorithm
 
@@ -101,7 +101,7 @@ Blinding methods can be constructed such that the secure cryptographic device do
 The parameters of an HDK instantiation are:
 
 - `ID`: A domain separation tag, represented as a string of ASCII bytes.
-- `Nk`: The amount of bytes needed to create a uniformly random key.
+- `Nk`: The amount of bytes needed to create a uniformly random key. Note that `Nk` usually needs to be higher than the size of the key space, for example to maintain uniform distribution when deriving RNG({1,2,...,n-1}) from RNG({0,1,2,...,2^k-1}) for `k=8*Nk` and `2^k >= n` as per [[TR03111]] Section 4.1.1 Algorithm 2.
 - `Ns`: The amount of bytes of a salt value with sufficient entropy.
 - `key(bytes)`: Deterministically outputs a key pair `(pk, sk)` from a uniformly random string of `Nk` bytes.
 - `serialize(pk)`: Serializes a public key `pk` to a fixed-size string.
