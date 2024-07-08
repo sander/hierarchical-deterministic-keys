@@ -7,7 +7,7 @@ The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183
 3. How might a wallet solution enable binding documents to a personalised device with a high level of assurance?
 4. How might a wallet solution enable relying parties to verify possession of the device?
 5. How might a wallet solution blind verification keys for each proof, preventing relying party tracking?
-6. How might a wallet solution prove possession of blinded keys?
+6. How might a wallet solution prove possession of blinded keys? TEST
 7. How might a wallet solution create qualified electronic signatures or seals?
 
 The European Commission and Member States are developing a Wallet Toolbox to enable interoperable solutions to challenges such as these. This Toolbox includes the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/). The Large Scale Pilots are implementing and testing the wallet to generate feedback on this Toolbox.
