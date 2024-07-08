@@ -428,6 +428,8 @@ Some issuers could require evidence from a solution provider of the security of 
 
 The Wallet Trust Evidence public key is the root HDK public key. To achieve reader unlinkability, the wallet SHOULD limit access to a trusted person identification document provider only.
 
+To prevent association across identities, the solution provider MUST before issuing Wallet Trust Evidence ensure that the root HDK public key is associated with a newly generated device key pair. For example, the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once.
+
 #### Issuer Trust Evidence
 
 The Issuer Trust Evidence public key can be any non-root HDK public key. The solution provider MUST verify that the wallet knows the associated private key before issuing Issuer Trust Evidence. The solution provider MUST ensure that `sk_device` is under sole control of the solution instance holder. To achieve reader unlinkability, the solution instance MUST limit access of Issuer Trust Evidence to a single issuer. Subsequent issuers within the same HDK tree do not need to receive any Issuer Trust Evidence, since they can derive equally secure keys by applying ARKG to presented keys attested by trusted (other) issuers.
