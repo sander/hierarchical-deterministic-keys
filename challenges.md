@@ -8,8 +8,6 @@
 
 For a general introduction, see [Hierarchical Deterministic Keys for the European Digital Identity Wallet](README.md). The current document provides an overview of key management challenges and viable solution directions. This provides an application context to the [Hierarchical Deterministic Keys](keys.md) specification.
 
-Solutions marked with * are in scope for the current project.
-
 <table><thead>
   <tr>
     <th>Feature</th>
@@ -30,18 +28,18 @@ Solutions marked with * are in scope for the current project.
     <td>For example, an EN 419221-5 certified HSM.</td>
   </tr>
   <tr>
-    <td rowspan="2"><b>2. Unique proofs</b> for issuer unlinkability</td>
+    <td rowspan="2"><b>2. Prevention of tracking based on metadata</b></td>
     <td>Weak</td>
     <td>One-time-use documents</td>
-    <td>Users could still be tracked across corrupt data providers and readers, using the provider’s document authenticity seal.</td>
+    <td>Users could still be tracked across colluding data providers and readers (whether intentionnal or not), using the provider’s document authenticity seal and other data provider's metadata.</td>
   </tr>
   <tr>
     <td>Full</td>
     <td>Anonymous credentials</td>
-    <td>E.g. BBS#, which requires a solution for document authenticity protection that supports the BBS+ algorithm.</td>
+    <td>E.g. <a href="https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf">BBS#</a>, which requires a solution for document authenticity protection that supports the BBS+ algorithm.</td>
   </tr>
   <tr>
-    <td rowspan="4"><b>3. Device binding</b> with attested keys</td>
+    <td rowspan="4"><b>3. WSCD binding</b> with attested keys</td>
     <td rowspan="3">Local</td>
     <td>External standalone device</td>
     <td rowspan="4">Also called “cryptographic holder binding”, since the device authenticates its holder. In ARF 1.4, these keys are WTE keys. Required for meeting High Level of Assurance requirements for PID. Typically certified for ECDSA, EC-SDSA, or ECDH. See <a href="keys.md#secure-cryptographic-device">specification section “Secure cryptographic device”</a>.</td>
@@ -57,7 +55,7 @@ Solutions marked with * are in scope for the current project.
     <td>Hardware security module</td>
   </tr>
   <tr>
-    <td rowspan="2"><b>4. Proving device possession</b></td>
+    <td rowspan="2"><b>4. Proving WSCD binding</b></td>
     <td>Non-repudiable</td>
     <td>Digital signature algorithm</td>
     <td>E.g. ECDSA, EC-SDSA.</td>
@@ -65,34 +63,34 @@ Solutions marked with * are in scope for the current project.
   <tr>
     <td>Repudiable</td>
     <td>Designated verifier signatures</td>
-    <td>E.g. ECDH-MAC.</td>
+    <td>E.g. ECDH-MAC, <a href="https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf">BBS#</a>.</td>
   </tr>
 
   <tr>
-    <td rowspan="3"><b>5. Associating many keys</b> for relying party unlinkability</td>
+    <td rowspan="3"><b>5. Per attestation key blinding</b></td>
     <td>Synchronous</td>
     <td>Flat key registry with mandatory proof of association</td>
     <td>See whitepaper on proof of association.</td>
   </tr>
   <tr>
     <td rowspan="2">Asynchronous</td>
-    <td>Hierarchical Deterministic Keys with optional proof of association*</td>
+    <td>Hierarchical Deterministic Keys with optional proof of association</td>
     <td>Provides pseudonymous diversification of device keys. Performed or delegated by the Wallet Instance. See <a href="keys.md">specification</a>.</td>
   </tr>
   <tr>
     <td>Multi-message signature scheme</td>
-    <td>E.g. BBS+. Enables blinding a proof of possession key after issuance. Requires standardisation, development and certification of supporting WSCD solutions.</td>
+    <td>E.g. <a href="https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf">BBS#</a>. Enables blinding a proof of possession key after issuance. Is done locally (in the wallet) so that issuers do not have to store a secret data per user.</td>
   </tr>
   <tr>
-    <td rowspan="2"><b>6. Proving associated key possession</b></td>
-    <td>Centralised</td>
+    <td rowspan="2"><b>6. Proving blinded key possession</b></td>
+    <td>Distributed</td>
     <td>Key blinding for signature schemes</td>
-    <td>Requires standardisation, development and certification of WSCD solutions with key blinding support.</td>
+    <td>Distributed across WSCD and Wallet Instance. E.g. <a href="https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf">BBS#</a>. Requires standardisation.</td>
   </tr>
   <tr>
     <td>Distributed</td>
-    <td>Threshold signing*</td>
-    <td>Distributed across WSCD and Wallet Instance. See <a href="keys.md#generic-hdk-instantiations">specification section “Generic HDK instantiations”</a>.</td>
+    <td>Threshold signing</td>
+    <td>Distributed across WSCD and Wallet Instance. See <a href="keys.md#generic-hdk-instantiations">specification section “Generic HDK instantiations”</a>. Requires proofs of security and privacy.</td>
   </tr>
   <tr>
     <td rowspan="2"><b>7. Qualified signature and seal</b> creation using a Wallet Instance</td>
