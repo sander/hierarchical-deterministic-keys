@@ -429,56 +429,20 @@ The Issuer Trust Evidence public key can be any non-root HDK public key. The sol
 
 In [[draft-OpenID4VCI]], the following terminology applies:
 
-| OpenID4VCI | HDK         |
-| ---------- | ----------- |
-| Credential | attestation |
-| Verifier   | reader      |
+| OpenID4VCI        | HDK           |
+| ----------------- | ------------- |
+| Credential        | attestation   |
+| Credential Issuer | data provider |
+| Verifier          | reader        |
+| Wallet            | instance      |
 
-HDK enables instance users and data providers cooperatively to establish the cryptographic key material that issued attestations will be bound to.
+HDK enables instances and data providers cooperatively to establish the cryptographic key material that issued attestations will be bound to.
 
-For asynchronous batch issuance, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in [openid/OpenID4VCI#359](https://github.com/openid/OpenID4VCI/issues/359).
-
-#### The Multiple Batch Endpoint
-
-This endpoint issues multiple Credentials over time based on a single Credential Request.
-
-Communication with this endpoint MUST utilise TLS.
-
-The Client MUST present to the Multiple Batch Endpoint an Access Token that is valid for the issuance of the Credentials. The Client MAY access the endpoint multiple times with the same Access Token in order to obtain several batches.
-
-##### Multiple Batch Request
-
-The endpoint allows a Client to send a single Credential Request object to request the issuance of multiple Credentials at once, multiple times. A Multiple Batch Request MUST be sent as a JSON object using the `application/json` media type.
-
-The following parameters are used in the Multiple Batch Credential Request:
-
-- `credential_request`: REQUIRED. A single Credential Request object.
-- `key_generation_public_key`: REQUIRED. An ARKG public key.
-- `requested_amount`: REQUIRED. The requested amount of Credential copies.
-
-The Credential Issuer SHOULD verify a proof of possession of the provided ARKG key blinding public key. This MAY be done during a successful presentation of an earlier Credential bound to this public key upon authorization. This option ensures that the proof of possession keys in the Credentials to be issued are equally protected. Alternatively, the proof of possession MAY be provided as part of the Credential Request.
-
-##### Multiple Batch Response
-
-A successful Multiple Batch Response MUST contain all the requested Credentials. It MUST be sent as a JSON object using the `application/json` media type.
-
-The following parameters are used in the response:
-
-- `credential_responses`: REQUIRED. Array that contains Credential Response objects, and/or Deferred Credential Response objects. In total, the array MUST contain `requested_amount` objects.
-- `c_nonce`: OPTIONAL. The `c_nonce` as defined in the Credential Response section.
-- `c_nonce_expires_in`: OPTIONAL. The `c_nonce_expires_in` as defined in the Credential Response section.
-
-For compatibility with ARKG, the Credential returned MUST be bound to a proof of possession public key generated using:
+For asynchronous batch issuance, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in [openid/OpenID4VCI#359](https://github.com/openid/OpenID4VCI/issues/359). In the update, the wallet instance shares an ARKG public seed with the data provider, and the data provider shares a key handle for each attestation, generated using:
 
 ```
 ARKG-Derive-Public-Key(key_generation_public_key, "")
 ```
-
-##### Multiple Batch Error Response
-
-The endpoint MUST respond with an HTTP 400 (Bad Request) status code in case of an error, unless specified otherwise.
-
-Error code extensions defined in the Credential Error Response section apply.
 
 ## Security considerations
 
@@ -593,6 +557,7 @@ Terbu, O., Lodderstedt, T., Yasuda, K., and T. Looker, “OpenID for Verifiable 
 <dt id=EU2015-1502>[EU2015-1502]<dd>
 
 [EU2015-1502]: #EU2015-1502
+
 European Commission, “Commission Implementing Regulation (EU) 2015/1502 of 8 September 2015 on setting out minimum technical specifications and procedures for assurance levels for electronic identification means”, [(EU) 2015/1502](https://eur-lex.europa.eu/legal-content/TXT/?uri=CELEX%3A32015R1502), September 2015.
 
 <dt id=EU2024-1183>[EU2024-1183]<dd>
