@@ -1,6 +1,6 @@
 # Hierarchical Deterministic Keys
 
-**Version:** 0.1.0-SNAPSHOT
+**Version:** 0.1.0 (2024-07-08)
 
 **Authors:** Sander Dijkhuis (Cleverbase, editor)
 
