@@ -27,6 +27,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 The following notation is used throughout the document.
 
 - byte: A sequence of eight bits.
+- I2OSP(n, w): Convert non-negative integer `n` to a `w`-length, big-endian byte string, as described in [[RFC8017]].
 
 ## The Hierarchical Deterministic Keys algorithm
 
@@ -167,8 +168,8 @@ Inputs:
 - salt, a string of Ns bytes.
 
 Outputs:
-- pk', an ARKG public key.
-- sk', an ARKG private key.
+- pk', an ARKG public seed.
+- sk', an ARKG private seed.
 
 def HDK-Seed-Remote((pk, sk, salt)):
     okm = expand("seed", ID || salt, Nk)
@@ -176,6 +177,12 @@ def HDK-Seed-Remote((pk, sk, salt)):
     pk_bl = pk
     sk_bl = sk
     return ((pk_kem, pk_bl), (sk_kem, sk_bl))
+```
+
+Given an ARKG public seed `pk`, a data provider can derive a key handle `kh` and blinded public key `pk'` using:
+
+```
+(pk', kh) = ARKG-Derive-Public-Key(pk, "")
 ```
 
 ### The HDK-Derive-Remote function
@@ -216,12 +223,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data)
 
 Implementations of this function typically perform pre-processing on the `reader_data`, invoke the device key operation on the result, and perform post-processing on the output.
 
-A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can be verified using the public key in the same HDK as `sk_hdk`.
-
-Examples:
-
-- ECDH with `reader_data` being a public key and `device_data` consisting of a binary encoded x-coordinate of an ECDH operation with `sk_device` and `sk_hdk`.
-- DSA with `reader_data` containing a nonce and `device_data` consisting of a digital signature created using `sk_device` and `sk_hdk`.
+A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can be verified using the public key in the same HDK as `sk_hdk`. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.
 
 ## Generic HDK instantiations
 
@@ -256,6 +258,8 @@ Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#usi
 - `ECDH`: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [[TR03111]] with elliptic curve `EC`, consisting of the functions:
   - ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.
 
+In such instantiations, the reader provides an ephemeral public key `reader_data`. The HDK-Authenticate function returns `device_data` consisting of a binary encoded x-coordinate `Z_AB` of an ECDH operation with `sk_device` and `sk_hdk`. Subsequently, the instance creates a message authentication code (MAC), such as in ECDH-MAC authentication defined in [[ISO18013-5]]. The reader verifies this MAC by performing an ECDH operation with its ephemeral private key and the HDK public key.
+
 These instantiations instantiate the following:
 
 ```
@@ -284,8 +288,6 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
     return Z_AB
 ```
 
-Example applications are ECDH-MAC such as defined in [[ISO18013-5]].
-
 ### Using EC-SDSA signatures for proof of possession
 
 Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#using-elliptic-curves)) require the following cryptographic construct:
@@ -296,9 +298,9 @@ Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#usi
   - DSA-Serialize(c, r): Outputs the byte array serialization of the signature `(c, r)`.
   - DSA-Deserialize(bytes): Outputs the signature `(c, r)` represented by byte string `bytes`.
 
-The reader MUST NOT create an input byte string `reader_data` with sufficient entropy for each challenge.
+The reader MUST create an input byte string `reader_data` with sufficient entropy for each challenge.
 
-The reader MUST verify the proof using DSA-Verify.
+The reader MUST verify the proof `device_data` using DSA-Verify with the HDK public key.
 
 ```
 def HDK-Root(pk_device, seed):
