@@ -8,17 +8,17 @@
 
 ## Introduction
 
-This document specifies the algorithms to apply Hierarchical Deterministic Keys (HDKs). The purpose of an HDK architecture is to manage large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets with unlinkability.
+This document specifies the algorithms to apply Hierarchical Deterministic Keys (HDKs). The purpose of an HDK architecture is to manage large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets that only have one secret to manage.
 
-The core idea has been introduced in [[BIP32]] to create privacy-preserving cryptocurrency addresses. The present document extends the idea towards devices commonly used for digital wallets, and towards common interaction patterns for document issuance and authentication.
+The core idea has been introduced in [[BIP32]] to create multiple cryptocurrency addresses in a manageable way. The present document extends the idea towards devices commonly used for digital wallets, and towards common interaction patterns for document issuance and authentication.
 
 To store many HDKs, only a seed string needs to be securely stored, associated with the device private key. Each HDK is then deterministically defined by a path of self-generated indices or provided key handles. Such a path can efficiently be stored and requires less confidentiality than the seed.
 
-To prove possession of many HDKs, the secure cryptographic device only needs to perform common cryptographic operations on a single key. The HDK acts as a blinding factor that enables blinding the device public key and device data upon authentication.
+To prove possession of many HDKs, the secure cryptographic device only needs to perform common cryptographic operations on a single key. The HDK acts as a blinding factor that enables blinding the device public key.
 
 This document provides a specification of the generic HDK scheme, generic HDK instances, and fully specified concrete HDK instances.
 
-This document represents the consensus of the authors. It is not a standard.
+This document represents the consensus of the authors. It is not a standard. It does not include security or privacy proofs.
 
 ### Conventions and definitions
 
