@@ -4,10 +4,10 @@ The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183
 
 1. How might a data provider protect document authenticity?
 2. How might a data provider prevent tracking based on document authenticity signatures?
-3. How might a wallet solution enable binding documents to a personalised device with a high level of assurance?
-4. How might a wallet solution enable relying parties to verify possession of the device?
-5. How might a wallet solution blind verification keys for each proof, preventing relying party tracking?
-6. How might a wallet solution prove possession of blinded keys? TEST
+3. How might a wallet solution enable binding documents to a WSCD with a high level of assurance?
+4. How might a wallet solution enable relying parties to verify WSCD binding ?
+5. How might a wallet solution blind verification keys for each attestation ? (it only prevents tracking based on the public key, not on the signature and other metadata)
+6. How might a wallet solution prove possession of blinded keys?
 7. How might a wallet solution create qualified electronic signatures or seals?
 
 The European Commission and Member States are developing a Wallet Toolbox to enable interoperable solutions to challenges such as these. This Toolbox includes the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/). The Large Scale Pilots are implementing and testing the wallet to generate feedback on this Toolbox.
@@ -25,9 +25,18 @@ To address challenges 5 and 6, this repository contains a freely accessible, une
 
 ![A wallet architecture using Hierarchical Deterministic Keys associated with keys protected using a wallet secure cryptographic device, optionally using Asynchronous Remote Key Generation (ARKG).](media/deployment.svg)
 
+Please note that when ARKG is used, issuers have to store an additional secret key per user / holder.
+
 To illustrate and validate the specifications, this repository contains a **[Prototype worksheet](prototype.worksheet.sc)**. This is easiest to run in [Visual Studio Code](https://code.visualstudio.com) with [Scala (Metals)](https://marketplace.visualstudio.com/items?itemName=scalameta.metals).
 
 To inform further standardisation and legislation, this repository contains **[Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)**.
+
+This document does not contain details about the implementation of HDK type pseudonymous random generation for BBS# key management because the author prioritized HDK. However, [BBS#](https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf) would in theory present many advantages over the proposed HDK implementations:
+- a single parameter is needed (a random), not 3 (public_key, private_key, salt)
+- only local derivation is needed (no need for remote derivation)
+- seed sharing between holder and issuer is not needed ==> much reduced overhead of the issuer (no need to store and secure one seed per holder)
+- BBS# is designed from the ground up for full unlinkability which is not achievable with only HDK
+- Privacy and security proofs are provided
 
 ## Contributing
 
