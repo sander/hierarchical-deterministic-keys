@@ -7,8 +7,8 @@ The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183
 1. How might an issuer protect document authenticity?
 2. How might an issuer prevent tracking based on document authenticity signatures?
 3. How might a wallet solution enable binding documents to a WSCD with a high level of assurance?
-4. How might a wallet solution enable relying parties to verify WSCD binding ?
-5. How might a wallet solution blind verification keys for each attestation ? (it only prevents tracking based on the public key, not on the signature and other metadata)
+4. How might a wallet solution enable relying parties to verify WSCD binding?
+5. How might a wallet solution blind verification keys for each attestation?
 6. How might a wallet solution prove possession of blinded keys?
 7. How might a wallet solution create qualified electronic signatures or seals?
 
@@ -24,8 +24,6 @@ In this repository, Pilot participants contribute to concrete interoperable solu
 To address challenges 5 and 6, this repository contains a freely accessible, unencumbered specification of **[Hierarchical Deterministic Keys](keys.md)**. This enables an EU Digital Identity Wallet deployment that distributes key management efficiently:
 
 ![A wallet architecture using Hierarchical Deterministic Keys associated with keys protected using a wallet secure cryptographic device, optionally using Asynchronous Remote Key Generation (ARKG).](media/deployment.svg)
-
-Please note that when ARKG is used, issuers have to store an additional secret key per user / holder.
 
 To illustrate and validate the specifications, this repository contains a **[Prototype worksheet](prototype.worksheet.sc)**. This is easiest to run in [Visual Studio Code](https://code.visualstudio.com) with [Scala (Metals)](https://marketplace.visualstudio.com/items?itemName=scalameta.metals).
 
