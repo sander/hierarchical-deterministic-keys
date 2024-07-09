@@ -20,7 +20,7 @@ This document provides a specification of the generic HDK scheme, generic HDK in
 
 An HDK instantiation is expected to be applied in a solution deployed as (wallet) solution instances. One solution instance can have multiple HDK instantiations, for example to manage multiple identities or multiple cryptographic algorithms or key protection mechanisms.
 
-This document represents the consensus of the authors. It is not a standard.
+This document represents the consensus of the authors, based on working group input and feedback. It is not a standard.
 
 ### Conventions and definitions
 

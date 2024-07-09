@@ -2,7 +2,7 @@
 
 **Version:** 0.1.0 (2024-07-08)
 
-**Authors:** Sander Dijkhuis (Cleverbase, editor)
+**Editor:** Sander Dijkhuis (Cleverbase)
 
 **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
