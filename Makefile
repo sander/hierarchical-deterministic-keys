@@ -40,7 +40,7 @@ pdf:
 		--columns=10 \
 		--variable title="Hierarchical Deterministic Keys" \
 		--variable subtitle="for the European Digital Identity Wallet" \
-		--variable date="Version 0.1.0 (2024-07-08)\\\\\vspace{2cm}\href{https://github.com/sander/hierarchical-deterministic-keys}{github.com/sander/hierarchical-deterministic-keys}" \
+		--variable date="Version 0.1.0 (2024-07-09)\\\\\vspace{2cm}\href{https://github.com/sander/hierarchical-deterministic-keys}{github.com/sander/hierarchical-deterministic-keys}" \
 		--variable colorlinks=true \
 		--variable papersize=a4 \
 		--variable geometry="margin=2cm" \
