@@ -29,12 +29,7 @@ To illustrate and validate the specifications, this repository contains a **[Pro
 
 To inform further standardisation and legislation, this repository contains **[Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)**.
 
-This document does not contain details about the implementation of HDK type pseudonymous random generation for BBS# key management because the author prioritized HDK. However, [BBS#](https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf) would in theory present many advantages over the proposed HDK implementations:
-- a single parameter is needed (a random), not 3 (public_key, private_key, salt)
-- only local derivation is needed (no need for remote derivation)
-- seed sharing between holder and issuer is not needed ==> much reduced overhead of the issuer (no need to store and secure one seed per holder)
-- BBS# is designed from the ground up for full unlinkability which is not achievable with only HDK
-- Privacy and security proofs are provided
+The repository does not contain details about the implementation of HDK for key management in credential schemes, such as one-time-use document schemes for relying party unlinkability and weak issuer unlinkability, or [BBS#](https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf) for full unlinkability. Credential schemes have not currently been analysed by the working group. When such analysis is carried out, it might result in changes to the specification. For example, delegated key generation only seems to have use cases for batch one-time-use document issuance, and not for BBS#.
 
 ## Contributing
 
