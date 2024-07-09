@@ -25,7 +25,7 @@ The participants share the following position.
 
 As of today, ARF 1.4 provides no complete and interoperable solution for key management, that can be industrially deployed at scale and used across the whole ecosystem.
 
-HDK is a viable solution to some EU Digital Identity Wallet key management challenges. It enables the management of an unlimited amount a keys using a single secret. It also allows the use of existing secure cryptographic devices with common algorithms.
+HDK is a viable solution to some EU Digital Identity Wallet key management challenges. It enables the management of an unlimited amount of keys using a single secret. It also allows the use of existing secure cryptographic devices with common algorithms.
 
 HDK is applicable to specific credential schemes, including one-time-use attestations and BBS#.
 
