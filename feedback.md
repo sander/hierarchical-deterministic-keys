@@ -13,7 +13,7 @@ For a general introduction, see [Hierarchical Deterministic Keys for the Europea
 By enabling Hierarchical Deterministic Keys, we aim for interoperability with a concrete and desirable cryptographic architecture in the context of person identification data and some (qualified) electronic attestations of attributes. We do not suggest to mandate the application of this cryptographic architecture for all digital identity documents. Instead, we aim to address two risks to the ARF and subsequently the implementing acts: the risk of accidentally disabling desirable technical solutions, and the risk of accidentally requiring undesirable technical solutions.
 
 > [!NOTE]
-> This information is shared by participants of the [Digital Credentials for Europe (DC4EU) Consortium](https://www.dc4eu.eu), the [EU Digital Identity Wallet Consortium (EWC)](https://eudiwalletconsortium.org), and the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all consortium members.
+> This feedback document is a first version, and requires detailed exchanges to understand each other’s detailed points of view. This information is shared by participants of the [Digital Credentials for Europe (DC4EU) Consortium](https://www.dc4eu.eu), the [EU Digital Identity Wallet Consortium (EWC)](https://eudiwalletconsortium.org), and the [Potential Consortium](https://www.digital-identity-wallet.eu). Views and opinions expressed are those of the authors only and do not necessarily reflect those of all consortium members.
 
 ## Feedback on the high level requirements
 
