@@ -6,9 +6,9 @@ The [EU Digital Identity Regulation](https://eur-lex.europa.eu/eli/reg/2024/1183
 
 1. How might an issuer protect document authenticity?
 2. How might an issuer prevent tracking based on document authenticity signatures?
-3. How might a wallet solution enable binding documents to a personalised device with a high level of assurance?
-4. How might a wallet solution enable relying parties to verify possession of the device?
-5. How might a wallet solution blind verification keys for each proof, preventing relying party tracking?
+3. How might a wallet solution enable binding documents to a WSCD with a high level of assurance?
+4. How might a wallet solution enable relying parties to verify WSCD binding?
+5. How might a wallet solution blind verification keys for each attestation?
 6. How might a wallet solution prove possession of blinded keys?
 7. How might a wallet solution create qualified electronic signatures or seals?
 
@@ -50,6 +50,8 @@ To address challenges 5 and 6, this repository contains a freely accessible, une
 To illustrate and validate the specifications, this repository contains a **[Prototype worksheet](prototype.worksheet.sc)**. This is easiest to run in [Visual Studio Code](https://code.visualstudio.com) with [Scala (Metals)](https://marketplace.visualstudio.com/items?itemName=scalameta.metals).
 
 To inform further standardisation and legislation, this repository contains **[Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)**.
+
+The repository does not contain details about the implementation of HDK for key management in credential schemes, such as one-time-use document schemes for relying party unlinkability and weak issuer unlinkability, or [BBS#](https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf) for full unlinkability. Credential schemes have not currently been analysed by the working group. When such analysis is carried out, it might result in changes to the specification. For example, delegated key generation only seems to have use cases for batch one-time-use document issuance, and not for BBS#.
 
 ## Contributing
 
