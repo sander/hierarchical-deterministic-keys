@@ -33,6 +33,7 @@ We want to start a dialogue with the European Commission about the proposed solu
 
 Expert participants from DC4EU:
 
+- Leif Johansson (Sunet)
 - Nikos Voutsinas (GUnet)
 
 Expert participants from Potential:
