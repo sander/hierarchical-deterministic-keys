@@ -1,6 +1,6 @@
 # Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox
 
-**Version:** 0.1.0 (2024-07-09)
+**Version:** 0.2.0-SNAPSHOT
 
 **Editor:** Sander Dijkhuis (Cleverbase)
 
