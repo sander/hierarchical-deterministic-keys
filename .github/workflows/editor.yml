@@ -1,0 +1,51 @@
+name: Editor
+
+on:
+  push:
+    paths-ignore:
+    - media/deployment.svg
+    - Makefile
+    - README.md
+    - feedback.md
+    - prototype.worksheet.sc
+    - .gitignore
+  pull_request:
+    paths-ignore:
+    - media/deployment.svg
+    - Makefile
+    - README.md
+    - feedback.md
+    - prototype.worksheet.sc
+    - .gitignore
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Editor’s Copy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - id: setup
+      run: date -u "+date=%FT%T" >> $GITHUB_OUTPUT
+    - uses: actions/cache@v3
+      with:
+        path: |
+          .refcache
+          .venv
+          .gems
+          node_modules
+          .targets.mk
+        key: i-d-${{ steps.setup.outputs.date }}
+        restore-keys: i-d-
+    - name: Build
+      uses: martinthomson/i-d-template@v1
+      with:
+        token: ${{ github.token }}
+    - name: Publish
+      uses: martinthomson/i-d-template@v1
+      if: ${{ github.event_name == 'push' }}
+      with:
+        make: gh-pages
+        token: ${{ github.token }}
