@@ -1,4 +1,16 @@
-pdf:
+LIBDIR := lib
+include $(LIBDIR)/main.mk
+
+$(LIBDIR)/main.mk:
+ifneq (,$(shell grep "path *= *$(LIBDIR)" .gitmodules 2>/dev/null))
+	git submodule sync
+	git submodule update $(CLONE_ARGS) --init
+else
+	git clone -q --depth 10 $(CLONE_ARGS) \
+	    -b main https://github.com/martinthomson/i-d-template $(LIBDIR)
+endif
+
+hdk.pdf:
 	mkdir -p build
 	cp -r media build
 	echo \
@@ -6,7 +18,7 @@ pdf:
 		"<title>Hierarchical Deterministic Keys for the European Digital Identity Wallet</title>" \
 		"<meta charset=utf-8>" \
 		> build/hdk.html
-	npx -p @mermaid-js/mermaid-cli mmdc -i keys.md -o build/keys.md -e svg -t neutral -w 400
+	npx -p @mermaid-js/mermaid-cli mmdc -i draft-dijkhuis-cfrg-hierarchical-deterministic-keys.md -o build/keys.md -e svg -t neutral -w 400
 	cat README.md | \
 		sed -e "s/# Hierarchical Deterministic Keys for the European Digital Identity Wallet/# Introduction to Hierarchical Deterministic Keys/g" | \
 		sed -e "s/keys.md/#hierarchical-deterministic-keys/g" | \
