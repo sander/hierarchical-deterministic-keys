@@ -1926,7 +1926,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
             </ul>
 </li>
         </ul>
-<p id="section-5.1-8">The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone’s rich execution environment or in a personal computer web browser.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
+<p id="section-5.1-8">The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
 <p id="section-5.1-9">If the user enters the PIN in the WI instead of on the WSCD directly, the WI <span class="bcp14">MUST</span> process it directly after entering, the WI <span class="bcp14">MUST</span> keep the plaintext PIN confidential, and the WI <span class="bcp14">MUST</span> delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.<a href="#section-5.1-9" class="pilcrow">¶</a></p>
 <p id="section-5.1-10">The rate-limiting of the PIN check <span class="bcp14">MUST</span> be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting <span class="bcp14">MUST NOT</span> be managed solely in local WI software since it is aassumed that attackers could modify this without detection.<a href="#section-5.1-10" class="pilcrow">¶</a></p>
 </section>
@@ -1936,7 +1936,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         <h3 id="name-trust-evidence">
 <a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-trust-evidence" class="section-name selfRef">Trust evidence</a>
         </h3>
-<p id="section-5.2-1">Some issuers could require evidence from a solution provider of the security of the holder’s cryptographic device. This evidence is in the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span> divided into initial “Wallet Trust Evidence” and related “Issuer Trust Evidence”. Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-1">Some issuers could require evidence from a solution provider of the security of the holder's cryptographic device. This evidence is in the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span> divided into initial "Wallet Trust Evidence" and related "Issuer Trust Evidence". Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <div id="wallet-trust-evidence">
 <section id="section-5.2.1">
           <h4 id="name-wallet-trust-evidence">
@@ -2037,7 +2037,7 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <dd class="break"></dd>
 <dt id="ISO18013-5">[ISO18013-5]</dt>
         <dd>
-<span class="refAuthor">ISO/IEC</span>, <span class="refTitle">"Personal identification — ISO-compliant driving licence – Part 5: Mobile driving licence (mDL) application"</span>, <span class="seriesInfo">ISO/IEC 18013-5:2021</span>, <time datetime="2019-09" class="refDate">September 2019</time>, <span>&lt;<a href="https://www.iso.org/standard/69084.html">https://www.iso.org/standard/69084.html</a>&gt;</span>. </dd>
+<span class="refAuthor">ISO/IEC</span>, <span class="refTitle">"Personal identification - ISO-compliant driving licence - Part 5: Mobile driving licence (mDL) application"</span>, <span class="seriesInfo">ISO/IEC 18013-5:2021</span>, <time datetime="2019-09" class="refDate">September 2019</time>, <span>&lt;<a href="https://www.iso.org/standard/69084.html">https://www.iso.org/standard/69084.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
