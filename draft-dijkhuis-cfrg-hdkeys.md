@@ -31,7 +31,7 @@ normative:
             - organization: National Institute of Standards and Technology (NIST)
         date: 2012-06
     ISO18013-5:
-        title: "Personal identification — ISO-compliant driving licence – Part 5: Mobile driving licence (mDL) application"
+        title: "Personal identification - ISO-compliant driving licence - Part 5: Mobile driving licence (mDL) application"
         target: https://www.iso.org/standard/69084.html
         seriesinfo:
             ISO/IEC: 18013-5:2021
@@ -536,7 +536,7 @@ The solution proposal discussed herein works in all four WSCD architectures that
   - P-256 EC-SDSA key pair generation
   - P-256 EC-SDSA signature creation
 
-The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone’s rich execution environment or in a personal computer web browser.
+The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.
 
 If the user enters the PIN in the WI instead of on the WSCD directly, the WI MUST process it directly after entering, the WI MUST keep the plaintext PIN confidential, and the WI MUST delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.
 
@@ -544,7 +544,7 @@ The rate-limiting of the PIN check MUST be managed within the WSCD or on securel
 
 ## Trust evidence
 
-Some issuers could require evidence from a solution provider of the security of the holder’s cryptographic device. This evidence is in the context of [EU2024-1183] divided into initial “Wallet Trust Evidence” and related “Issuer Trust Evidence”. Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.
+Some issuers could require evidence from a solution provider of the security of the holder's cryptographic device. This evidence is in the context of [EU2024-1183] divided into initial "Wallet Trust Evidence" and related "Issuer Trust Evidence". Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.
 
 ### Wallet Trust Evidence
 
