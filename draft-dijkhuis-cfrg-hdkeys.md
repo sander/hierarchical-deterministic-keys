@@ -2,7 +2,7 @@
 title: Hierarchical Deterministic Keys
 abbrev: HDK
 category: info
-docname: draft-dijkhuis-cfrg-hierarchical-deterministic-keys-latest
+docname: draft-dijkhuis-cfrg-hdkeys-latest
 submissiontype: independent
 v: 3
 area: IRTF
@@ -38,10 +38,8 @@ normative:
         author:
             - organization: ISO/IEC
         date: 2019-09
-    RFC2119:
     RFC7800:
     RFC8017:
-    RFC8174:
     RFC9380:
     SEC2:
         title: "SEC 2: Recommended Elliptic Curve Domain Parameters, Version 2.0"
@@ -151,31 +149,32 @@ Solutions MAY omit application of the asynchronous remote key generation functio
 The following example illustrates the use of key derivation. An HDK tree is defined by an initial public key and a seed value, which is a byte array containing sufficient entropy. Now tree nodes are constructed as follows.
 
 ~~~
-                           ┌────────────────────────┐
-                           │Confidential static data│
-                           │┌─────────┐ ┌────┐      │
-                           ││pk_device│ │seed│      │
-                           │└────┬────┘ └──┬─┘      │
-                           └─────┼─────────┼────────┘
-               ┌─────────────────┼─────────┼───────────────────────────┐
-               │Level 0          ▼         ▼                           │
-               │┌─────────────────────────────────────────────────────┐│
-               ││(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)││
-               │└────┬────────────────────────────────────────────────┘│
-               └─────┼─────────────────────────────────────────────────┘
-Level 1              ▼
-┌─────────────────────────┐┌────────────────────────┐┌─────────────────────────┐
-│(pk1, sk1, salt1) =      ││HDK-Derive-Local(hd0, 1)││HDK-Derive-Local(hdk0, 2)│
-│HDK-Derive-Local(hdk0, 0)││                        ││                         │
-└───────────┬────────┬────┘└────────────────────────┘└─────────────────────────┘
-            │        └────────────────────────┐
-            │                                 │
-┌───────────┼─────────────────────────────────┼──────────────────────────────┐
-│Level 2    ▼                                 ▼                              │
-│┌────────────────────────────────────┐┌────────────────────────────────────┐│
-││HDK-Derive-Local((pk1,sk1,salt1), 0)││HDK-Derive-Local((pk1,sk1,salt1), 1)││
-│└────────────────────────────────────┘└────────────────────────────────────┘│
-└────────────────────────────────────────────────────────────────────────────┘
+              +------------------------+
+              |Confidential static data|
+              |+---------+ +----+      |
+              ||pk_device| |seed|      |
+              |+----+----+ +--+-+      |
+              +-----+---------+--------+
+  +-----------------+---------+---------------------------+
+  |Level 0          v         v                           |
+  |+-----------------------------------------------------+|
+  ||(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)||
+  |+----+------------------------------------------------+|
+  +-----+-------------------------------------------------+
+Level 1 v
++-------------------------++-----------------++-----------------+
+|(pk1, sk1, salt1) =      ||HDK-Derive-Local(||HDK-Derive-Local(|
+|HDK-Derive-Local(hdk0, 0)||    hdk0, 1)     ||    hdk0, 2)     |
++-----------+--------+----++-----------------++-----------------+
+            |        +---------------+
+            |                        |
++-----------+------------------------+--------------------+
+|Level 2    v                        v                    |
+|+-----------------------++-----------------------+       |
+||HDK-Derive-Local(      ||HDK-Derive-Local(      |       |
+||    (pk1,sk1,salt1), 0)||    (pk1,sk1,salt1), 1)|       |
+|+-----------------------++-----------------------+       |
++---------------------------------------------------------+
 ~~~
 
 The solution instance computes the Level 0 HDK at the root node using a deterministic function called HDK-Root. The HDK consists of a key pair `(pk0, sk0)`, and a byte string `salt0` to derive next-level keys.
@@ -198,23 +197,23 @@ In this example, a document is issued in such a way that it can be presented wit
 In secure
 cryptographic
 device
-┌───────────┐
-│sk_device  ┼─────────────┐
-└───────────┘             │
-─────────────             │
-HDK in                    │
-solution                  │
-instance                  ▼        ┌───────────┐
-┌───────────┐    HDK-Authenticate─►│device_data│
-│pk         │       ▲     ▲        └───────────┘
-└───────────┘       │     │
-┌───────────┐       │     │
-│sk         ┼───────┘     │
-└───────────┘             │
-─────────────             │
-┌───────────┐             │
-│reader_data┼─────────────┘
-└───────────┘
++-----------+
+|sk_device  +-------------+
++-----------+             |
+-------------             |
+HDK in                    |
+solution                  |
+instance                  v        +-----------+
++-----------+    HDK-Authenticate->|device_data|
+|pk         |       ^     ^        +-----------+
++-----------+       |     |
++-----------+       |     |
+|sk         +-------+     |
++-----------+             |
+-------------             |
++-----------+             |
+|reader_data+-------------+
++-----------+
 ~~~
 
 Blinding methods can be constructed such that the secure cryptographic device does not need to be designed for it. In such cases, `sk_device` does not contain the value of the private device key but a reference to it.
@@ -341,7 +340,7 @@ A solution instance authenticates the device by creating a blinded proof applyin
 Inputs:
 - sk_device, a (reference to a) device private key.
 - sk_hdk, an HDK private key.
-- reader_data, a byte string of solution instance-specific reader data.
+- reader_data, a byte string of solution instance-specific data.
 
 Outputs:
 - device_data, a byte string of device data for proving possession.
