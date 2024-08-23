@@ -11,7 +11,7 @@
     " name="description">
 <meta content="xml2rfc 3.22.0" name="generator">
 <meta content="KDF" name="keyword">
-<meta content="draft-dijkhuis-cfrg-hierarchical-deterministic-keys-latest" name="ietf.draft">
+<meta content="draft-dijkhuis-cfrg-hdkeys-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.22.0
     Python 3.12.3
@@ -27,7 +27,7 @@
     setuptools 70.3.0
     wcwidth 0.2.13
 -->
-<link href="draft-dijkhuis-cfrg-hierarchical-deterministic-keys.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-dijkhuis-cfrg-hdkeys.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1038,7 +1038,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Crypto Forum</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-dijkhuis-cfrg-hierarchical-deterministic-keys-latest</dd>
+<dd class="internet-draft">draft-dijkhuis-cfrg-hdkeys-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2024-08-23" class="published">23 August 2024</time>
@@ -1068,7 +1068,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hierarchical-deterministic-keys/">https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hierarchical-deterministic-keys/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hdkeys/">https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hdkeys/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">Source for this draft and an issue tracker can be found at
         <span><a href="https://github.com/sander/hierarchical-deterministic-keys">https://github.com/sander/hierarchical-deterministic-keys</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 </section>
@@ -1295,31 +1295,32 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">�
 <p id="section-2.1.1-1">The following example illustrates the use of key derivation. An HDK tree is defined by an initial public key and a seed value, which is a byte array containing sufficient entropy. Now tree nodes are constructed as follows.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.1.1-2">
 <pre>
-                           ┌────────────────────────┐
-                           │Confidential static data│
-                           │┌─────────┐ ┌────┐      │
-                           ││pk_device│ │seed│      │
-                           │└────┬────┘ └──┬─┘      │
-                           └─────┼─────────┼────────┘
-               ┌─────────────────┼─────────┼───────────────────────────┐
-               │Level 0          ▼         ▼                           │
-               │┌─────────────────────────────────────────────────────┐│
-               ││(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)││
-               │└────┬────────────────────────────────────────────────┘│
-               └─────┼─────────────────────────────────────────────────┘
-Level 1              ▼
-┌─────────────────────────┐┌────────────────────────┐┌─────────────────────────┐
-│(pk1, sk1, salt1) =      ││HDK-Derive-Local(hd0, 1)││HDK-Derive-Local(hdk0, 2)│
-│HDK-Derive-Local(hdk0, 0)││                        ││                         │
-└───────────┬────────┬────┘└────────────────────────┘└─────────────────────────┘
-            │        └────────────────────────┐
-            │                                 │
-┌───────────┼─────────────────────────────────┼──────────────────────────────┐
-│Level 2    ▼                                 ▼                              │
-│┌────────────────────────────────────┐┌────────────────────────────────────┐│
-││HDK-Derive-Local((pk1,sk1,salt1), 0)││HDK-Derive-Local((pk1,sk1,salt1), 1)││
-│└────────────────────────────────────┘└────────────────────────────────────┘│
-└────────────────────────────────────────────────────────────────────────────┘
+              +------------------------+
+              |Confidential static data|
+              |+---------+ +----+      |
+              ||pk_device| |seed|      |
+              |+----+----+ +--+-+      |
+              +-----+---------+--------+
+  +-----------------+---------+---------------------------+
+  |Level 0          v         v                           |
+  |+-----------------------------------------------------+|
+  ||(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)||
+  |+----+------------------------------------------------+|
+  +-----+-------------------------------------------------+
+Level 1 v
++-------------------------++-----------------++-----------------+
+|(pk1, sk1, salt1) =      ||HDK-Derive-Local(||HDK-Derive-Local(|
+|HDK-Derive-Local(hdk0, 0)||    hdk0, 1)     ||    hdk0, 2)     |
++-----------+--------+----++-----------------++-----------------+
+            |        +---------------+
+            |                        |
++-----------+------------------------+--------------------+
+|Level 2    v                        v                    |
+|+-----------------------++-----------------------+       |
+||HDK-Derive-Local(      ||HDK-Derive-Local(      |       |
+||    (pk1,sk1,salt1), 0)||    (pk1,sk1,salt1), 1)|       |
+|+-----------------------++-----------------------+       |
++---------------------------------------------------------+
 </pre><a href="#section-2.1.1-2" class="pilcrow">¶</a>
 </div>
 <p id="section-2.1.1-3">The solution instance computes the Level 0 HDK at the root node using a deterministic function called HDK-Root. The HDK consists of a key pair <code>(pk0, sk0)</code>, and a byte string <code>salt0</code> to derive next-level keys.<a href="#section-2.1.1-3" class="pilcrow">¶</a></p>
@@ -1347,23 +1348,23 @@ Level 1              ▼
 In secure
 cryptographic
 device
-┌───────────┐
-│sk_device  ┼─────────────┐
-└───────────┘             │
-─────────────             │
-HDK in                    │
-solution                  │
-instance                  ▼        ┌───────────┐
-┌───────────┐    HDK-Authenticate─►│device_data│
-│pk         │       ▲     ▲        └───────────┘
-└───────────┘       │     │
-┌───────────┐       │     │
-│sk         ┼───────┘     │
-└───────────┘             │
-─────────────             │
-┌───────────┐             │
-│reader_data┼─────────────┘
-└───────────┘
++-----------+
+|sk_device  +-------------+
++-----------+             |
+-------------             |
+HDK in                    |
+solution                  |
+instance                  v        +-----------+
++-----------+    HDK-Authenticate-&gt;|device_data|
+|pk         |       ^     ^        +-----------+
++-----------+       |     |
++-----------+       |     |
+|sk         +-------+     |
++-----------+             |
+-------------             |
++-----------+             |
+|reader_data+-------------+
++-----------+
 </pre><a href="#section-2.1.3-3" class="pilcrow">¶</a>
 </div>
 <p id="section-2.1.3-4">Blinding methods can be constructed such that the secure cryptographic device does not need to be designed for it. In such cases, <code>sk_device</code> does not contain the value of the private device key but a reference to it.<a href="#section-2.1.3-4" class="pilcrow">¶</a></p>
@@ -1554,7 +1555,7 @@ def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)
 Inputs:
 - sk_device, a (reference to a) device private key.
 - sk_hdk, an HDK private key.
-- reader_data, a byte string of solution instance-specific reader data.
+- reader_data, a byte string of solution instance-specific data.
 
 Outputs:
 - device_data, a byte string of device data for proving possession.
@@ -1925,7 +1926,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
             </ul>
 </li>
         </ul>
-<p id="section-5.1-8">The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone’s rich execution environment or in a personal computer web browser.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
+<p id="section-5.1-8">The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
 <p id="section-5.1-9">If the user enters the PIN in the WI instead of on the WSCD directly, the WI <span class="bcp14">MUST</span> process it directly after entering, the WI <span class="bcp14">MUST</span> keep the plaintext PIN confidential, and the WI <span class="bcp14">MUST</span> delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.<a href="#section-5.1-9" class="pilcrow">¶</a></p>
 <p id="section-5.1-10">The rate-limiting of the PIN check <span class="bcp14">MUST</span> be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting <span class="bcp14">MUST NOT</span> be managed solely in local WI software since it is aassumed that attackers could modify this without detection.<a href="#section-5.1-10" class="pilcrow">¶</a></p>
 </section>
@@ -1935,7 +1936,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         <h3 id="name-trust-evidence">
 <a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-trust-evidence" class="section-name selfRef">Trust evidence</a>
         </h3>
-<p id="section-5.2-1">Some issuers could require evidence from a solution provider of the security of the holder’s cryptographic device. This evidence is in the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span> divided into initial “Wallet Trust Evidence” and related “Issuer Trust Evidence”. Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-1">Some issuers could require evidence from a solution provider of the security of the holder's cryptographic device. This evidence is in the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span> divided into initial "Wallet Trust Evidence" and related "Issuer Trust Evidence". Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <div id="wallet-trust-evidence">
 <section id="section-5.2.1">
           <h4 id="name-wallet-trust-evidence">
@@ -2036,7 +2037,7 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <dd class="break"></dd>
 <dt id="ISO18013-5">[ISO18013-5]</dt>
         <dd>
-<span class="refAuthor">ISO/IEC</span>, <span class="refTitle">"Personal identification — ISO-compliant driving licence – Part 5: Mobile driving licence (mDL) application"</span>, <span class="seriesInfo">ISO/IEC 18013-5:2021</span>, <time datetime="2019-09" class="refDate">September 2019</time>, <span>&lt;<a href="https://www.iso.org/standard/69084.html">https://www.iso.org/standard/69084.html</a>&gt;</span>. </dd>
+<span class="refAuthor">ISO/IEC</span>, <span class="refTitle">"Personal identification - ISO-compliant driving licence - Part 5: Mobile driving licence (mDL) application"</span>, <span class="seriesInfo">ISO/IEC 18013-5:2021</span>, <time datetime="2019-09" class="refDate">September 2019</time>, <span>&lt;<a href="https://www.iso.org/standard/69084.html">https://www.iso.org/standard/69084.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>

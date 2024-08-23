@@ -9,7 +9,7 @@ Expires: 24 February 2025
 
 
                     Hierarchical Deterministic Keys
-       draft-dijkhuis-cfrg-hierarchical-deterministic-keys-latest
+                   draft-dijkhuis-cfrg-hdkeys-latest
 
 Abstract
 
@@ -23,8 +23,7 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hierarchical-
-   deterministic-keys/.
+   https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hdkeys/.
 
    Source for this draft and an issue tracker can be found at
    https://github.com/sander/hierarchical-deterministic-keys.
@@ -171,31 +170,32 @@ Table of Contents
    byte array containing sufficient entropy.  Now tree nodes are
    constructed as follows.
 
-                           ┌────────────────────────┐
-                           │Confidential static data│
-                           │┌─────────┐ ┌────┐      │
-                           ││pk_device│ │seed│      │
-                           │└────┬────┘ └──┬─┘      │
-                           └─────┼─────────┼────────┘
-               ┌─────────────────┼─────────┼───────────────────────────┐
-               │Level 0          ▼         ▼                           │
-               │┌─────────────────────────────────────────────────────┐│
-               ││(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)││
-               │└────┬────────────────────────────────────────────────┘│
-               └─────┼─────────────────────────────────────────────────┘
-Level 1              ▼
-┌─────────────────────────┐┌────────────────────────┐┌─────────────────────────┐
-│(pk1, sk1, salt1) =      ││HDK-Derive-Local(hd0, 1)││HDK-Derive-Local(hdk0, 2)│
-│HDK-Derive-Local(hdk0, 0)││                        ││                         │
-└───────────┬────────┬────┘└────────────────────────┘└─────────────────────────┘
-            │        └────────────────────────┐
-            │                                 │
-┌───────────┼─────────────────────────────────┼──────────────────────────────┐
-│Level 2    ▼                                 ▼                              │
-│┌────────────────────────────────────┐┌────────────────────────────────────┐│
-││HDK-Derive-Local((pk1,sk1,salt1), 0)││HDK-Derive-Local((pk1,sk1,salt1), 1)││
-│└────────────────────────────────────┘└────────────────────────────────────┘│
-└────────────────────────────────────────────────────────────────────────────┘
+                 +------------------------+
+                 |Confidential static data|
+                 |+---------+ +----+      |
+                 ||pk_device| |seed|      |
+                 |+----+----+ +--+-+      |
+                 +-----+---------+--------+
+     +-----------------+---------+---------------------------+
+     |Level 0          v         v                           |
+     |+-----------------------------------------------------+|
+     ||(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)||
+     |+----+------------------------------------------------+|
+     +-----+-------------------------------------------------+
+   Level 1 v
+   +-------------------------++-----------------++-----------------+
+   |(pk1, sk1, salt1) =      ||HDK-Derive-Local(||HDK-Derive-Local(|
+   |HDK-Derive-Local(hdk0, 0)||    hdk0, 1)     ||    hdk0, 2)     |
+   +-----------+--------+----++-----------------++-----------------+
+               |        +---------------+
+               |                        |
+   +-----------+------------------------+--------------------+
+   |Level 2    v                        v                    |
+   |+-----------------------++-----------------------+       |
+   ||HDK-Derive-Local(      ||HDK-Derive-Local(      |       |
+   ||    (pk1,sk1,salt1), 0)||    (pk1,sk1,salt1), 1)|       |
+   |+-----------------------++-----------------------+       |
+   +---------------------------------------------------------+
 
    The solution instance computes the Level 0 HDK at the root node using
    a deterministic function called HDK-Root.  The HDK consists of a key
@@ -238,23 +238,23 @@ Level 1              ▼
    In secure
    cryptographic
    device
-   ┌───────────┐
-   │sk_device  ┼─────────────┐
-   └───────────┘             │
-   ─────────────             │
-   HDK in                    │
-   solution                  │
-   instance                  ▼        ┌───────────┐
-   ┌───────────┐    HDK-Authenticate─►│device_data│
-   │pk         │       ▲     ▲        └───────────┘
-   └───────────┘       │     │
-   ┌───────────┐       │     │
-   │sk         ┼───────┘     │
-   └───────────┘             │
-   ─────────────             │
-   ┌───────────┐             │
-   │reader_data┼─────────────┘
-   └───────────┘
+   +-----------+
+   |sk_device  +-------------+
+   +-----------+             |
+   -------------             |
+   HDK in                    |
+   solution                  |
+   instance                  v        +-----------+
+   +-----------+    HDK-Authenticate->|device_data|
+   |pk         |       ^     ^        +-----------+
+   +-----------+       |     |
+   +-----------+       |     |
+   |sk         +-------+     |
+   +-----------+             |
+   -------------             |
+   +-----------+             |
+   |reader_data+-------------+
+   +-----------+
 
    Blinding methods can be constructed such that the secure
    cryptographic device does not need to be designed for it.  In such
@@ -419,15 +419,15 @@ Level 1              ▼
    device-bound document.  The application-specific data for proof of
    possession is out of scope for HDK.
 
- Inputs:
- - sk_device, a (reference to a) device private key.
- - sk_hdk, an HDK private key.
- - reader_data, a byte string of solution instance-specific reader data.
+   Inputs:
+   - sk_device, a (reference to a) device private key.
+   - sk_hdk, an HDK private key.
+   - reader_data, a byte string of solution instance-specific data.
 
- Outputs:
- - device_data, a byte string of device data for proving possession.
+   Outputs:
+   - device_data, a byte string of device data for proving possession.
 
- def HDK-Authenticate(sk_device, sk_hdk, reader_data)
+   def HDK-Authenticate(sk_device, sk_hdk, reader_data)
 
    Implementations of this function typically perform pre-processing on
    the reader_data, invoke the device key operation on the result, and
@@ -738,7 +738,7 @@ Level 1              ▼
 
    The other HDK operations can be performed in the WI running on any
    UD, including hostile ones with limited sandboxing capabilities, such
-   as in a smartphone’s rich execution environment or in a personal
+   as in a smartphone's rich execution environment or in a personal
    computer web browser.
 
    If the user enters the PIN in the WI instead of on the WSCD directly,
@@ -755,9 +755,9 @@ Level 1              ▼
 5.2.  Trust evidence
 
    Some issuers could require evidence from a solution provider of the
-   security of the holder’s cryptographic device.  This evidence is in
-   the context of [EU2024-1183] divided into initial “Wallet Trust
-   Evidence” and related “Issuer Trust Evidence”. Each is a protected
+   security of the holder's cryptographic device.  This evidence is in
+   the context of [EU2024-1183] divided into initial "Wallet Trust
+   Evidence" and related "Issuer Trust Evidence".  Each is a protected
    document that contains a trust evidence public key associated with a
    private key that is protected in the secure cryptographic device.  In
    HDK, these public keys are specified as follows.
@@ -852,8 +852,8 @@ Level 1              ▼
               bradleylundberg-cfrg-arkg-02>.
 
    [ISO18013-5]
-              ISO/IEC, "Personal identification — ISO-compliant driving
-              licence – Part 5: Mobile driving licence (mDL)
+              ISO/IEC, "Personal identification - ISO-compliant driving
+              licence - Part 5: Mobile driving licence (mDL)
               application", ISO/IEC 18013-5:2021, September 2019,
               <https://www.iso.org/standard/69084.html>.
 
