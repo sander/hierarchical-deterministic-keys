@@ -40,6 +40,7 @@ normative:
         date: 2019-09
     RFC7800:
     RFC8017:
+    RFC8235:
     RFC9380:
     SEC2:
         title: "SEC 2: Recommended Elliptic Curve Domain Parameters, Version 2.0"
@@ -218,6 +219,36 @@ instance                  v        +-----------+
 
 Blinding methods can be constructed such that the secure cryptographic device does not need to be designed for it. In such cases, `sk_device` does not contain the value of the private device key but a reference to it.
 
+### Proof of association example
+
+An HDK instantiation can prove association between multiple HDKeys that are part of the same tree. When combined with proofs of possession of these HDKeys, this assures a verifier that all are protected using a single device key.
+
+~~~
++-----------------+                      +--------+
+|Solution instance|                      |Verifier|
++--------+--------+                      +---+----+
+         |                                   |
+1. HDK-Association-Commit                    |
+         |                                   |
+         | 2. commitment                     |
+         +---------------------------------->|
+         |                                   |
+         |             3. HDK-Association-Challenge
+         |                                   |
+         |                      4. challenge |
+         |<----------------------------------+
+         |                                   |
+5. HDK-Association-Prove                     |
+         |                                   |
+         | 6. proof                          |
+         +---------------------------------->|
+         |                                   |
+         |                7. HDK-Association-Verify
+         |                                   |
+~~~
+
+This protocol is designed to achieve plausible deniability.
+
 ## Instantiation parameters
 
 The parameters of an HDK instantiation are:
@@ -237,6 +268,10 @@ The parameters of an HDK instantiation are:
 - `HDK-Root(pk_device, seed)`: See [The HDK-Root function](#the-hdk-root-function).
 - `HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)`: See [The HDK-Derive-Remote function](#the-hdk-derive-remote-function).
 - `HDK-Authenticate(sk_device, sk_hdk, reader_data)`: See [The HDK-Authenticate function](#the-hdk-authenticate-function).
+- `HDK-Association-Commit(prover_randomness, hdks)`: See [The HDK-Association-Commit function](#the-hdk-association-commit-function).
+- `HDK-Association-Challenge(verifier_randomness, commitment)`: See [The HDK-Association-Challenge function](#the-hdk-association-challenge-function).
+- `HDK-Association-Prove(prover_secret, challenge, hdks)`: See [The HDK-Association-Prove function](#the-hdk-association-prove-function).
+- `HDK-Association-Verify(commitment, challenge, pks, proofs)`: See [The HDK-Association-Verify function](#the-hdk-association-verify-function).
 
 A concrete HDK instantiation MUST specify the instantiation of each of the above functions and values.
 
@@ -352,6 +387,62 @@ Implementations of this function typically perform pre-processing on the `reader
 
 A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can be verified using the public key in the same HDK as `sk_hdk`. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.
 
+## The HDK-Association-Commit function
+
+~~~
+Inputs:
+- prover_randomness, a byte string of fresh random data.
+- hdks
+
+Outputs:
+- commitment
+- prover_secret
+
+def HDK-Association-Commit(prover_randomness, hdks)
+~~~
+
+## The HDK-Association-Challenge function
+
+~~~
+Inputs:
+- verifier_randomness, a byte string of fresh random data.
+- commitment
+
+Outputs:
+- challenge
+
+def HDK-Association-Challenge(verifier_randomness, commitment)
+~~~
+
+## The HDK-Association-Prove function
+
+~~~
+Inputs:
+- prover_secret
+- challenge
+- hdks
+
+Outputs:
+- proof
+
+def HDK-Association-Prove(prover_secret, challenge, hdks)
+~~~
+
+## The HDK-Assocation-Verify function
+
+~~~
+Inputs:
+- commitment
+- challenge
+- pks
+- proof
+
+Outputs:
+- associated
+
+def HDK-Association-Verify(commitment, challenge, pks, proofs)
+~~~
+
 # Generic HDK instantiations
 
 ## Using elliptic curves
@@ -417,7 +508,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 
 ## Using EC-SDSA signatures for proof of possession
 
-Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#using-elliptic-curves)) require the following cryptographic construct:
+Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#using-elliptic-curves)) and require the following cryptographic construct:
 
 - `DSA`: an EC-SDSA (Schnorr) digital signature algorithm [TR03111], consisting of the functions:
   - DSA-Sign(sk, message): Outputs the signature `(c, r)` created using private signing key `sk` over byte string `message`.
@@ -459,6 +550,72 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 ## Using ECDSA signatures for proof of possession
 
 Due to potential patent claims and potential related-key attacks, this document does not specify an implementation for threshold ECDSA.
+
+## Using Schnorr interactive zero-knowledge proofs for multiplicative proof of association
+
+Such instantiations of HDK use elliptic curves (see [Using elliptic curves](#using-elliptic-curves)) and apply a Schnorr identification scheme [RFC8235].
+
+~~~
+def HDK-Association-Commit(prover_randomness, hdks):
+    (pk, _, salt) = hdks[0]
+    okm = expand(prover_randomness, ID || "prover" || salt, Nk)
+    (_, prover_secret) = key(okm)
+    commitment = EC-Scalar-Mult(pk, prover_secret)
+    return (commitment, prover_secret)
+
+def HDK-Association-Challenge(verifier_randomness, commitment):
+    DST = ID || "verifier" || serialize(commitment)
+    okm = expand(verifier_randomness, DST, Nk)
+    (_, challenge) = key(okm)
+    return challenge
+~~~
+
+### Multiplicative blinding
+
+~~~
+def HDK-Association-Prove(prover_secret, challenge, hdks):
+    (pk_head, sk_head, salt_head) = hdks[0]
+    tail = hdks[1:]
+    proofs = for (_, sk, _) in tail:
+        yield prover_secret - sk * challenge mod EC-Order()
+    return proofs
+
+def HDK-Association-Verify(commitment, challenge, pks, proofs):
+    for (pk, proof) in zip(pks[1:], proofs):
+        V' = EC-Add(
+            EC-Scalar-Mult(pks[0], proof),
+            EC-Scalar-Mult(pk, challenge)
+        )
+        if V != V':
+            return False
+    return True
+~~~
+
+### Additive blinding
+
+TODO modify
+
+~~~
+def HDK-Association-Prove(prover_secret, challenge, hdks):
+    (pk_head, sk_head, salt_head) = hdks[0]
+    tail = hdks[1:]
+    proofs = for (_, sk, _) in tail:
+        sk' = sk - sk_head
+        yield prover_secret - sk' * challenge mod EC-Order()
+    return proofs
+
+def HDK-Association-Verify(commitment, challenge, pks, proofs):
+    (pk_head, _, _) = pks[0]
+    for (pk, proof) in zip(pks[1:], proofs):
+        pk' = EC-Add(pk, EC-Scalar-Mult(pk_head, -1))
+        V' = EC-Add(
+            EC-Scalar-Mult(pks[0], proof),
+            EC-Scalar-Mult(pk', challenge)
+        )
+        if V != V':
+            return False
+    return True
+~~~
 
 # Concrete HDK instantiations
 
