@@ -352,6 +352,30 @@ Implementations of this function typically perform pre-processing on the `reader
 
 A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can be verified using the public key in the same HDK as `sk_hdk`. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.
 
+## The HDK-Export-Blinding-Factor function
+
+When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible.
+
+For example, a solution instance could prove that two elliptic curve keys `B1 = [bf1]D` and `B2 = [bf2]D`, where `bf1` and `bf2` are multiplicative blinding factors for a common device public key `D`, are associated using a zero-knowledge protocol. In this protocol, the solution instance proves that they know the discrete logarithm of `B2 = [bf2/bf1]B1` with respect to generator `B1`.
+
+The construction of proof of association protocols requires availability to the prover of the blinding factors. The following function enables exporting these blinding factors.
+
+~~~
+Inputs:
+- pk, an HDK public key.
+- sk, an HDK private key.
+- salt, an HDK salt which is a string of Ns bytes.
+
+Outputs:
+- bf, an HDK private key which is used as a blinding factor.
+
+def HDK-Export-Blinding-Factor((pk, sk, salt)):
+    bf = sk
+    return bf
+~~~
+
+Implementations SHOULD use a plausibly deniable proof of association protocol to ensure that the interactive presentation does not accidentally generate evidence that is potentially non-repudiable.
+
 # Generic HDK instantiations
 
 ## Using elliptic curves
