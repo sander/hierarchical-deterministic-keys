@@ -462,7 +462,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 
 ## Using ECDSA signatures for proof of possession
 
-Due to potential patent claims and potential related-key attacks, this document does not specify an implementation for threshold ECDSA.
+Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.
 
 # Concrete HDK instantiations
 
