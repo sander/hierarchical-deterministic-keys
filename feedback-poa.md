@@ -54,11 +54,12 @@ Related ARF issue: [#286](https://github.com/eu-digital-identity-wallet/eudi-doc
 
 #### Cryptographic proofs of association to relying parties
 
-Both approaches enable the construction of a cryptographic proof of association based on zero-knowledge proofs. This enables proving association between attestations towards relying parties. The method is complementary to other methods for proof of association. These should co-exist since parties are also working on WSCAs that cannot create the zero-knowledge proof but will have other certified ways to assure relying parties of association.
+Both approaches enable the construction of a cryptographic proof of association based on zero-knowledge proofs. This enables proving association between attestations towards relying parties. The method is complementary to other methods for proof of association. These should co-exist since parties are also working on WSCAs that cannot create the zero-knowledge proof but will have other certified ways to assure relying parties of association. One question that is not yet addressed explicitly is whether the proof of association may be non-repudiable, or if designated verifier protocols are needed for plausible deniability.
 
 To follow up:
 
 - Require attestation protocols to provide sufficient flexiblity to support zero-knowledge proof of association.
+- with an advisory group, analyse pros and cons of having non-repudiable versus plausibly deniable proof of association.
 
 ### Contentious issues on interoperability
 
