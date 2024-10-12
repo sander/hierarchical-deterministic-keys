@@ -55,8 +55,8 @@ The repository does not contain details about the implementation of HDK for key 
 
 ## Contributing
 
+See the [contributor agreement](https://github.com/Yubico/arkg-rfc/blob/main/CONTRIBUTING.md).
+
 Feedback and other input is easiest to discuss in [GitHub issues](https://github.com/sander/hierarchical-deterministic-keys/issues).
 
-The technical reports and specifications in this repository may eventually be used to contribute to open standards. For the current repository, we apply practices inspired by the [Community Cryptography Specification Project](https://github.com/C2SP/C2SP).
-
-To enable reuse, new contributions to the technical reports and specifications must be provided under either [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) or [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+To enable reuse, new contributions to the technical reports not intended for standardisation must be provided under either [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) or [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
