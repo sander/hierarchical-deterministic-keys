@@ -18,6 +18,9 @@ author:
       surname: Dijkhuis
       organization: Cleverbase
       email: mail@sanderdijkhuis.nl
+contributor:
+    - fullname: Micha Kraus
+      organization: Bundesdruckerei
 ipr: trust200902
 normative:
     I-D.draft-bradleylundberg-cfrg-arkg-02:
@@ -40,6 +43,7 @@ normative:
         date: 2019-09
     RFC7800:
     RFC8017:
+    RFC8235:
     RFC9380:
     SEC2:
         title: "SEC 2: Recommended Elliptic Curve Domain Parameters, Version 2.0"
@@ -352,6 +356,30 @@ Implementations of this function typically perform pre-processing on the `reader
 
 A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can be verified using the public key in the same HDK as `sk_hdk`. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.
 
+## The HDK-Export-Blinding-Factor function
+
+When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible.
+
+For example, a solution instance could prove that two elliptic curve keys `B1 = [bf1]D` and `B2 = [bf2]D`, where `bf1` and `bf2` are multiplicative blinding factors for a common device public key `D`, are associated using a zero-knowledge protocol. In this protocol, the solution instance proves that they know the discrete logarithm of `B2 = [bf2/bf1]B1` with respect to generator `B1`.
+
+The construction of proof of association protocols requires availability to the prover of the blinding factors. The following function enables exporting these blinding factors.
+
+~~~
+Inputs:
+- pk, an HDK public key.
+- sk, an HDK private key.
+- salt, an HDK salt which is a string of Ns bytes.
+
+Outputs:
+- bf, an HDK private key which is used as a blinding factor.
+
+def HDK-Export-Blinding-Factor((pk, sk, salt)):
+    bf = sk
+    return bf
+~~~
+
+Implementations SHOULD use a plausibly deniable proof of association protocol to ensure that the interactive presentation does not accidentally generate evidence that is potentially non-repudiable.
+
 # Generic HDK instantiations
 
 ## Using elliptic curves
@@ -458,7 +486,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 
 ## Using ECDSA signatures for proof of possession
 
-Due to potential patent claims and potential related-key attacks, this document does not specify an implementation for threshold ECDSA.
+Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.
 
 # Concrete HDK instantiations
 
@@ -506,6 +534,61 @@ The HDK algorithm assumes that the holder controls a secure cryptographic device
 
 In the context of [EU2024-1183], this device is typically called a Wallet Secure Cryptographic Device (WSCD), running a personalised Wallet Secure Cryptographic Application (WSCA) that exposes a Secure Cryptographic Interface (SCI) to a Wallet Instance (WI) running on a User Device (UD). The WSCD is certified to protect access to the device private key with high attack potential resistance to achieve high level of assurance authentication as per [EU2015-1502]. This typically means that the key is associated with a strong possession factor and with a rate-limited Personal Identification Number (PIN) check as a knowledge factor, and the verification of both factors actively involve the WSCD.
 
+An example deployment of HDK in this context is illustrated below.
+
+~~~
++---------------------+          +----------------------+
+|Issuer infrastructure|          |User Device (UD)      |
+|                     |          |                      |
+|+-------------------+|OpenID4VCI|+--------------------+|
+||Issuer service     |<----------++Wallet Instance (WI)||
+||                   ||          |++-------------------+|
+||Optionally an      ||          +-+--------------------+
+||ARKG subordinate   ||            |Secure
+||party              ||            |Cryptographic
+|+-------------------+|            |Interface (SCI)
++---------------------+           +v-------------------+
+                                  |Wallet Secure       |
+                                  |Cryptographic       |
+          Internal     Manages    |Application (WSCA)  |
+          registry    <-----------+                    |
+                                  |Optionally an       |
+                                  |ARKG delegating     |
+                                  |party               |
+                                  ++-------------------+
+                                   |Uses
+                                  +v-------------------+
+                       Protects   |Wallet secure       |
+          Device keys <-----------+cryptographic       |
+                                  |device (WSCD)       |
+                                  +--------------------+
+~~~
+
+The WSCA could be a single program or could be deployed in a distributed architecture, as illustrated below.
+
+~~~
++--------------+
+|User device   |
+|+------------+|
+||WI          ||
+|++-----------+|
+| |SCI         |
+|+v-----------+|
+||WSCA agent  ||
+|++-----------+|
++-+------------+
+  |WSCA protocol
+ +v-----------+
+ |WSCA service|
+ +------------+
+~~~
+
+In the case of a distributed WSCA, the UD contains a local component, here called WSCA agent, accessing an external and possibly remote WSCA service from one or more components over a WSCA protocol. For example, the WSCA agent may be a local web API client and the WSCA service may be provided at a remote web API server. In such cases, typically the WSCA service receives a high-assurance security evaluation, while the WSCA agent is assessed to not be able to compromise the system's security guarantees.
+
+The internal registry can be managed by the WSCA agent, by the WSCA service, or by the combination. When the user device is a natural person’s mobile phone, WSCA agent management could provide better confidentiality protection against compromised WSCA service providers. When the user device is a cloud server used by a legal person, and the legal person deploys its own WSCD, WSCA service management could provide better confidentiality protection against compromised Wallet Instance cloud providers.
+
+In a distributed WSCA architecture, the WSCA could internally apply distributed key generation. A description of this is out of scope for the current document.
+
 The HDK algorithm can support any of the following WSCD architectures:
 
 1. Local external standalone device, for example:
@@ -521,7 +604,7 @@ The HDK algorithm can support any of the following WSCD architectures:
    - iOS Secure Enclave system-on-chip acting as WSCA
    - Trusted Platform Module (TPM) acting as WSCA
 4. Remote HSM, for example:
-   - Cryptographic module certified against EN 419221-5:2018 with a local client application acting as WSCA, remotely controlled for example using:
+   - Cryptographic module certified against EN 419221-5:2018 with a local client application providing a WSCA service, remotely controlled for example using:
      - PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)
      - Android/iOS security platform or standalone device, applying asymmetric cryptography to enable detection of remote HSM corruption as described in [SCAL3]
 
@@ -536,11 +619,11 @@ The solution proposal discussed herein works in all four WSCD architectures that
   - P-256 EC-SDSA key pair generation
   - P-256 EC-SDSA signature creation
 
-The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.
+The other HDK operations can be performed in a WSCA or WSCA agent running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.
 
 If the user enters the PIN in the WI instead of on the WSCD directly, the WI MUST process it directly after entering, the WI MUST keep the plaintext PIN confidential, and the WI MUST delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.
 
-The rate-limiting of the PIN check MUST be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting MUST NOT be managed solely in local WI software since it is aassumed that attackers could modify this without detection.
+The rate-limiting of the PIN check MUST be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting MUST NOT be managed solely in local WI or WSCA agent software since it is assumed that attackers could modify this without detection.
 
 ## Trust evidence
 
@@ -550,7 +633,7 @@ Some issuers could require evidence from a solution provider of the security of 
 
 The Wallet Trust Evidence public key is the root HDK public key. To achieve reader unlinkability, the wallet SHOULD limit access to a trusted person identification document provider only.
 
-To prevent association across identities, the solution provider MUST before issuing Wallet Trust Evidence ensure that the root HDK public key is associated with a newly generated device key pair. For example, the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once.
+To prevent association across identities, the solution provider MUST before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that the HDK-Root output is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of `sk'` with a Schnorr non-interactive zero-knowledge proof [RFC8235] with base point `pk_device`. This would ensure,that the root blinding key `sk'` is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.
 
 ### Issuer Trust Evidence
 
