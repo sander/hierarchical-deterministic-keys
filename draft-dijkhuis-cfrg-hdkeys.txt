@@ -575,8 +575,8 @@ Table of Contents
 
 3.4.  Using ECDSA signatures for proof of possession
 
-   Due to potential patent claims and potential related-key attacks,
-   this document does not specify an implementation for threshold ECDSA.
+   Due to potential patent claims, this document does not specify an
+   implementation for threshold ECDSA.
 
 4.  Concrete HDK instantiations
 
