@@ -9,12 +9,12 @@
 <meta content="
        Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. 
     " name="description">
-<meta content="xml2rfc 3.23.1" name="generator">
+<meta content="xml2rfc 3.23.2" name="generator">
 <meta content="KDF" name="keyword">
 <meta content="draft-dijkhuis-cfrg-hdkeys-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.23.1
-    Python 3.12.6
+  xml2rfc 3.23.2
+    Python 3.12.7
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
@@ -1024,11 +1024,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">HDK</td>
-<td class="right">September 2024</td>
+<td class="right">October 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Dijkhuis</td>
-<td class="center">Expires 30 March 2025</td>
+<td class="center">Expires 15 April 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1041,12 +1041,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-dijkhuis-cfrg-hdkeys-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-09-26" class="published">26 September 2024</time>
+<time datetime="2024-10-12" class="published">12 October 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-30">30 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-04-15">15 April 2025</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1091,7 +1091,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 30 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 April 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1159,6 +1159,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.7">
                 <p id="section-toc.1-1.2.2.7.1"><a href="#section-2.7" class="auto internal xref">2.7</a>.  <a href="#name-the-hdk-authenticate-functi" class="internal xref">The HDK-Authenticate function</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.8">
+                <p id="section-toc.1-1.2.2.8.1"><a href="#section-2.8" class="auto internal xref">2.8</a>.  <a href="#name-the-hdk-export-blinding-fac" class="internal xref">The HDK-Export-Blinding-Factor function</a></p>
 </li>
             </ul>
 </li>
@@ -1235,7 +1238,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-contributors" class="internal xref">Contributors</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1567,6 +1573,32 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data)
 <p id="section-2.7-4">A HDK instantiation <span class="bcp14">MUST</span> define HDK-Authenticate such that the <code>device_data</code> can be verified using the public key in the same HDK as <code>sk_hdk</code>. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.<a href="#section-2.7-4" class="pilcrow">¶</a></p>
 </section>
 </div>
+<div id="the-hdk-export-blinding-factor-function">
+<section id="section-2.8">
+        <h3 id="name-the-hdk-export-blinding-fac">
+<a href="#section-2.8" class="section-number selfRef">2.8. </a><a href="#name-the-hdk-export-blinding-fac" class="section-name selfRef">The HDK-Export-Blinding-Factor function</a>
+        </h3>
+<p id="section-2.8-1">When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible, such as <span>[<a href="#Verheul2024" class="cite xref">Verheul2024</a>]</span>.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
+<p id="section-2.8-2">For example, a solution instance could prove that two elliptic curve keys <code>B1 = [bf1]D</code> and <code>B2 = [bf2]D</code>, where <code>bf1</code> and <code>bf2</code> are multiplicative blinding factors for a common device public key <code>D</code>, are associated using a zero-knowledge protocol. In this protocol, the solution instance proves that they know the discrete logarithm of <code>B2 = [bf2/bf1]B1</code> with respect to generator <code>B1</code>.<a href="#section-2.8-2" class="pilcrow">¶</a></p>
+<p id="section-2.8-3">The construction of proof of association protocols requires availability to the prover of the blinding factors. The following function enables exporting these blinding factors.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.8-4">
+<pre>
+Inputs:
+- pk, an HDK public key.
+- sk, an HDK private key.
+- salt, an HDK salt which is a string of Ns bytes.
+
+Outputs:
+- bf, an HDK private key which is used as a blinding factor.
+
+def HDK-Export-Blinding-Factor((pk, sk, salt)):
+    bf = sk
+    return bf
+</pre><a href="#section-2.8-4" class="pilcrow">¶</a>
+</div>
+<p id="section-2.8-5">Implementations <span class="bcp14">SHOULD</span> use a plausibly deniable proof of association protocol to ensure that the interactive presentation does not accidentally generate evidence that is potentially non-repudiable.<a href="#section-2.8-5" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="generic-hdk-instantiations">
@@ -1726,7 +1758,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         <h3 id="name-using-ecdsa-signatures-for-">
 <a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-using-ecdsa-signatures-for-" class="section-name selfRef">Using ECDSA signatures for proof of possession</a>
         </h3>
-<p id="section-3.4-1">Due to potential patent claims and potential related-key attacks, this document does not specify an implementation for threshold ECDSA.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.4-1">Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1837,98 +1869,150 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         </h3>
 <p id="section-5.1-1">The HDK algorithm assumes that the holder controls a secure cryptographic device that protects the device key pair <code>(pk_device, sk_device)</code>. The device key is under sole control of the holder.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">In the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span>, this device is typically called a Wallet Secure Cryptographic Device (WSCD), running a personalised Wallet Secure Cryptographic Application (WSCA) that exposes a Secure Cryptographic Interface (SCI) to a Wallet Instance (WI) running on a User Device (UD). The WSCD is certified to protect access to the device private key with high attack potential resistance to achieve high level of assurance authentication as per <span>[<a href="#EU2015-1502" class="cite xref">EU2015-1502</a>]</span>. This typically means that the key is associated with a strong possession factor and with a rate-limited Personal Identification Number (PIN) check as a knowledge factor, and the verification of both factors actively involve the WSCD.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.1-3">The HDK algorithm can support any of the following WSCD architectures:<a href="#section-5.1-3" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-5.1-4">
-<li id="section-5.1-4.1">
-            <p id="section-5.1-4.1.1">Local external standalone device, for example:<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">An example deployment of HDK in this context is illustrated below.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.1-4">
+<pre>
++---------------------+          +----------------------+
+|Issuer infrastructure|          |User Device (UD)      |
+|                     |          |                      |
+|+-------------------+|OpenID4VCI|+--------------------+|
+||Issuer service     |&lt;----------++Wallet Instance (WI)||
+||                   ||          |++-------------------+|
+||Optionally an      ||          +-+--------------------+
+||ARKG subordinate   ||            |Secure
+||party              ||            |Cryptographic
+|+-------------------+|            |Interface (SCI)
++---------------------+           +v-------------------+
+                                  |Wallet Secure       |
+                                  |Cryptographic       |
+          Internal     Manages    |Application (WSCA)  |
+          registry    &lt;-----------+                    |
+                                  |Optionally an       |
+                                  |ARKG delegating     |
+                                  |party               |
+                                  ++-------------------+
+                                   |Uses
+                                  +v-------------------+
+                       Protects   |Wallet secure       |
+          Device keys &lt;-----------+cryptographic       |
+                                  |device (WSCD)       |
+                                  +--------------------+
+</pre><a href="#section-5.1-4" class="pilcrow">¶</a>
+</div>
+<p id="section-5.1-5">The WSCA could be a single program or could be deployed in a distributed architecture, as illustrated below.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.1-6">
+<pre>
++--------------+
+|User device   |
+|+------------+|
+||WI          ||
+|++-----------+|
+| |SCI         |
+|+v-----------+|
+||WSCA agent  ||
+|++-----------+|
++-+------------+
+  |WSCA protocol
+ +v-----------+
+ |WSCA service|
+ +------------+
+</pre><a href="#section-5.1-6" class="pilcrow">¶</a>
+</div>
+<p id="section-5.1-7">In the case of a distributed WSCA, the UD contains a local component, here called WSCA agent, accessing an external and possibly remote WSCA service from one or more components over a WSCA protocol. For example, the WSCA agent may be a local web API client and the WSCA service may be provided at a remote web API server. In such cases, typically the WSCA service receives a high-assurance security evaluation, while the WSCA agent is assessed to not be able to compromise the system's security guarantees.<a href="#section-5.1-7" class="pilcrow">¶</a></p>
+<p id="section-5.1-8">The internal registry can be managed by the WSCA agent, by the WSCA service, or by the combination. When the user device is a natural person’s mobile phone, WSCA agent management could provide better confidentiality protection against compromised WSCA service providers. When the user device is a cloud server used by a legal person, and the legal person deploys its own WSCD, WSCA service management could provide better confidentiality protection against compromised Wallet Instance cloud providers.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
+<p id="section-5.1-9">In a distributed WSCA architecture, the WSCA could internally apply distributed key generation. A description of this is out of scope for the current document.<a href="#section-5.1-9" class="pilcrow">¶</a></p>
+<p id="section-5.1-10">The HDK algorithm can support any of the following WSCD architectures:<a href="#section-5.1-10" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5.1-11">
+<li id="section-5.1-11.1">
+            <p id="section-5.1-11.1.1">Local external standalone device, for example:<a href="#section-5.1-11.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.1.2.1">
-                <p id="section-5.1-4.1.2.1.1">GlobalPlatform secure element, running for example a Java Card applet as WSCA for:<a href="#section-5.1-4.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.1.2.1">
+                <p id="section-5.1-11.1.2.1.1">GlobalPlatform secure element, running for example a Java Card applet as WSCA for:<a href="#section-5.1-11.1.2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.1.2.1.2.1">
-                    <p id="section-5.1-4.1.2.1.2.1.1">Personal Identity Verification (PIV)<a href="#section-5.1-4.1.2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.1.2.1.2.1">
+                    <p id="section-5.1-11.1.2.1.2.1.1">Personal Identity Verification (PIV)<a href="#section-5.1-11.1.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  <li class="normal" id="section-5.1-4.1.2.1.2.2">
-                    <p id="section-5.1-4.1.2.1.2.2.1">Fast IDentity Online 2 (FIDO2)<a href="#section-5.1-4.1.2.1.2.2.1" class="pilcrow">¶</a></p>
+                  <li class="normal" id="section-5.1-11.1.2.1.2.2">
+                    <p id="section-5.1-11.1.2.1.2.2.1">Fast IDentity Online 2 (FIDO2)<a href="#section-5.1-11.1.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
-          <li id="section-5.1-4.2">
-            <p id="section-5.1-4.2.1">Local internal standalone programmable cryptographic chip, for example:<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
+          <li id="section-5.1-11.2">
+            <p id="section-5.1-11.2.1">Local internal standalone programmable cryptographic chip, for example:<a href="#section-5.1-11.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.2.2.1">
-                <p id="section-5.1-4.2.2.1.1">Smartphone embedded universal integrated circuit card (eUICC), running for example a Subscriber Identity Module (SIM) as WSCA; also called eSIM<a href="#section-5.1-4.2.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.2.2.1">
+                <p id="section-5.1-11.2.2.1.1">Smartphone embedded universal integrated circuit card (eUICC), running for example a Subscriber Identity Module (SIM) as WSCA; also called eSIM<a href="#section-5.1-11.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.2.2.2">
-                <p id="section-5.1-4.2.2.2.1">Smartphone embedded secure element (eSE), running for example a Java Card applet as WSCA<a href="#section-5.1-4.2.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.2.2.2">
+                <p id="section-5.1-11.2.2.2.1">Smartphone embedded secure element (eSE), running for example a Java Card applet as WSCA<a href="#section-5.1-11.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li id="section-5.1-4.3">
-            <p id="section-5.1-4.3.1">Local internal preprogammed security platform, for example:<a href="#section-5.1-4.3.1" class="pilcrow">¶</a></p>
+          <li id="section-5.1-11.3">
+            <p id="section-5.1-11.3.1">Local internal preprogammed security platform, for example:<a href="#section-5.1-11.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.3.2.1">
-                <p id="section-5.1-4.3.2.1.1">Android trusted execution environment acting as WSCA<a href="#section-5.1-4.3.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.3.2.1">
+                <p id="section-5.1-11.3.2.1.1">Android trusted execution environment acting as WSCA<a href="#section-5.1-11.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.3.2.2">
-                <p id="section-5.1-4.3.2.2.1">Android StrongBox secure element acting as WSCA<a href="#section-5.1-4.3.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.3.2.2">
+                <p id="section-5.1-11.3.2.2.1">Android StrongBox secure element acting as WSCA<a href="#section-5.1-11.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.3.2.3">
-                <p id="section-5.1-4.3.2.3.1">iOS Secure Enclave system-on-chip acting as WSCA<a href="#section-5.1-4.3.2.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.3.2.3">
+                <p id="section-5.1-11.3.2.3.1">iOS Secure Enclave system-on-chip acting as WSCA<a href="#section-5.1-11.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.3.2.4">
-                <p id="section-5.1-4.3.2.4.1">Trusted Platform Module (TPM) acting as WSCA<a href="#section-5.1-4.3.2.4.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.3.2.4">
+                <p id="section-5.1-11.3.2.4.1">Trusted Platform Module (TPM) acting as WSCA<a href="#section-5.1-11.3.2.4.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li id="section-5.1-4.4">
-            <p id="section-5.1-4.4.1">Remote HSM, for example:<a href="#section-5.1-4.4.1" class="pilcrow">¶</a></p>
+          <li id="section-5.1-11.4">
+            <p id="section-5.1-11.4.1">Remote HSM, for example:<a href="#section-5.1-11.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.4.2.1">
-                <p id="section-5.1-4.4.2.1.1">Cryptographic module certified against EN 419221-5:2018 with a local client application acting as WSCA, remotely controlled for example using:<a href="#section-5.1-4.4.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.4.2.1">
+                <p id="section-5.1-11.4.2.1.1">Cryptographic module certified against EN 419221-5:2018 with a local client application providing a WSCA service, remotely controlled for example using:<a href="#section-5.1-11.4.2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.4.2.1.2.1">
-                    <p id="section-5.1-4.4.2.1.2.1.1">PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)<a href="#section-5.1-4.4.2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.4.2.1.2.1">
+                    <p id="section-5.1-11.4.2.1.2.1.1">PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)<a href="#section-5.1-11.4.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  <li class="normal" id="section-5.1-4.4.2.1.2.2">
-                    <p id="section-5.1-4.4.2.1.2.2.1">Android/iOS security platform or standalone device, applying asymmetric cryptography to enable detection of remote HSM corruption as described in <span>[<a href="#SCAL3" class="cite xref">SCAL3</a>]</span><a href="#section-5.1-4.4.2.1.2.2.1" class="pilcrow">¶</a></p>
+                  <li class="normal" id="section-5.1-11.4.2.1.2.2">
+                    <p id="section-5.1-11.4.2.1.2.2.1">Android/iOS security platform or standalone device, applying asymmetric cryptography to enable detection of remote HSM corruption as described in <span>[<a href="#SCAL3" class="cite xref">SCAL3</a>]</span><a href="#section-5.1-11.4.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
         </ol>
-<p id="section-5.1-5">In all cases, the WSCD may implement a Cryptographic Service Provider <span>[<a href="#TR03181" class="cite xref">TR03181</a>]</span> to reduce the scope for Common Criteria certification of the WSCA.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
-<p id="section-5.1-6">The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives within the WSCD:<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.1-12">In all cases, the WSCD may implement a Cryptographic Service Provider <span>[<a href="#TR03181" class="cite xref">TR03181</a>]</span> to reduce the scope for Common Criteria certification of the WSCA.<a href="#section-5.1-12" class="pilcrow">¶</a></p>
+<p id="section-5.1-13">The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives within the WSCD:<a href="#section-5.1-13" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-7.1">
-            <p id="section-5.1-7.1.1">In the case of HDK-ECDH-P256:<a href="#section-5.1-7.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-14.1">
+            <p id="section-5.1-14.1.1">In the case of HDK-ECDH-P256:<a href="#section-5.1-14.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-7.1.2.1">
-                <p id="section-5.1-7.1.2.1.1">P-256 ECDH key pair generation<a href="#section-5.1-7.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-14.1.2.1">
+                <p id="section-5.1-14.1.2.1.1">P-256 ECDH key pair generation<a href="#section-5.1-14.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-7.1.2.2">
-                <p id="section-5.1-7.1.2.2.1">P-256 ECDH key agreement<a href="#section-5.1-7.1.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-14.1.2.2">
+                <p id="section-5.1-14.1.2.2.1">P-256 ECDH key agreement<a href="#section-5.1-14.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="normal" id="section-5.1-7.2">
-            <p id="section-5.1-7.2.1">In the case of HDK-ECSDSA-P256:<a href="#section-5.1-7.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.1-14.2">
+            <p id="section-5.1-14.2.1">In the case of HDK-ECSDSA-P256:<a href="#section-5.1-14.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-7.2.2.1">
-                <p id="section-5.1-7.2.2.1.1">P-256 EC-SDSA key pair generation<a href="#section-5.1-7.2.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-14.2.2.1">
+                <p id="section-5.1-14.2.2.1.1">P-256 EC-SDSA key pair generation<a href="#section-5.1-14.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-7.2.2.2">
-                <p id="section-5.1-7.2.2.2.1">P-256 EC-SDSA signature creation<a href="#section-5.1-7.2.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-14.2.2.2">
+                <p id="section-5.1-14.2.2.2.1">P-256 EC-SDSA signature creation<a href="#section-5.1-14.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
-<p id="section-5.1-8">The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
-<p id="section-5.1-9">If the user enters the PIN in the WI instead of on the WSCD directly, the WI <span class="bcp14">MUST</span> process it directly after entering, the WI <span class="bcp14">MUST</span> keep the plaintext PIN confidential, and the WI <span class="bcp14">MUST</span> delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.<a href="#section-5.1-9" class="pilcrow">¶</a></p>
-<p id="section-5.1-10">The rate-limiting of the PIN check <span class="bcp14">MUST</span> be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting <span class="bcp14">MUST NOT</span> be managed solely in local WI software since it is aassumed that attackers could modify this without detection.<a href="#section-5.1-10" class="pilcrow">¶</a></p>
+<p id="section-5.1-15">The other HDK operations can be performed in a WSCA or WSCA agent running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.<a href="#section-5.1-15" class="pilcrow">¶</a></p>
+<p id="section-5.1-16">If the user enters the PIN in the WI instead of on the WSCD directly, the WI <span class="bcp14">MUST</span> process it directly after entering, the WI <span class="bcp14">MUST</span> keep the plaintext PIN confidential, and the WI <span class="bcp14">MUST</span> delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.<a href="#section-5.1-16" class="pilcrow">¶</a></p>
+<p id="section-5.1-17">The rate-limiting of the PIN check <span class="bcp14">MUST</span> be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting <span class="bcp14">MUST NOT</span> be managed solely in local WI or WSCA agent software since it is assumed that attackers could modify this without detection.<a href="#section-5.1-17" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="trust-evidence">
@@ -1943,7 +2027,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 <a href="#section-5.2.1" class="section-number selfRef">5.2.1. </a><a href="#name-wallet-trust-evidence" class="section-name selfRef">Wallet Trust Evidence</a>
           </h4>
 <p id="section-5.2.1-1">The Wallet Trust Evidence public key is the root HDK public key. To achieve reader unlinkability, the wallet <span class="bcp14">SHOULD</span> limit access to a trusted person identification document provider only.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-2">To prevent association across identities, the solution provider <span class="bcp14">MUST</span> before issuing Wallet Trust Evidence ensure that the root HDK public key is associated with a newly generated device key pair. For example, the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-2">To prevent association across identities, the solution provider <span class="bcp14">MUST</span> before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that the HDK-Root output is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of <code>sk'</code> with a Schnorr non-interactive zero-knowledge proof <span>[<a href="#RFC8235" class="cite xref">RFC8235</a>]</span> with base point <code>pk_device</code>. This would ensure,that the root blinding key <code>sk'</code> is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issuer-trust-evidence">
@@ -2055,6 +2139,10 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
         <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC8235">[RFC8235]</dt>
+        <dd>
+<span class="refAuthor">Hao, F., Ed.</span>, <span class="refTitle">"Schnorr Non-interactive Zero-Knowledge Proof"</span>, <span class="seriesInfo">RFC 8235</span>, <span class="seriesInfo">DOI 10.17487/RFC8235</span>, <time datetime="2017-09" class="refDate">September 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8235">https://www.rfc-editor.org/rfc/rfc8235</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC9380">[RFC9380]</dt>
         <dd>
 <span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="seriesInfo">RFC 9380</span>, <span class="seriesInfo">DOI 10.17487/RFC9380</span>, <time datetime="2023-08" class="refDate">August 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9380">https://www.rfc-editor.org/rfc/rfc9380</a>&gt;</span>. </dd>
@@ -2097,8 +2185,12 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <span class="refAuthor">Cleverbase ID B.V.</span>, <span class="refTitle">"SCAL3: Verify that systems operate under your sole control, version de8c5ae"</span>, <time datetime="2024-03" class="refDate">March 2024</time>, <span>&lt;<a href="https://github.com/cleverbase/scal3">https://github.com/cleverbase/scal3</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="TR03181">[TR03181]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Federal Office for Information Security (BSI)</span>, <span class="refTitle">"Cryptographic Service Provider 2 (CSP2)"</span>, <span class="seriesInfo">BSI TR-03181 Version 0.94</span>, <time datetime="2023-04" class="refDate">April 2023</time>, <span>&lt;<a href="https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-03181_node.html">https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-03181_node.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Verheul2024">[Verheul2024]</dt>
+      <dd>
+<span class="refAuthor">Verheul, E.</span>, <span class="refTitle">"Attestation Proof of Association – provability that attestation keys are bound to the same hardware and person"</span>, <time datetime="2024-09-18" class="refDate">18 September 2024</time>, <span>&lt;<a href="https://eprint.iacr.org/2024/1444">https://eprint.iacr.org/2024/1444</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2114,8 +2206,19 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <p id="appendix-A-2">Helpful feedback came from Emil Lundberg and Remco Schaar.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="authors-addresses">
+<div id="contributors">
 <section id="appendix-B">
+      <h2 id="name-contributors">
+<a href="#name-contributors" class="section-name selfRef">Contributors</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Micha Kraus</span></div>
+<div dir="auto" class="left"><span class="org">Bundesdruckerei</span></div>
+</address>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-C">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>

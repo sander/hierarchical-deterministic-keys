@@ -4,8 +4,8 @@
 
 Crypto Forum                                         S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                         26 September 2024
-Expires: 30 March 2025
+Intended status: Informational                           12 October 2024
+Expires: 15 April 2025
 
 
                     Hierarchical Deterministic Keys
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 March 2025.
+   This Internet-Draft will expire on 15 April 2025.
 
 Copyright Notice
 
@@ -71,6 +71,7 @@ Table of Contents
      2.5.  The HDK-Seed-Remote function
      2.6.  The HDK-Derive-Remote function
      2.7.  The HDK-Authenticate function
+     2.8.  The HDK-Export-Blinding-Factor function
    3.  Generic HDK instantiations
      3.1.  Using elliptic curves
      3.2.  Using ECDH message authentication codes for proof of
@@ -92,6 +93,7 @@ Table of Contents
      7.1.  Normative References
      7.2.  Informative References
    Acknowledgements
+   Contributors
    Author's Address
 
 1.  Introduction
@@ -439,6 +441,40 @@ Table of Contents
    public key will look like any other public key used for proofs of
    possession.
 
+2.8.  The HDK-Export-Blinding-Factor function
+
+   When presenting multiple documents, a reader could require a proof
+   that multiple keys are associated to a single device.  Several
+   protocols for a cryptographic proof of association are possible, such
+   as [Verheul2024].
+
+   For example, a solution instance could prove that two elliptic curve
+   keys B1 = [bf1]D and B2 = [bf2]D, where bf1 and bf2 are
+   multiplicative blinding factors for a common device public key D, are
+   associated using a zero-knowledge protocol.  In this protocol, the
+   solution instance proves that they know the discrete logarithm of B2
+   = [bf2/bf1]B1 with respect to generator B1.
+
+   The construction of proof of association protocols requires
+   availability to the prover of the blinding factors.  The following
+   function enables exporting these blinding factors.
+
+   Inputs:
+   - pk, an HDK public key.
+   - sk, an HDK private key.
+   - salt, an HDK salt which is a string of Ns bytes.
+
+   Outputs:
+   - bf, an HDK private key which is used as a blinding factor.
+
+   def HDK-Export-Blinding-Factor((pk, sk, salt)):
+       bf = sk
+       return bf
+
+   Implementations SHOULD use a plausibly deniable proof of association
+   protocol to ensure that the interactive presentation does not
+   accidentally generate evidence that is potentially non-repudiable.
+
 3.  Generic HDK instantiations
 
 3.1.  Using elliptic curves
@@ -574,8 +610,8 @@ Table of Contents
 
 3.4.  Using ECDSA signatures for proof of possession
 
-   Due to potential patent claims and potential related-key attacks,
-   this document does not specify an implementation for threshold ECDSA.
+   Due to potential patent claims, this document does not specify an
+   implementation for threshold ECDSA.
 
 4.  Concrete HDK instantiations
 
@@ -670,6 +706,74 @@ Table of Contents
    check as a knowledge factor, and the verification of both factors
    actively involve the WSCD.
 
+   An example deployment of HDK in this context is illustrated below.
+
+   +---------------------+          +----------------------+
+   |Issuer infrastructure|          |User Device (UD)      |
+   |                     |          |                      |
+   |+-------------------+|OpenID4VCI|+--------------------+|
+   ||Issuer service     |<----------++Wallet Instance (WI)||
+   ||                   ||          |++-------------------+|
+   ||Optionally an      ||          +-+--------------------+
+   ||ARKG subordinate   ||            |Secure
+   ||party              ||            |Cryptographic
+   |+-------------------+|            |Interface (SCI)
+   +---------------------+           +v-------------------+
+                                     |Wallet Secure       |
+                                     |Cryptographic       |
+             Internal     Manages    |Application (WSCA)  |
+             registry    <-----------+                    |
+                                     |Optionally an       |
+                                     |ARKG delegating     |
+                                     |party               |
+                                     ++-------------------+
+                                      |Uses
+                                     +v-------------------+
+                          Protects   |Wallet secure       |
+             Device keys <-----------+cryptographic       |
+                                     |device (WSCD)       |
+                                     +--------------------+
+
+   The WSCA could be a single program or could be deployed in a
+   distributed architecture, as illustrated below.
+
+   +--------------+
+   |User device   |
+   |+------------+|
+   ||WI          ||
+   |++-----------+|
+   | |SCI         |
+   |+v-----------+|
+   ||WSCA agent  ||
+   |++-----------+|
+   +-+------------+
+     |WSCA protocol
+    +v-----------+
+    |WSCA service|
+    +------------+
+
+   In the case of a distributed WSCA, the UD contains a local component,
+   here called WSCA agent, accessing an external and possibly remote
+   WSCA service from one or more components over a WSCA protocol.  For
+   example, the WSCA agent may be a local web API client and the WSCA
+   service may be provided at a remote web API server.  In such cases,
+   typically the WSCA service receives a high-assurance security
+   evaluation, while the WSCA agent is assessed to not be able to
+   compromise the system's security guarantees.
+
+   The internal registry can be managed by the WSCA agent, by the WSCA
+   service, or by the combination.  When the user device is a natural
+   person’s mobile phone, WSCA agent management could provide better
+   confidentiality protection against compromised WSCA service
+   providers.  When the user device is a cloud server used by a legal
+   person, and the legal person deploys its own WSCD, WSCA service
+   management could provide better confidentiality protection against
+   compromised Wallet Instance cloud providers.
+
+   In a distributed WSCA architecture, the WSCA could internally apply
+   distributed key generation.  A description of this is out of scope
+   for the current document.
+
    The HDK algorithm can support any of the following WSCD
    architectures:
 
@@ -705,8 +809,8 @@ Table of Contents
    4.  Remote HSM, for example:
 
        *  Cryptographic module certified against EN 419221-5:2018 with a
-          local client application acting as WSCA, remotely controlled
-          for example using:
+          local client application providing a WSCA service, remotely
+          controlled for example using:
 
           -  PIV card as possession factor and PIN verification using a
              HSM-backed Device-Enhanced Augmented PAKE (an approach
@@ -736,10 +840,10 @@ Table of Contents
 
       -  P-256 EC-SDSA signature creation
 
-   The other HDK operations can be performed in the WI running on any
-   UD, including hostile ones with limited sandboxing capabilities, such
-   as in a smartphone's rich execution environment or in a personal
-   computer web browser.
+   The other HDK operations can be performed in a WSCA or WSCA agent
+   running on any UD, including hostile ones with limited sandboxing
+   capabilities, such as in a smartphone's rich execution environment or
+   in a personal computer web browser.
 
    If the user enters the PIN in the WI instead of on the WSCD directly,
    the WI MUST process it directly after entering, the WI MUST keep the
@@ -749,8 +853,9 @@ Table of Contents
 
    The rate-limiting of the PIN check MUST be managed within the WSCD or
    on securely managed SCI infrastructure.  In particular, the rate-
-   limiting MUST NOT be managed solely in local WI software since it is
-   aassumed that attackers could modify this without detection.
+   limiting MUST NOT be managed solely in local WI or WSCA agent
+   software since it is assumed that attackers could modify this without
+   detection.
 
 5.2.  Trust evidence
 
@@ -769,11 +874,16 @@ Table of Contents
    trusted person identification document provider only.
 
    To prevent association across identities, the solution provider MUST
-   before issuing Wallet Trust Evidence ensure that the root HDK public
-   key is associated with a newly generated device key pair.  For
-   example, the solution provider could rely on freshness of a key
+   before issuing Wallet Trust Evidence ensure that (a) a newly
+   generated device key pair is used and (b) the wallet follows the
+   protocol so that the HDK-Root output is bound to exactly this key.
+   For (a), the solution provider could rely on freshness of a key
    attestation and ensure that each device public key is attested only
-   once.
+   once.  For (b), the wallet could proof knowledge of sk' with a
+   Schnorr non-interactive zero-knowledge proof [RFC8235] with base
+   point pk_device.  This would ensure,that the root blinding key sk' is
+   not shared with the solution provider to reduce the risk of the
+   solution provider unblinding future derived keys.
 
 5.2.2.  Issuer Trust Evidence
 
@@ -876,6 +986,10 @@ Table of Contents
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
+   [RFC8235]  Hao, F., Ed., "Schnorr Non-interactive Zero-Knowledge
+              Proof", RFC 8235, DOI 10.17487/RFC8235, September 2017,
+              <https://www.rfc-editor.org/rfc/rfc8235>.
+
    [RFC9380]  Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S.,
               and C. A. Wood, "Hashing to Elliptic Curves", RFC 9380,
               DOI 10.17487/RFC9380, August 2023,
@@ -931,12 +1045,24 @@ Table of Contents
               Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-
               03181_node.html>.
 
+   [Verheul2024]
+              Verheul, E., "Attestation Proof of Association –
+              provability that attestation keys are bound to the same
+              hardware and person", 18 September 2024,
+              <https://eprint.iacr.org/2024/1444>.
+
 Acknowledgements
 
    This design is based on ideas introduced to the EU Digital Identity
    domain by Peter Lee Altmann.
 
    Helpful feedback came from Emil Lundberg and Remco Schaar.
+
+Contributors
+
+   Micha Kraus
+   Bundesdruckerei
+
 
 Author's Address
 
