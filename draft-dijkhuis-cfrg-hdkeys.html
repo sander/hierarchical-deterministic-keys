@@ -1840,98 +1840,150 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         </h3>
 <p id="section-5.1-1">The HDK algorithm assumes that the holder controls a secure cryptographic device that protects the device key pair <code>(pk_device, sk_device)</code>. The device key is under sole control of the holder.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">In the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span>, this device is typically called a Wallet Secure Cryptographic Device (WSCD), running a personalised Wallet Secure Cryptographic Application (WSCA) that exposes a Secure Cryptographic Interface (SCI) to a Wallet Instance (WI) running on a User Device (UD). The WSCD is certified to protect access to the device private key with high attack potential resistance to achieve high level of assurance authentication as per <span>[<a href="#EU2015-1502" class="cite xref">EU2015-1502</a>]</span>. This typically means that the key is associated with a strong possession factor and with a rate-limited Personal Identification Number (PIN) check as a knowledge factor, and the verification of both factors actively involve the WSCD.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.1-3">The HDK algorithm can support any of the following WSCD architectures:<a href="#section-5.1-3" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-5.1-4">
-<li id="section-5.1-4.1">
-            <p id="section-5.1-4.1.1">Local external standalone device, for example:<a href="#section-5.1-4.1.1" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">An example deployment of HDK in this context is illustrated below.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.1-4">
+<pre>
++---------------------+          +----------------------+
+|Issuer infrastructure|          |User Device (UD)      |
+|                     |          |                      |
+|+-------------------+|OpenID4VCI|+--------------------+|
+||Issuer service     |&lt;----------++Wallet Instance (WI)||
+||                   ||          |++-------------------+|
+||Optionally an      ||          +-+--------------------+
+||ARKG subordinate   ||            |Secure
+||party              ||            |Cryptographic
+|+-------------------+|            |Interface (SCI)
++---------------------+           +v-------------------+
+                                  |Wallet Secure       |
+                                  |Cryptographic       |
+          Internal     Manages    |Application (WSCA)  |
+          registry    &lt;-----------+                    |
+                                  |Optionally an       |
+                                  |ARKG delegating     |
+                                  |party               |
+                                  ++-------------------+
+                                   |Uses
+                                  +v-------------------+
+                       Protects   |Wallet secure       |
+          Device keys &lt;-----------+cryptographic       |
+                                  |device (WSCD)       |
+                                  +--------------------+
+</pre><a href="#section-5.1-4" class="pilcrow">¶</a>
+</div>
+<p id="section-5.1-5">The WSCA could be a single program or could be deployed in a distributed architecture, as illustrated below.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.1-6">
+<pre>
++--------------+
+|User device   |
+|+------------+|
+||WI          ||
+|++-----------+|
+| |SCI         |
+|+v-----------+|
+||WSCA agent  ||
+|++-----------+|
++-+------------+
+  |WSCA protocol
+ +v-----------+
+ |WSCA service|
+ +------------+
+</pre><a href="#section-5.1-6" class="pilcrow">¶</a>
+</div>
+<p id="section-5.1-7">In the case of a distributed WSCA, the UD contains a local component, here called WSCA agent, accessing an external and possibly remote WSCA service from one or more components over a WSCA protocol. For example, the WSCA agent may be a local web API client and the WSCA service may be provided at a remote web API server. In such cases, typically the WSCA service receives a high-assurance security evaluation, while the WSCA agent is assessed to not be able to compromise the system's security guarantees.<a href="#section-5.1-7" class="pilcrow">¶</a></p>
+<p id="section-5.1-8">The internal registry can be managed by the WSCA agent, by the WSCA service, or by the combination. When the user device is a natural person’s mobile phone, WSCA agent management could provide better confidentiality protection against compromised WSCA service providers. When the user device is a cloud server used by a legal person, and the legal person deploys its own WSCD, WSCA service management could provide better confidentiality protection against compromised Wallet Instance cloud providers.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
+<p id="section-5.1-9">In a distributed WSCA architecture, the WSCA could internally apply distributed key generation. A description of this is out of scope for the current document.<a href="#section-5.1-9" class="pilcrow">¶</a></p>
+<p id="section-5.1-10">The HDK algorithm can support any of the following WSCD architectures:<a href="#section-5.1-10" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5.1-11">
+<li id="section-5.1-11.1">
+            <p id="section-5.1-11.1.1">Local external standalone device, for example:<a href="#section-5.1-11.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.1.2.1">
-                <p id="section-5.1-4.1.2.1.1">GlobalPlatform secure element, running for example a Java Card applet as WSCA for:<a href="#section-5.1-4.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.1.2.1">
+                <p id="section-5.1-11.1.2.1.1">GlobalPlatform secure element, running for example a Java Card applet as WSCA for:<a href="#section-5.1-11.1.2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.1.2.1.2.1">
-                    <p id="section-5.1-4.1.2.1.2.1.1">Personal Identity Verification (PIV)<a href="#section-5.1-4.1.2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.1.2.1.2.1">
+                    <p id="section-5.1-11.1.2.1.2.1.1">Personal Identity Verification (PIV)<a href="#section-5.1-11.1.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  <li class="normal" id="section-5.1-4.1.2.1.2.2">
-                    <p id="section-5.1-4.1.2.1.2.2.1">Fast IDentity Online 2 (FIDO2)<a href="#section-5.1-4.1.2.1.2.2.1" class="pilcrow">¶</a></p>
+                  <li class="normal" id="section-5.1-11.1.2.1.2.2">
+                    <p id="section-5.1-11.1.2.1.2.2.1">Fast IDentity Online 2 (FIDO2)<a href="#section-5.1-11.1.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
-          <li id="section-5.1-4.2">
-            <p id="section-5.1-4.2.1">Local internal standalone programmable cryptographic chip, for example:<a href="#section-5.1-4.2.1" class="pilcrow">¶</a></p>
+          <li id="section-5.1-11.2">
+            <p id="section-5.1-11.2.1">Local internal standalone programmable cryptographic chip, for example:<a href="#section-5.1-11.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.2.2.1">
-                <p id="section-5.1-4.2.2.1.1">Smartphone embedded universal integrated circuit card (eUICC), running for example a Subscriber Identity Module (SIM) as WSCA; also called eSIM<a href="#section-5.1-4.2.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.2.2.1">
+                <p id="section-5.1-11.2.2.1.1">Smartphone embedded universal integrated circuit card (eUICC), running for example a Subscriber Identity Module (SIM) as WSCA; also called eSIM<a href="#section-5.1-11.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.2.2.2">
-                <p id="section-5.1-4.2.2.2.1">Smartphone embedded secure element (eSE), running for example a Java Card applet as WSCA<a href="#section-5.1-4.2.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.2.2.2">
+                <p id="section-5.1-11.2.2.2.1">Smartphone embedded secure element (eSE), running for example a Java Card applet as WSCA<a href="#section-5.1-11.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li id="section-5.1-4.3">
-            <p id="section-5.1-4.3.1">Local internal preprogammed security platform, for example:<a href="#section-5.1-4.3.1" class="pilcrow">¶</a></p>
+          <li id="section-5.1-11.3">
+            <p id="section-5.1-11.3.1">Local internal preprogammed security platform, for example:<a href="#section-5.1-11.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.3.2.1">
-                <p id="section-5.1-4.3.2.1.1">Android trusted execution environment acting as WSCA<a href="#section-5.1-4.3.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.3.2.1">
+                <p id="section-5.1-11.3.2.1.1">Android trusted execution environment acting as WSCA<a href="#section-5.1-11.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.3.2.2">
-                <p id="section-5.1-4.3.2.2.1">Android StrongBox secure element acting as WSCA<a href="#section-5.1-4.3.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.3.2.2">
+                <p id="section-5.1-11.3.2.2.1">Android StrongBox secure element acting as WSCA<a href="#section-5.1-11.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.3.2.3">
-                <p id="section-5.1-4.3.2.3.1">iOS Secure Enclave system-on-chip acting as WSCA<a href="#section-5.1-4.3.2.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.3.2.3">
+                <p id="section-5.1-11.3.2.3.1">iOS Secure Enclave system-on-chip acting as WSCA<a href="#section-5.1-11.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-4.3.2.4">
-                <p id="section-5.1-4.3.2.4.1">Trusted Platform Module (TPM) acting as WSCA<a href="#section-5.1-4.3.2.4.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-11.3.2.4">
+                <p id="section-5.1-11.3.2.4.1">Trusted Platform Module (TPM) acting as WSCA<a href="#section-5.1-11.3.2.4.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li id="section-5.1-4.4">
-            <p id="section-5.1-4.4.1">Remote HSM, for example:<a href="#section-5.1-4.4.1" class="pilcrow">¶</a></p>
+          <li id="section-5.1-11.4">
+            <p id="section-5.1-11.4.1">Remote HSM, for example:<a href="#section-5.1-11.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.4.2.1">
-                <p id="section-5.1-4.4.2.1.1">Cryptographic module certified against EN 419221-5:2018 with a local client application acting as WSCA, remotely controlled for example using:<a href="#section-5.1-4.4.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.4.2.1">
+                <p id="section-5.1-11.4.2.1.1">Cryptographic module certified against EN 419221-5:2018 with a local client application providing a WSCA service, remotely controlled for example using:<a href="#section-5.1-11.4.2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-4.4.2.1.2.1">
-                    <p id="section-5.1-4.4.2.1.2.1.1">PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)<a href="#section-5.1-4.4.2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-11.4.2.1.2.1">
+                    <p id="section-5.1-11.4.2.1.2.1.1">PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)<a href="#section-5.1-11.4.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  <li class="normal" id="section-5.1-4.4.2.1.2.2">
-                    <p id="section-5.1-4.4.2.1.2.2.1">Android/iOS security platform or standalone device, applying asymmetric cryptography to enable detection of remote HSM corruption as described in <span>[<a href="#SCAL3" class="cite xref">SCAL3</a>]</span><a href="#section-5.1-4.4.2.1.2.2.1" class="pilcrow">¶</a></p>
+                  <li class="normal" id="section-5.1-11.4.2.1.2.2">
+                    <p id="section-5.1-11.4.2.1.2.2.1">Android/iOS security platform or standalone device, applying asymmetric cryptography to enable detection of remote HSM corruption as described in <span>[<a href="#SCAL3" class="cite xref">SCAL3</a>]</span><a href="#section-5.1-11.4.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
         </ol>
-<p id="section-5.1-5">In all cases, the WSCD may implement a Cryptographic Service Provider <span>[<a href="#TR03181" class="cite xref">TR03181</a>]</span> to reduce the scope for Common Criteria certification of the WSCA.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
-<p id="section-5.1-6">The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives within the WSCD:<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+<p id="section-5.1-12">In all cases, the WSCD may implement a Cryptographic Service Provider <span>[<a href="#TR03181" class="cite xref">TR03181</a>]</span> to reduce the scope for Common Criteria certification of the WSCA.<a href="#section-5.1-12" class="pilcrow">¶</a></p>
+<p id="section-5.1-13">The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives within the WSCD:<a href="#section-5.1-13" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-7.1">
-            <p id="section-5.1-7.1.1">In the case of HDK-ECDH-P256:<a href="#section-5.1-7.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-14.1">
+            <p id="section-5.1-14.1.1">In the case of HDK-ECDH-P256:<a href="#section-5.1-14.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-7.1.2.1">
-                <p id="section-5.1-7.1.2.1.1">P-256 ECDH key pair generation<a href="#section-5.1-7.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-14.1.2.1">
+                <p id="section-5.1-14.1.2.1.1">P-256 ECDH key pair generation<a href="#section-5.1-14.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-7.1.2.2">
-                <p id="section-5.1-7.1.2.2.1">P-256 ECDH key agreement<a href="#section-5.1-7.1.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-14.1.2.2">
+                <p id="section-5.1-14.1.2.2.1">P-256 ECDH key agreement<a href="#section-5.1-14.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="normal" id="section-5.1-7.2">
-            <p id="section-5.1-7.2.1">In the case of HDK-ECSDSA-P256:<a href="#section-5.1-7.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.1-14.2">
+            <p id="section-5.1-14.2.1">In the case of HDK-ECSDSA-P256:<a href="#section-5.1-14.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-7.2.2.1">
-                <p id="section-5.1-7.2.2.1.1">P-256 EC-SDSA key pair generation<a href="#section-5.1-7.2.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-14.2.2.1">
+                <p id="section-5.1-14.2.2.1.1">P-256 EC-SDSA key pair generation<a href="#section-5.1-14.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-5.1-7.2.2.2">
-                <p id="section-5.1-7.2.2.2.1">P-256 EC-SDSA signature creation<a href="#section-5.1-7.2.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-5.1-14.2.2.2">
+                <p id="section-5.1-14.2.2.2.1">P-256 EC-SDSA signature creation<a href="#section-5.1-14.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
-<p id="section-5.1-8">The other HDK operations can be performed in the WI running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
-<p id="section-5.1-9">If the user enters the PIN in the WI instead of on the WSCD directly, the WI <span class="bcp14">MUST</span> process it directly after entering, the WI <span class="bcp14">MUST</span> keep the plaintext PIN confidential, and the WI <span class="bcp14">MUST</span> delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.<a href="#section-5.1-9" class="pilcrow">¶</a></p>
-<p id="section-5.1-10">The rate-limiting of the PIN check <span class="bcp14">MUST</span> be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting <span class="bcp14">MUST NOT</span> be managed solely in local WI software since it is aassumed that attackers could modify this without detection.<a href="#section-5.1-10" class="pilcrow">¶</a></p>
+<p id="section-5.1-15">The other HDK operations can be performed in a WSCA or WSCA agent running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.<a href="#section-5.1-15" class="pilcrow">¶</a></p>
+<p id="section-5.1-16">If the user enters the PIN in the WI instead of on the WSCD directly, the WI <span class="bcp14">MUST</span> process it directly after entering, the WI <span class="bcp14">MUST</span> keep the plaintext PIN confidential, and the WI <span class="bcp14">MUST</span> delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.<a href="#section-5.1-16" class="pilcrow">¶</a></p>
+<p id="section-5.1-17">The rate-limiting of the PIN check <span class="bcp14">MUST</span> be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting <span class="bcp14">MUST NOT</span> be managed solely in local WI or WSCA agent software since it is assumed that attackers could modify this without detection.<a href="#section-5.1-17" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="trust-evidence">
