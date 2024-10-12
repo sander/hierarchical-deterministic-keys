@@ -6,6 +6,8 @@
 
 **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
+**Discussion:** [eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework#282](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework/discussions/282)
+
 ## Context
 
 For a general introduction, see [Hierarchical Deterministic Keys for the European Digital Identity Wallet](README.md). In the current document, the authors develop and share structured feedback on one part of the Wallet Toolbox: the [Architecture and Reference Framework](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/latest/arf/) (ARF). The purpose of this feedback is to enable implementation of [Hierarchical Deterministc Keys](draft-dijkhuis-cfrg-hierarchical-deterministic-keys.md) (HDKs).
@@ -62,59 +64,3 @@ To enable HDK, the following changes to Topic 18 are needed.
 |ACP_05|Drop.|It is up to the User whether to authorise sharing a proof of association with another party.|
 |ACP_06–08|None.|N/A|
 |ACP_09|Drop.|With HDK, proof of association is not essential.|
-
-## Feedback on proof of association
-
-This feedback is based on information on “proof of association”, which is closely related to the high level requirements related to Wallet Trust Evidence (WTE) and Attribute Combined Presentation (ACP). The information is also valuable to the design of HDK.
-
-To summarise the feedback:
-
-- The proof of association proposal puts too many requirements and functions in scope of the WSCD, introducing significant WSCD availability and certification risk. The proposal addresses the availability risk by including a “distributed WSCD” architecture similar to HDK, but this insufficiently addresses the certification risk. Instead, the WSCD should only be responsible for the generation and deletion of attested device keys (ICW), and the basic operations with these keys. Other requirements (SW1, SW2) can be met in the Wallet Instance with sufficient security, as demonstrated with HDK.
-- Requirement SW2 to create proof of association is not essential to a secure wallet ecosystem and should be optional. If it is implemented, more work is needed to enable plausible deniability.
-- The proposal is only practically applicable with interoperability for ECDH-MAC and ECDSA. With ECDSA, association forgery attacks and patent risks require extra attention.
-
-### Context
-
-We follow the interpretation that the Wallet Secure Cryptographic Device (WSCD) must be Common Criteria certified at assurance level EAL4+.
-
-We follow the envisioned WSCD architecture classification: External, Internal, Remote HSM, Internal Native.
-
-### Security problem
-
-We follow the argument that mobile app attestation is insufficient to protect the issuance process against a high attack potential. At least evidence based on key attestation is required.
-
-Proof of association relates to three WSCD security requirements, which we propose to change as follows:
-
-|ID|Requirement|Proposed change|Rationale|
-|--|--|--|--|
-|ICW|**InCertWSCD:** Enable issuers to verify that a new proof of possession (PoP) public key is bound to a certified WSCD.|Clarify that the Wallet Provider needs to meet this requirement, and it is not a WSCD certification requirement.|HDK enables Wallet Providers to meet this requirement, based on WSCDs that are not designed to issue WTE.|
-|SW1|**SameWSCD1:** Enable issuers to verify that a new PoP public key is bound to the same certified WSCD as the PoP public key of the PID.|Clarify that the Wallet Instance needs to meet this requirement, and it is not a WSCD certification requirement.|HDK enables Wallet Instances to meet this requirement, based on blinding of a single WSCD-bound key to multiple PoP public keys.|
-|SW2|**SameWSCD2:** Enable readers to verify that two PoP public keys are bound to a certified WSCD, and to the same certified WSCD as a PID PoP public key.|See SW1.|See SW1.|
-
-Requirement SW2 is intended to address the threat of credential pooling with app hooking used to achieve unauthorised transactions. Note that this threat can also be mitigated by using claim-based binding reinforced using SameWSCD1. It is not evident that SameWSCD2 should be mandatory.
-
-The proof of association proposal includes three WSCD instructions, which we propose to change as follows:
-
-|ID|WSCD instruction|Proposed change|Rationale|
-|--|--|--|--|
-|1|Generate attested WTE key|None|N/A|
-|2|Generate key associated to WTE|Make this not a WSCD instruction, but a Wallet Instance feature. Also, include the Wallet Instance feature to generate a seed for delegated key generation associated with a given key.|With HDK, a Wallet Instance derives keys from the key generated using instruction 1, or delegates key generation to PID or Attestation Providers. This architecture avoids needing to re-authenticate the user for each new key, and limits the certification scope for the WSCD.|
-|3|Generate proof of association|Make this not a WSCD instruction, but a Wallet Instance feature. Make it optional.|With HDK, a Wallet Instance keeps the records needed to create a proof of assocation.|
-
-### Cryptography proposal
-
-In the proposal based on elliptic curve cryptography, a proof of association between keys `P` and `Q` enables verification that a Wallet Instance knows an association key `z` such that `Q=[z]P`. This proof could for example be an EC-SDSA signature with a custom base point (“EC-Schnorr”). In HDK, the keys would be based on a device key `D=[d]G` for base point `G` such that `P=[p]D` and `Q=[q]D`, so `z=q/p`. A privacy disadvantage of this proposal is that it creates non-repudiable proof that a certain combination of documents was released. Instead, if a proof of association is required, we suggest researching whether an interactive zero-knowledge proof could provide plausible deniability.
-
-The proposal includes the concept of “distributed WSCD” based on malleability-based threshold cryptography. Instead of certifying a “distributed WSCD”, it is simpler to reduce the scope of the WSCD certification to the component that is responsible for managing what is in HDK called the device key, including user access control. Indeed, HDK-ECDH-P256 applies “Split-ECDH-MAC”. Note that application of “Split-ECDSA” requires at least the wallet provider to obtain patent licenses as per the Stack Exchange article [Blinding an ECDSA private key without learning the private key](https://crypto.stackexchange.com/questions/110997/blinding-an-ecdsa-private-key-without-learning-the-private-key).
-
-The proposal includes a mitigation to association forgery attacks, which affect ECDSA and ECDH-MAC when used with proof of association. A malicious issuer who knows a victim’s PoP public key could forge a second PoP key and a proof of association between both. In the case of ECDSA, because of signature malleability, the attacker could also abuse a previously obtained PoP signature to forge a PoP signature for the forged key. By doing both on a chosen message containing forged claims, the attacker could make readers believe that the user has presented these claims with WSCD-binding and PID-binding. The proposed mitigation is to require the WSCD to pre-process or post-process WTE key operations using a cryptographically secure hash, and not exposing “raw” operations for WTE keys. Note that a complete attack is infeasible when using ECDH-MAC or EC-SDSA instead.
-
-Note that proof of association may also be possible using additive blinding. In this case, keys `P` and `Q` are associated if the Wallet Instance knows an association key `z` such that `Q=P+[z]G` for base point `G`. The proof could for example be a Schnorr interactive zero-knowledge proof of knowledge of `z`. This would enable the “distributed WSCD” or HDK architecture using EC-Schnorr (EC-SDSA and EC-SDSA-opt). Note however that EC-Schnorr is unsupported in mdoc. It is not possible to implement the proof of association with EdDSA using HDK, because the algorithm includes hashing the original public key. Note that EdDSA is not agreed by SOG-IS so it would be difficult to certify a WSCD for EdDSA within the EU.
-
-### Implementation
-
-The proposal is demonstrated by three example WTE architectures: Optimally Efficient, Privacy Friendly, PID-Bound. The HDK architecture enables a variant of the PID-Bound WTE architecture:
-
-- Wallet Providers issue WTE for PID Providers bound to blinded device keys, based on a Wallet Instance’s proof of knowledge of the associated blinding key;
-- Any issuer can generate keys associated with any previously presented attestation’s key, without requiring additional metadata such as WTE or ITE or a proof of association;
-- Optionally, an Attestation Provider may request ITE if additional metadata is required.
