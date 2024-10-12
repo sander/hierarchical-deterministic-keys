@@ -1,4 +1,4 @@
-# HDK and PoA for the EUDIW
+# Feedback to resolve HDK and PoA issues in the ARF
 
 ## Context
 
@@ -7,7 +7,7 @@ The binding of attestation (PID, QEAA, PuB-EAA, EAA) keys to critical assets in 
 The Commission and standardisation organisations are looking into two documents related to these subjects:
 
 - [Attestation Proof of Association](https://eprint.iacr.org/2024/1444) (PoA)
-- [Hierarchical Deterministic Keys](https://github.com/sander/hierarchical-deterministic-keys) (HDK)
+- [Hierarchical Deterministic Keys](README.md) (HDK)
 
 The first is prepared in collaboration between experts from Member State. The second is prepared in an informal collaboration between experts from public and private sector participants in Large Scale Pilots. Both PoA and HDK propose concrete short-term considerations in two areas:
 

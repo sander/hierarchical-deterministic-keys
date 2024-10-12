@@ -49,7 +49,7 @@ To address challenges 5 and 6, this repository contains a freely accessible, une
 
 To illustrate and validate the specifications, this repository contains a **[Prototype worksheet](prototype.worksheet.sc)**. This is easiest to run in [Visual Studio Code](https://code.visualstudio.com) with [Scala (Metals)](https://marketplace.visualstudio.com/items?itemName=scalameta.metals).
 
-To inform further standardisation and legislation, this repository contains **[Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)**.
+To inform further standardisation and legislation, this repository contains **[Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)**. It also contains **[Feedback to resolve HDK and PoA issues in the ARF](feedback-poa.md)**.
 
 The repository does not contain details about the implementation of HDK for key management in credential schemes, such as one-time-use document schemes for relying party unlinkability and weak issuer unlinkability, or [BBS#](https://github.com/user-attachments/files/15905230/BBS_Sharp_Short_TR.pdf) for full unlinkability. Credential schemes have not currently been analysed by the working group. When such analysis is carried out, it might result in changes to the specification. For example, delegated key generation only seems to have use cases for batch one-time-use document issuance, and not for BBS#.
 
