@@ -9,12 +9,12 @@
 <meta content="
        Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. 
     " name="description">
-<meta content="xml2rfc 3.23.1" name="generator">
+<meta content="xml2rfc 3.23.2" name="generator">
 <meta content="KDF" name="keyword">
 <meta content="draft-dijkhuis-cfrg-hdkeys-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.23.1
-    Python 3.12.6
+  xml2rfc 3.23.2
+    Python 3.12.7
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
@@ -1024,11 +1024,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">HDK</td>
-<td class="right">September 2024</td>
+<td class="right">October 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Dijkhuis</td>
-<td class="center">Expires 29 March 2025</td>
+<td class="center">Expires 15 April 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1041,12 +1041,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-dijkhuis-cfrg-hdkeys-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-09-25" class="published">25 September 2024</time>
+<time datetime="2024-10-12" class="published">12 October 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-29">29 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-04-15">15 April 2025</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1091,7 +1091,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 29 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 April 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1235,7 +1235,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-contributors" class="internal xref">Contributors</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1943,7 +1946,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 <a href="#section-5.2.1" class="section-number selfRef">5.2.1. </a><a href="#name-wallet-trust-evidence" class="section-name selfRef">Wallet Trust Evidence</a>
           </h4>
 <p id="section-5.2.1-1">The Wallet Trust Evidence public key is the root HDK public key. To achieve reader unlinkability, the wallet <span class="bcp14">SHOULD</span> limit access to a trusted person identification document provider only.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-2">To prevent association across identities, the solution provider <span class="bcp14">MUST</span> before issuing Wallet Trust Evidence ensure that the root HDK public key is associated with a newly generated device key pair. For example, the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-2">To prevent association across identities, the solution provider <span class="bcp14">MUST</span> before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that the HDK-Root output is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of <code>sk'</code> with a Schnorr non-interactive zero-knowledge proof <span>[<a href="#RFC8235" class="cite xref">RFC8235</a>]</span> with base point <code>pk_device</code>. This would ensure,that the root blinding key <code>sk'</code> is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issuer-trust-evidence">
@@ -2055,6 +2058,10 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
         <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC8235">[RFC8235]</dt>
+        <dd>
+<span class="refAuthor">Hao, F., Ed.</span>, <span class="refTitle">"Schnorr Non-interactive Zero-Knowledge Proof"</span>, <span class="seriesInfo">RFC 8235</span>, <span class="seriesInfo">DOI 10.17487/RFC8235</span>, <time datetime="2017-09" class="refDate">September 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8235">https://www.rfc-editor.org/rfc/rfc8235</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC9380">[RFC9380]</dt>
         <dd>
 <span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="seriesInfo">RFC 9380</span>, <span class="seriesInfo">DOI 10.17487/RFC9380</span>, <time datetime="2023-08" class="refDate">August 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9380">https://www.rfc-editor.org/rfc/rfc9380</a>&gt;</span>. </dd>
@@ -2114,8 +2121,19 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <p id="appendix-A-2">Helpful feedback came from Emil Lundberg and Remco Schaar.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="authors-addresses">
+<div id="contributors">
 <section id="appendix-B">
+      <h2 id="name-contributors">
+<a href="#name-contributors" class="section-name selfRef">Contributors</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Micha Kraus</span></div>
+<div dir="auto" class="left"><span class="org">Bundesdruckerei</span></div>
+</address>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-C">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>
