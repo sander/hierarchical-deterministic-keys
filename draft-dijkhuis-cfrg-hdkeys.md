@@ -108,6 +108,12 @@ informative:
         seriesinfo:
             BSI: TR-03181 Version 0.94
         date: 2023-04
+    Verheul2024:
+        title: Attestation Proof of Association – provability that attestation keys are bound to the same hardware and person
+        target: https://eprint.iacr.org/2024/1444
+        author:
+            - name: E. Verheul
+        date: 2024-09-18
 
 --- abstract
 
@@ -358,7 +364,7 @@ A HDK instantiation MUST define HDK-Authenticate such that the `device_data` can
 
 ## The HDK-Export-Blinding-Factor function
 
-When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible.
+When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible, such as [Verheul2024].
 
 For example, a solution instance could prove that two elliptic curve keys `B1 = [bf1]D` and `B2 = [bf2]D`, where `bf1` and `bf2` are multiplicative blinding factors for a common device public key `D`, are associated using a zero-knowledge protocol. In this protocol, the solution instance proves that they know the discrete logarithm of `B2 = [bf2/bf1]B1` with respect to generator `B1`.
 
