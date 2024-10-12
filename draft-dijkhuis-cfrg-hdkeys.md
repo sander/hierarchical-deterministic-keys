@@ -18,6 +18,9 @@ author:
       surname: Dijkhuis
       organization: Cleverbase
       email: mail@sanderdijkhuis.nl
+contributor:
+    - fullname: Micha Kraus
+      organization: Bundesdruckerei
 ipr: trust200902
 normative:
     I-D.draft-bradleylundberg-cfrg-arkg-02:
@@ -40,6 +43,7 @@ normative:
         date: 2019-09
     RFC7800:
     RFC8017:
+    RFC8235:
     RFC9380:
     SEC2:
         title: "SEC 2: Recommended Elliptic Curve Domain Parameters, Version 2.0"
@@ -550,7 +554,7 @@ Some issuers could require evidence from a solution provider of the security of 
 
 The Wallet Trust Evidence public key is the root HDK public key. To achieve reader unlinkability, the wallet SHOULD limit access to a trusted person identification document provider only.
 
-To prevent association across identities, the solution provider MUST before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that HDK-Root is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of sk' with a Schnorr non-interactive zero-knowledge proof with base point pk_device. This would ensure, that the root blinding key sk' is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.
+To prevent association across identities, the solution provider MUST before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that the HDK-Root output is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of `sk'` with a Schnorr non-interactive zero-knowledge proof [RFC8235] with base point `pk_device`. This would ensure,that the root blinding key `sk'` is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.
 
 ### Issuer Trust Evidence
 
