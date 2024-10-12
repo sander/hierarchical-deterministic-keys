@@ -1,5 +1,9 @@
 # Feedback to resolve HDK and PoA issues in the ARF
 
+**Editor:** Sander Dijkhuis (Cleverbase)
+
+**License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
 ## Context
 
 The binding of attestation (PID, QEAA, PuB-EAA, EAA) keys to critical assets in certified WSCDs, and the ability to prove this binding is critical for security of EUDI wallets. Relying party unlinkability is critical to its privacy. Several experts are proposing solutions that could work for the first wallet deployments.
