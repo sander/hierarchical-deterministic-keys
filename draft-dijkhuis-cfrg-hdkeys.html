@@ -1421,7 +1421,7 @@ instance                  v        +-----------+
                 <p id="section-2.2-2.8.2.1.1">ARKG-Derive-Public-Key(pk, info): Outputs <code>(pk', kh)</code> where <code>pk'</code> is a derived public key and <code>kh</code> is a key handle to derive the associated private key, based on an ARKG public seed <code>pk = (pk_kem, pk_bl)</code> and application-specific information <code>info</code>.<a href="#section-2.2-2.8.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.8.2.2">
-                <p id="section-2.2-2.8.2.2.1">ARKG-Derive-Private-Key(sk, kh, info): Outputs <code>sk'</code>, a blinded private key Scalar based on ARKG private seed <code>sk = (sk_kem, sk_bl)</code>, a key handle <code>kh</code>, and application-specific information <code>info</code>.<a href="#section-2.2-2.8.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.8.2.2.1">ARKG-Derive-Private-Key(sk, kh, info): Outputs <code>sk'</code>, a blinded private key based on ARKG private seed <code>sk = (sk_kem, sk_bl)</code>, a key handle <code>kh</code>, and application-specific information <code>info</code>.<a href="#section-2.2-2.8.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1728,8 +1728,8 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 def HDK-Root(pk_device, seed):
     msg = serialize(pk_device)
     okm = expand(msg, ID || seed, Nk + Ns)
-    (_, sk') = key(okm[0:Nk])
-    pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk'))
+    (pk_blind, sk') = key(okm[0:Nk])
+    pk' = EC-Add(pk_device, pk_blind)
     salt' = okm[Nk:]
     return (pk', sk', salt')
 

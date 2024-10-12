@@ -310,9 +310,8 @@ Table of Contents
          (pk_kem, pk_bl) and application-specific information info.
 
       -  ARKG-Derive-Private-Key(sk, kh, info): Outputs sk', a blinded
-         private key Scalar based on ARKG private seed sk = (sk_kem,
-         sk_bl), a key handle kh, and application-specific information
-         info.
+         private key based on ARKG private seed sk = (sk_kem, sk_bl), a
+         key handle kh, and application-specific information info.
 
    *  HDK-Root(pk_device, seed): See The HDK-Root function
       (Section 2.3).
@@ -586,8 +585,8 @@ Table of Contents
    def HDK-Root(pk_device, seed):
        msg = serialize(pk_device)
        okm = expand(msg, ID || seed, Nk + Ns)
-       (_, sk') = key(okm[0:Nk])
-       pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk'))
+       (pk_blind, sk') = key(okm[0:Nk])
+       pk' = EC-Add(pk_device, pk_blind)
        salt' = okm[Nk:]
        return (pk', sk', salt')
 
