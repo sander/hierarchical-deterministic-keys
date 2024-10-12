@@ -1578,7 +1578,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data)
         <h3 id="name-the-hdk-export-blinding-fac">
 <a href="#section-2.8" class="section-number selfRef">2.8. </a><a href="#name-the-hdk-export-blinding-fac" class="section-name selfRef">The HDK-Export-Blinding-Factor function</a>
         </h3>
-<p id="section-2.8-1">When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
+<p id="section-2.8-1">When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible, such as <span>[<a href="#Verheul2024" class="cite xref">Verheul2024</a>]</span>.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
 <p id="section-2.8-2">For example, a solution instance could prove that two elliptic curve keys <code>B1 = [bf1]D</code> and <code>B2 = [bf2]D</code>, where <code>bf1</code> and <code>bf2</code> are multiplicative blinding factors for a common device public key <code>D</code>, are associated using a zero-knowledge protocol. In this protocol, the solution instance proves that they know the discrete logarithm of <code>B2 = [bf2/bf1]B1</code> with respect to generator <code>B1</code>.<a href="#section-2.8-2" class="pilcrow">¶</a></p>
 <p id="section-2.8-3">The construction of proof of association protocols requires availability to the prover of the blinding factors. The following function enables exporting these blinding factors.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.8-4">
@@ -2185,8 +2185,12 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <span class="refAuthor">Cleverbase ID B.V.</span>, <span class="refTitle">"SCAL3: Verify that systems operate under your sole control, version de8c5ae"</span>, <time datetime="2024-03" class="refDate">March 2024</time>, <span>&lt;<a href="https://github.com/cleverbase/scal3">https://github.com/cleverbase/scal3</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="TR03181">[TR03181]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Federal Office for Information Security (BSI)</span>, <span class="refTitle">"Cryptographic Service Provider 2 (CSP2)"</span>, <span class="seriesInfo">BSI TR-03181 Version 0.94</span>, <time datetime="2023-04" class="refDate">April 2023</time>, <span>&lt;<a href="https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-03181_node.html">https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-03181_node.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Verheul2024">[Verheul2024]</dt>
+      <dd>
+<span class="refAuthor">Verheul, E.</span>, <span class="refTitle">"Attestation Proof of Association – provability that attestation keys are bound to the same hardware and person"</span>, <time datetime="2024-09-18" class="refDate">18 September 2024</time>, <span>&lt;<a href="https://eprint.iacr.org/2024/1444">https://eprint.iacr.org/2024/1444</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>

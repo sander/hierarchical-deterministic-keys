@@ -445,7 +445,8 @@ Table of Contents
 
    When presenting multiple documents, a reader could require a proof
    that multiple keys are associated to a single device.  Several
-   protocols for a cryptographic proof of association are possible.
+   protocols for a cryptographic proof of association are possible, such
+   as [Verheul2024].
 
    For example, a solution instance could prove that two elliptic curve
    keys B1 = [bf1]D and B2 = [bf2]D, where bf1 and bf2 are
@@ -1043,6 +1044,12 @@ Table of Contents
               Organisationen/Standards-und-Zertifizierung/Technische-
               Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-
               03181_node.html>.
+
+   [Verheul2024]
+              Verheul, E., "Attestation Proof of Association –
+              provability that attestation keys are bound to the same
+              hardware and person", 18 September 2024,
+              <https://eprint.iacr.org/2024/1444>.
 
 Acknowledgements
 
