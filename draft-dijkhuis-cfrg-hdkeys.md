@@ -20,7 +20,6 @@ author:
       email: mail@sanderdijkhuis.nl
 contributor:
     - fullname: Micha Kraus
-      organization: Bundesdruckerei
 ipr: trust200902
 normative:
     I-D.draft-bradleylundberg-cfrg-arkg-02:
