@@ -678,4 +678,4 @@ In an alternative to HDK, the holder independently generates blinded key pairs a
 
 This design is based on ideas introduced to the EU Digital Identity domain by Peter Lee Altmann.
 
-Helpful feedback came from Emil Lundberg and Remco Schaar.
+Helpful feedback came from Emil Lundberg, John Bradley and Remco Schaar.
