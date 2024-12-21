@@ -55,7 +55,7 @@ The repository does not contain details about the implementation of HDK for key 
 
 ## Contributing
 
-See the [contributor agreement](https://github.com/Yubico/arkg-rfc/blob/main/CONTRIBUTING.md).
+See the [contributor agreement](CONTRIBUTING.md).
 
 Feedback and other input is easiest to discuss in [GitHub issues](https://github.com/sander/hierarchical-deterministic-keys/issues).
 
