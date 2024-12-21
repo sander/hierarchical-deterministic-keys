@@ -9,20 +9,20 @@
 <meta content="
        Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. 
     " name="description">
-<meta content="xml2rfc 3.23.2" name="generator">
+<meta content="xml2rfc 3.25.0" name="generator">
 <meta content="KDF" name="keyword">
 <meta content="draft-dijkhuis-cfrg-hdkeys-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.23.2
-    Python 3.12.7
+  xml2rfc 3.25.0
+    Python 3.12.8
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.4
-    lxml 4.9.4
+    lxml 5.3.0
     platformdirs 4.3.6
-    pycountry 22.3.5
-    PyYAML 6.0.1
+    pycountry 24.6.1
+    PyYAML 6.0.2
     requests 2.32.3
     setuptools 70.3.0
     wcwidth 0.2.13
@@ -161,31 +161,6 @@
 }
 
 @font-face {
-  font-family: 'Cabin Condensed';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
-}
-@font-face {
-  font-family: 'Cabin Condensed';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Cabin Condensed';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
   font-family: 'Oxygen Mono';
   font-style: normal;
   font-weight: 400;
@@ -202,6 +177,77 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   color-scheme: light dark;
   --background-color: #fff;
@@ -214,6 +260,7 @@
   --pilcrow-strong: #bbb;
   --small-font-size: 14.5px;
   --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
   scrollbar-color: #bbb #eee;
 }
 body {
@@ -231,9 +278,15 @@ body {
 }
 
 /* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Cabin Condensed", sans-serif;
-  font-weight: 600;
+  font-family: var(--font-title);
+  font-weight: 680;
   margin: 0.8em 0 0.3em;
   font-size-adjust: 0.5;
   color: var(--title-color);
@@ -262,6 +315,7 @@ h4, h5, h6 {
 /* general structure */
 .author {
   padding-bottom: 0.3em;
+  vertical-align: top;
 }
 #abstract+p {
   font-size: 18px;
@@ -339,25 +393,26 @@ svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
 ol, ul {
   padding: 0;
   margin: 0 0 0.5em 2em;
-}
-:is(ol, ul) :is(ol, ul) {
-  margin-left: 1em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
 }
 li {
   margin: 0 0 0.25em 0;
 }
-.ulCompact li {
-  margin: 0;
-}
 ul.empty, .ulEmpty {
   list-style-type: none;
-}
-ul.empty li, .ulEmpty li {
-  margin-top: 0.5em;
+  & li {
+    margin-top: 0.5em;
+  }
 }
 :is(ul, ol).compact, .ulCompact, .olCompact {
-  line-height: 1;
   margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
 }
 
 /* definition lists */
@@ -365,38 +420,39 @@ dl {
   clear: left;
   --indent: 3ch;
   /* --indent: attr(indent ch); not supported in any browser, but we can dream */
-}
-dl.olPercent {
-  --indent: 5ch;
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+    }
+  }
+  &.olPercent > dt {
+    float: none;
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
 }
 dl > dt {
   float: left;
   margin-right: 2ch;
   min-width: 8ch;
 }
-dl.dlNewline > dt {
-  float: none;
-}
 dl > dd {
   margin-bottom: .8em;
   margin-left: var(--indent) !important; /* stupid element overrides */
   min-height: 2ex;
 }
-dl.olPercent > dt {
-  min-width: calc(var(--indent) - 2ch);
-}
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
-}
-:is(dl.compact, .dlCompact) > dd > :is(:first-child, .break:first-child + *) {
-  margin-top: 0;
-}
-:is(dl.compact, .dlCompact) > dd > :is(:last-child) {
-  margin-bottom: 0;
-}
-dl > dd > dl {
-  margin-top: 0.5em;
-  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
 }
 :is(dd, span).break {
   display: none;
@@ -460,6 +516,7 @@ figcaption, caption {
   font-style: italic;
   margin: 0.5em 1.5em;
   text-align: left;
+  caption-side: bottom;
 }
 @media screen {
   /* Auto-collapse boilerplate. */
@@ -477,7 +534,11 @@ figcaption, caption {
   }
   pre, svg {
     display: inline-block;
-    overflow-x: auto;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
   }
   pre {
     max-width: 100%;
@@ -514,6 +575,7 @@ cite {
 
 /* tables */
 table {
+  width: auto;
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
@@ -528,6 +590,16 @@ table.center {
 table.left {
   margin-right: auto;
 }
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
 thead, tbody {
   border: 1px solid var(--line-color);
 }
@@ -558,9 +630,11 @@ a.pilcrow {
   margin-left: 3px;
   opacity: 0.2;
   user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
 }
-a.pilcrow[href] { color: var(--pilcrow-weak); }
-a.pilcrow[href]:hover { text-decoration: none; }
 @media not print {
   :hover > a.pilcrow {
     opacity: 1;
@@ -600,26 +674,28 @@ sub, sup {
   font-size: var(--small-font-size);
   line-height: 18px;
   --identifier-width: 15ch;
-}
-#identifiers dt {
-  width: var(--identifier-width);
-  min-width: var(--identifier-width);
-  clear: left;
-  float: left;
-  text-align: right;
-  margin-right: 1ch;
-}
-#identifiers dd {
-  margin: 0;
-  margin-left: calc(1em + var(--identifier-width)) !important;
-  min-width: 5em;
-}
-#identifiers .authors .author {
-  display: inline-block;
-  margin-right: 1.5em;
-}
-#identifiers .authors .org {
-  font-style: italic;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
 }
 
 /* The prepared/rendered info at the very bottom of the page */
@@ -630,9 +706,6 @@ sub, sup {
   margin-top: 2em;
 }
 .docInfo .prepared {
-  float: left;
-}
-.docInfo .prepared {
   float: right;
 }
 
@@ -640,47 +713,48 @@ sub, sup {
 #toc {
   padding: 0.75em 0 2em 0;
   margin-bottom: 1em;
-}
-#toc nav ul {
-  margin: 0 0.5em 0 0;
-  padding: 0;
-  list-style: none;
-}
-#toc nav li {
-  line-height: 1.3em;
-  margin: 2px 0;
-  padding-left: 1.2em;
-  text-indent: -1.2em;
-}
-#toc a.xref {
-  white-space: normal;
-}
-/* references */
-.references dt {
-  text-align: right;
-  font-weight: bold;
-  min-width: 10ch;
-  margin-right: 1.5ch;
-}
-.references dt:target::before {
-  content: "⇒";
-  width: 15px;
-  margin: 0 10px 0 -25px;
-}
-.references dd {
-  margin-left: 12ch !important;
-  overflow: auto;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
 }
 
-.refInstance {
-  margin-bottom: 1.25em;
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
 }
 
-.references .ascii {
-  margin-bottom: 0.25em;
-}
-
-/* index */
 #rfc\.index\.index + ul {
   margin-left: 0;
 }
@@ -688,21 +762,33 @@ sub, sup {
 /* authors */
 address.vcard {
   font-style: normal;
-  margin: 1em 0;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
 }
-address.vcard .nameRole {
-  font-weight: 700;
-  margin-left: 0;
-}
-address.vcard .label {
-  margin: 0.5em 0;
-}
-address.vcard .type {
-  display: none;
-}
-.alternative-contact {
-  margin: 1.5em 0 1em;
-}
+
 hr.addr {
   border-top: 1px dashed;
   margin: 0;
@@ -724,6 +810,7 @@ hr.addr {
   }
 }
 
+/* Comments */
 .rfcEditorRemove p:first-of-type {
   font-style: italic;
 }
@@ -734,7 +821,31 @@ hr.addr {
 .crefSource {
   font-style: italic;
 }
-/* alternative layout for smaller screens */
+
+@media screen {
+  #toc nav {
+    font-family: var(--font-title);
+    font-weight: 360;
+    & > ul { margin-bottom: 2em; }
+    & ul {
+      margin: 0 0 0 4px;
+      & :is(p, li) {
+        margin: 2px 0;
+      }
+    }
+  }
+  #toc a.toplink {
+    float: right;
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
 @media screen and (max-width: 929px) {
   #toc {
     position: fixed;
@@ -745,9 +856,6 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc.active {
-      opacity: 1;
   }
   #toc h2 {
     margin: 0;
@@ -760,17 +868,17 @@ hr.addr {
     background-color: #444;
     color: white;
     cursor: pointer;
-  }
-  #toc h2::before { /* css hamburger */
-    float: right;
-    position: relative;
-    width: 1em;
-    height: 1px;
-    left: -164px;
-    margin: 8px 0 0 0;
-    background: white none repeat scroll 0 0;
-    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-    content: "";
+    &::before { /* css hamburger */
+      float: right;
+      position: relative;
+      width: 1em;
+      height: 1px;
+      left: -164px;
+      margin: 8px 0 0 0;
+      background: white none repeat scroll 0 0;
+      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+      content: "";
+    }
   }
   #toc nav {
     display: none;
@@ -781,14 +889,13 @@ hr.addr {
     height: calc(100vh - 48px);
     border-left: 1px solid #ddd;
   }
-  #toc.active nav {
-    display: block;
+  #toc.active {
+    opacity: 1;
+    & nav { display: block; }
   }
   /* Make the collapsed ToC header render white on gray also when it's a link */
   #toc h2 a,
-  #toc h2 a:link,
-  #toc h2 a:focus,
-  #toc h2 a:hover,
+  #toc h2 a:is(:link, :focus, :hover),
   #toc a.toplink,
   #toc a.toplink:hover {
     color: white;
@@ -796,11 +903,11 @@ hr.addr {
     text-decoration: none;
   }
   #toc a.toplink {
-    margin-top: 2px;
+    margin: 2px 0.5em 0;
   }
 }
 
-/* alternative layout for wide screens */
+/* TOC layout for wide screens */
 @media screen and (min-width: 930px) {
   body {
     padding-right: 360px;
@@ -829,20 +936,12 @@ hr.addr {
     overscroll-behavior: contain;
     scrollbar-width: thin;
   }
-  #toc nav > ul  {
-    margin-bottom: 2em;
-  }
-  #toc ul {
-    margin: 0 0 0 4px;
-    font-size: var(--small-font-size);
-  }
-  #toc ul :is(p, li) {
-    margin: 2px 0;
-    line-height: 22px;
-  }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
+  }
+  #toc a.toplink {
+    margin: 8px 0.5em 0;
   }
 }
 
@@ -885,9 +984,6 @@ hr.addr {
   td {
     border-top: 1px solid #ddd;
   }
-  .toplink {
-    display: none;
-  }
 }
 
 @page :first {
@@ -910,82 +1006,6 @@ hr.addr {
   size: A4;
   margin-bottom: 45mm;
   padding-top: 20px;
-}
-
-/* Changes introduced to fix issues found during implementation */
-
-/* Separate body from document info even without intervening H1 */
-section {
-  clear: both;
-}
-
-/* Top align author divs, to avoid names without organization dropping level with org names */
-.author {
-  vertical-align: top;
-}
-
-/* Style section numbers with more space between number and title */
-.section-number {
-  padding-right: 0.5em;
-}
-
-/* Add styling for a link in the ToC that points to the top of the document */
-a.toplink {
-  float: right;
-  margin: 8px 0.5em 0;
-}
-
-/* Provide styling for table cell text alignment */
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
-}
-
-/* Make the alternative author contact information look less like just another
-   author, and group it closer with the primary author contact information */
-.alternative-contact {
-  margin: 0.5em 0 0.25em 0;
-}
-address .non-ascii {
-  margin: 0 0 0 2em;
-}
-
-/* With it being possible to set tables with alignment
-  left, center, and right, { width: 100%; } does not make sense */
-table {
-  width: auto;
-}
-
-/* Avoid reference text that sits in a block with very wide left margin,
-   because of a long floating dt label.*/
-.references dd {
-  overflow: visible;
-}
-
-/* Control caption placement */
-caption {
-  caption-side: bottom;
-}
-
-/* Limit the width of the author address vcard, so names in right-to-left
-   script don't end up on the other side of the page. */
-
-address.vcard {
-  max-width: 20em;
-  margin-right: auto;
-}
-
-/* For address alignment dependent on LTR or RTL scripts */
-address div.left {
-  text-align: left;
-}
-address div.right {
-  text-align: right;
 }
 
 /* Dark mode. */
@@ -1024,11 +1044,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">HDK</td>
-<td class="right">October 2024</td>
+<td class="right">December 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Dijkhuis</td>
-<td class="center">Expires 20 April 2025</td>
+<td class="center">Expires 24 June 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1041,12 +1061,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-dijkhuis-cfrg-hdkeys-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-10-17" class="published">17 October 2024</time>
+<time datetime="2024-12-21" class="published">21 December 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-04-20">20 April 2025</time></dd>
+<dd class="expires"><time datetime="2025-06-24">24 June 2025</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1091,7 +1111,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 April 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 24 June 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1126,19 +1146,19 @@ svg :is([fill="white"], [fill^="#fff"]) {
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-the-hierarchical-determinis" class="internal xref">The Hierarchical Deterministic Keys algorithm</a></p>
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-the-hierarchical-determinis" class="internal xref">The Hierarchical Deterministic Key function</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
                 <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-introductory-examples" class="internal xref">Introductory examples</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.1">
-                    <p id="section-toc.1-1.2.2.1.2.1.1" class="keepWithNext"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-local-key-derivation-exampl" class="internal xref">Local key derivation example</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.1.1" class="keepWithNext"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-local-deterministic-key-der" class="internal xref">Local deterministic key derivation</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.2">
-                    <p id="section-toc.1-1.2.2.1.2.2.1"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-remote-key-derivation-examp" class="internal xref">Remote key derivation example</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.2.1"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-remote-deterministic-key-de" class="internal xref">Remote deterministic key derivation</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.3">
-                    <p id="section-toc.1-1.2.2.1.2.3.1"><a href="#section-2.1.3" class="auto internal xref">2.1.3</a>.  <a href="#name-blinding-example" class="internal xref">Blinding example</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.3.1"><a href="#section-2.1.3" class="auto internal xref">2.1.3</a>.  <a href="#name-blinded-proof-of-possession" class="internal xref">Blinded proof of possession</a></p>
 </li>
                 </ul>
 </li>
@@ -1146,22 +1166,16 @@ svg :is([fill="white"], [fill^="#fff"]) {
                 <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-instantiation-parameters" class="internal xref">Instantiation parameters</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
-                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-the-hdk-root-function" class="internal xref">The HDK-Root function</a></p>
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-the-hdk-function" class="internal xref">The HDK function</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
-                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-the-hdk-derive-local-functi" class="internal xref">The HDK-Derive-Local function</a></p>
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-the-local-hdk-procedure" class="internal xref">The local HDK procedure</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
-                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-the-hdk-seed-remote-functio" class="internal xref">The HDK-Seed-Remote function</a></p>
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-the-remote-hdk-protocol" class="internal xref">The remote HDK protocol</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.6">
-                <p id="section-toc.1-1.2.2.6.1"><a href="#section-2.6" class="auto internal xref">2.6</a>.  <a href="#name-the-hdk-derive-remote-funct" class="internal xref">The HDK-Derive-Remote function</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.7">
-                <p id="section-toc.1-1.2.2.7.1"><a href="#section-2.7" class="auto internal xref">2.7</a>.  <a href="#name-the-hdk-authenticate-functi" class="internal xref">The HDK-Authenticate function</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.8">
-                <p id="section-toc.1-1.2.2.8.1"><a href="#section-2.8" class="auto internal xref">2.8</a>.  <a href="#name-the-hdk-export-blinding-fac" class="internal xref">The HDK-Export-Blinding-Factor function</a></p>
+                <p id="section-toc.1-1.2.2.6.1"><a href="#section-2.6" class="auto internal xref">2.6</a>.  <a href="#name-combining-blinding-factors" class="internal xref">Combining blinding factors</a></p>
 </li>
             </ul>
 </li>
@@ -1172,13 +1186,22 @@ svg :is([fill="white"], [fill^="#fff"]) {
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-using-elliptic-curves" class="internal xref">Using elliptic curves</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
-                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-using-ecdh-message-authenti" class="internal xref">Using ECDH message authentication codes for proof of possession</a></p>
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-using-ec-multiplicative-bli" class="internal xref">Using EC multiplicative blinding</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
-                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-using-ec-sdsa-signatures-fo" class="internal xref">Using EC-SDSA signatures for proof of possession</a></p>
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-using-ec-additive-blinding" class="internal xref">Using EC additive blinding</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
-                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-using-ecdsa-signatures-for-" class="internal xref">Using ECDSA signatures for proof of possession</a></p>
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-using-ecdh-shared-secrets" class="internal xref">Using ECDH shared secrets</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5">
+                <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="auto internal xref">3.5</a>.  <a href="#name-using-ec-digital-signatures" class="internal xref">Using EC digital signatures</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.6">
+                <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="auto internal xref">3.6</a>.  <a href="#name-using-ec-sdsa-signatures" class="internal xref">Using EC-SDSA signatures</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7">
+                <p id="section-toc.1-1.3.2.7.1"><a href="#section-3.7" class="auto internal xref">3.7</a>.  <a href="#name-using-ecdsa-signatures" class="internal xref">Using ECDSA signatures</a></p>
 </li>
             </ul>
 </li>
@@ -1189,7 +1212,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-hdk-ecdh-p256" class="internal xref">HDK-ECDH-P256</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-hdk-ecsdsa-p256" class="internal xref">HDK-ECSDSA-P256</a></p>
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-hdk-ecdsa-p256" class="internal xref">HDK-ECDSA-P256</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-hdk-ecsdsa-p256" class="internal xref">HDK-ECSDSA-P256</a></p>
 </li>
             </ul>
 </li>
@@ -1252,12 +1278,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">This document specifies the algorithms to apply Hierarchical Deterministic Keys (HDKs). The purpose of an HDK architecture is to manage large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">This document specifies the algorithms to apply Hierarchical Deterministic Keys (HDKeys). The purpose of an HDK architecture is to manage large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">The core idea has been introduced in <span>[<a href="#BIP32" class="cite xref">BIP32</a>]</span> to create multiple cryptocurrency addresses in a manageable way. The present document extends the idea towards devices commonly used for digital wallets, and towards common interaction patterns for document issuance and authentication.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">To store many HDKs, only a seed string needs to be securely stored, associated with the device private key. Each HDK is then deterministically defined by a path of self-generated indices or provided key handles. Such a path can efficiently be stored and requires less confidentiality than the seed.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">To prove possession of many HDKs, the secure cryptographic device only needs to perform common cryptographic operations on a single key. The HDK acts as a blinding factor that enables blinding the device public key.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">This document provides a specification of the generic HDK scheme, generic HDK instantiations, and fully specified concrete HDK instantiations.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">An HDK instantiation is expected to be applied in a solution deployed as (wallet) solution instances. One solution instance can have multiple HDK instantiations, for example to manage multiple identities or multiple cryptographic algorithms or key protection mechanisms.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-3">To store many HDKeys, only a seed string needs to be confidentially stored, associated with a device private key. Each HDK is then deterministically defined by a path of indices, optionally alternated by key handles provided by another party. Such a path can efficiently be stored and requires less confidentiality than the seed.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">To prove possession of many HDKeys, the secure cryptographic device only needs to perform common cryptographic operations on a single key. The HDK acts as a blinding factor that enables blinding the device public key.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">This document provides a specification of the generic HDK function, generic HDK instantiations, and fully specified concrete HDK instantiations.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">An HDK instantiation is expected to be applied in a solution deployed as (wallet) units. One unit can have multiple HDK instantiations, for example to manage multiple identities or multiple cryptographic algorithms or key protection mechanisms.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">This document represents the consensus of the authors, based on working group input and feedback. It is not a standard. It does not include security or privacy proofs.<a href="#section-1-7" class="pilcrow">¶</a></p>
 <div id="conventions-and-definitions">
 <section id="section-1.1">
@@ -1281,99 +1307,99 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">�
 </div>
 </section>
 </div>
-<div id="the-hierarchical-deterministic-keys-algorithm">
+<div id="the-hierarchical-deterministic-key-function">
 <section id="section-2">
       <h2 id="name-the-hierarchical-determinis">
-<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-the-hierarchical-determinis" class="section-name selfRef">The Hierarchical Deterministic Keys algorithm</a>
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-the-hierarchical-determinis" class="section-name selfRef">The Hierarchical Deterministic Key function</a>
       </h2>
-<p id="section-2-1">An HDK instantiation applies local key derivation to create many key pairs from a single seed value. It applies asynchronous remote key generation to enable providers to derive more key pairs. Additionally, an HDK instantiation applies these key pairs to blind a single key pair and proofs of its possession, such as required in <span>[<a href="#RFC7800" class="cite xref">RFC7800</a>]</span>.<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2">Solutions <span class="bcp14">MAY</span> omit application of the asynchronous remote key generation functionality. In this case, a solution instance can only derive keys locally.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-1">An HDK instantiation enables local key derivation to create many key pairs from a single seed value. It enables remote parties to generate key handles from which both parties can derive more key pairs asynchronously. Additionally, an HDK instantiation enables securely proving possession of the private keys, such as required in <span>[<a href="#RFC7800" class="cite xref">RFC7800</a>]</span>, either in a centralised or in a distributed manner.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">Solutions <span class="bcp14">MAY</span> omit application of the remote functionality. In this case, a unit can only derive keys locally.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <div id="introductory-examples">
 <section id="section-2.1">
         <h3 id="name-introductory-examples">
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-introductory-examples" class="section-name selfRef">Introductory examples</a>
         </h3>
-<div id="local-key-derivation-example">
+<div id="local-deterministic-key-derivation">
 <section id="section-2.1.1">
-          <h4 id="name-local-key-derivation-exampl">
-<a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-local-key-derivation-exampl" class="section-name selfRef">Local key derivation example</a>
+          <h4 id="name-local-deterministic-key-der">
+<a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-local-deterministic-key-der" class="section-name selfRef">Local deterministic key derivation</a>
           </h4>
-<p id="section-2.1.1-1">The following example illustrates the use of key derivation. An HDK tree is defined by an initial public key and a seed value, which is a byte array containing sufficient entropy. Now tree nodes are constructed as follows.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-1">The following example illustrates the use of local key derivation. An HDK tree is associated with a device key pair and initiated using confidential static data: a <code>seed</code> value, which is a byte array containing sufficient entropy. Now tree nodes are constructed as follows.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.1.1-2">
 <pre>
-              +------------------------+
-              |Confidential static data|
-              |+---------+ +----+      |
-              ||pk_device| |seed|      |
-              |+----+----+ +--+-+      |
-              +-----+---------+--------+
-  +-----------------+---------+---------------------------+
-  |Level 0          v         v                           |
-  |+-----------------------------------------------------+|
-  ||(pk0, sdk0, salt0) = hdk0 = HDK-Root(pk_device, seed)||
-  |+----+------------------------------------------------+|
-  +-----+-------------------------------------------------+
-Level 1 v
-+-------------------------++-----------------++-----------------+
-|(pk1, sk1, salt1) =      ||HDK-Derive-Local(||HDK-Derive-Local(|
-|HDK-Derive-Local(hdk0, 0)||    hdk0, 1)     ||    hdk0, 2)     |
-+-----------+--------+----++-----------------++-----------------+
-            |        +---------------+
-            |                        |
-+-----------+------------------------+--------------------+
-|Level 2    v                        v                    |
-|+-----------------------++-----------------------+       |
-||HDK-Derive-Local(      ||HDK-Derive-Local(      |       |
-||    (pk1,sk1,salt1), 0)||    (pk1,sk1,salt1), 1)|       |
-|+-----------------------++-----------------------+       |
-+---------------------------------------------------------+
+                          +----+
+Confidential static data: |seed|
+                          +-+--+
+                            v
+                          +----+ +----+
+Level 0 HDKeys:           |hdk0| |hdk1|
+                          +-+--+ +----+
+                            v
+                          +-----+ +-----+ +-----+
+Level 1 HDKeys:           |hdk00| |hdk01| |hdk02|
+                          +-----+ ++---++ +-----+
+                                   v   v
+                             +------+ +------+
+Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
+                             +------+ +------+
 </pre><a href="#section-2.1.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.1.1-3">The solution instance computes the Level 0 HDK at the root node using a deterministic function called HDK-Root. The HDK consists of a key pair <code>(pk0, sk0)</code>, and a byte string <code>salt0</code> to derive next-level keys.<a href="#section-2.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-2.1.1-4">The solution instance computes the Level <code>n &gt; 0</code> value is using a deterministic function called HDK-Derive-Local. The function takes the previous-level salt as input, and a sequence number <code>i</code> starting at 0. The function returns a new HDK as output.<a href="#section-2.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-3">The unit computes a Level 0 HDK at the root node using a deterministic function: <code>(bf0, salt0) = hdk0 = HDK(seed, 0)</code>. The HDK consists of a first blinding factor <code>bf0</code> and a first byte string <code>salt0</code> to derive next-level keys. Using <code>bf0</code> and the device key pair, the unit can compute blinded public and private keys and proofs of possession.<a href="#section-2.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.1-4">The unit computes any Level <code>n &gt; 0</code> HDK from any other HDK <code>(bf, salt)</code> using the same deterministic function: <code>(bf', salt') = hdk' = HDK(salt, index)</code>. The function takes the previous-level <code>salt</code> as input, and an <code>index</code> starting at 0. The function returns a new HDK as output, which can be used in the same way as the root HDK.<a href="#section-2.1.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="remote-key-derivation-example">
+<div id="remote-deterministic-key-derivation">
 <section id="section-2.1.2">
-          <h4 id="name-remote-key-derivation-examp">
-<a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-remote-key-derivation-examp" class="section-name selfRef">Remote key derivation example</a>
+          <h4 id="name-remote-deterministic-key-de">
+<a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-remote-deterministic-key-de" class="section-name selfRef">Remote deterministic key derivation</a>
           </h4>
-<p id="section-2.1.2-1">Instead of a locally generated index, an HDK can also be derived using a key handle as per Asynchronous Remote Key Generation (ARKG) <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span>. To enable ARKG, the solution instance uses HDK-Seed-Remote and provides the output public key to an issuer. The issuer returns a key handle, using which the solution instance can derive a next-level key pair and seed using HDK-Derive-Remote.<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-2">Locally derived parents can have remotely derived children. Remotely derived parents can have locally derived children.<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-1">Instead of local derivation, an HDK salt can also be derived using a key handle that is generated remotely. Using the derived salt, the local and remote parties can derive the same new HDKeys. The remote party can use these to derive public keys. The local party can use these to derive associated private keys for proof of possession.<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-2">This approach is similar to Asynchronous Remote Key Generation (ARKG) <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span>, but not the same since ARKG does not enable distributed proof of possession with deterministic hierarchies. This makes it difficult to implement with cryptographic devices that lack specific firmware support.<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-3">To enable remote derivation of child HDKeys, the unit uses the parent HDKey to derive the parent public key and a second public key for key encapsulation. The issuer returns a key handle, using which both parties can derive a sequence of child HDKeys. Key encapsulation prevents other parties from discovering a link between the public keys of the parent and the children, even if the other party knows the parent HDK or can eavesdrop communications.<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-4">Locally derived parents can have remotely derived children. Remotely derived parents can have locally derived children.<a href="#section-2.1.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="blinding-example">
+<div id="blinded-proof-of-possession">
 <section id="section-2.1.3">
-          <h4 id="name-blinding-example">
-<a href="#section-2.1.3" class="section-number selfRef">2.1.3. </a><a href="#name-blinding-example" class="section-name selfRef">Blinding example</a>
+          <h4 id="name-blinded-proof-of-possession">
+<a href="#section-2.1.3" class="section-number selfRef">2.1.3. </a><a href="#name-blinded-proof-of-possession" class="section-name selfRef">Blinded proof of possession</a>
           </h4>
-<p id="section-2.1.3-1">The next concept to illustrate is blinding. Blinding enables a solution instance to prove possession of a private key without disclosing the directly associated public key. This way, solutions can avoid linkability across readers of a document that is released with proof of possession.<a href="#section-2.1.3-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.3-2">In this example, a document is issued in such a way that it can be presented with proof of possession using <code>pk</code> as derived using HDK. The solution instance applies the HDK-Authenticate function to the associated <code>sk</code> along with the device private key <code>sk_device</code> and reader-provided <code>reader_data</code>. The output is <code>device_data</code>, which the solution instance can subsequently use to prove possession to the reader. The reader does not need to be aware that HDK was used.<a href="#section-2.1.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-1">The next concept to illustrate is blinded proof of possession. This enables a unit to prove possession of a (device) private key without disclosing the directly associated public key. This way, solutions can avoid linkability across readers of a digital document that is released with proof of possession.<a href="#section-2.1.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-2">In this example, a document is issued with binding to a public key <code>pk'</code>, which is a blinding public key <code>pk</code> blinded with the blinding factor <code>bf</code> in some HDK <code>hdk = (bf, salt)</code>. The unit can present the document with a proof of possession of the corresponding blinded private key, which is the blinding private key <code>sk</code> blinded with <code>bf</code>. The unit applies some authentication function <code>device_data = authenticate(sk, reader_data, bf)</code> to the blinding private key, reader-provided data and the blinding factor. The unit can subsequently use the output <code>device_data</code> to prove possession to the reader using common algorithms.<a href="#section-2.1.3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.1.3-3">
 <pre>
-In secure
-cryptographic
-device
-+-----------+
-|sk_device  +-------------+
-+-----------+             |
--------------             |
-HDK in                    |
-solution                  |
-instance                  v        +-----------+
-+-----------+    HDK-Authenticate-&gt;|device_data|
-|pk         |       ^     ^        +-----------+
-+-----------+       |     |
-+-----------+       |     |
-|sk         +-------+     |
-+-----------+             |
--------------             |
-+-----------+             |
-|reader_data+-------------+
-+-----------+
++------------------+ +--------+
+|       +--+ +---+ | |        |
+| Unit  |sk| |hdk| | | Reader |
+|       +--+ +---+ | |        |
++---+--------------+ +----+---+
+    |                     |
+    |                     |
+    |  1. Request and     |
+    |     reader_data     |
+    | &lt;------------------ |
+    |                     |
++---+-------------+       |
+| 2. authenticate |       |
++---+-------------+       |
+    |                     |
+    |  3. Proof with      |
+    |     device_data     |
+    | ------------------&gt; |
+    |                     |
+    |    +-----------+    |
+    |    | Document  |    |
+    |    |           |    |
+    |    | +---+     |    |
+    |    | |pk'|     |    |
+    |    | +---+     |    |
+    |    |           |    |
+         +-----------+
 </pre><a href="#section-2.1.3-3" class="pilcrow">¶</a>
 </div>
-<p id="section-2.1.3-4">Blinding methods can be constructed such that the secure cryptographic device does not need to be designed for it. In such cases, <code>sk_device</code> does not contain the value of the private device key but a reference to it.<a href="#section-2.1.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-4">The reader does not need to be aware that an HDK function or key blinding was used, since for common algorithms, the blinded public key and the proof are indistinguishable from non-blinded keys and proofs.<a href="#section-2.1.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-5">When applied on HDK level <code>n</code>, the blinding private key <code>sk</code> is the device private key blinded with a combination of <code>n</code> blinding factors. These can either be combined within the secure cryptographic device, by subsequent computation of the blinded private key starting with the device private key, or outside of the secure cryptographic device, by combining the blinding factors outside of the secure cryptographic device.<a href="#section-2.1.3-5" class="pilcrow">¶</a></p>
+<p id="section-2.1.3-6">Blinding methods can be constructed such that the secure cryptographic device does not need to be designed for key blinding. In such cases, the computation of <code>device_data</code> is distributed between two parties: the secure cryptographic device using common cryptographic operations, and the unit component invoking these operations. Some blinded proof of possession algorithms can only be centralised.<a href="#section-2.1.3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1389,214 +1415,180 @@ instance                  v        +-----------+
             <p id="section-2.2-2.1.1"><code>ID</code>: A domain separation tag, represented as a string of ASCII bytes.<a href="#section-2.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.2-2.2">
-            <p id="section-2.2-2.2.1"><code>Nk</code>: The amount of bytes needed to create a uniformly random key. Note that <code>Nk</code> usually needs to be higher than the size of the key space, for example to maintain uniform distribution when deriving RNG({1,2,...,n-1}) from RNG({0,1,2,...,2^k-1}) for <code>k=8*Nk</code> and <code>2^k &gt;= n</code> as per <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> Section 4.1.1 Algorithm 2.<a href="#section-2.2-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.2.1"><code>Ns</code>: The amount of bytes of a salt value with sufficient entropy.<a href="#section-2.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.2-2.3">
-            <p id="section-2.2-2.3.1"><code>Ns</code>: The amount of bytes of a salt value with sufficient entropy.<a href="#section-2.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.3.1"><code>H</code>: A cryptographic hash function.<a href="#section-2.2-2.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2-2.3.2.1">
+                <p id="section-2.2-2.3.2.1.1">H1(msg): Outputs <code>Ns</code> bytes.<a href="#section-2.2-2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </li>
           <li class="normal" id="section-2.2-2.4">
-            <p id="section-2.2-2.4.1"><code>key(bytes)</code>: Deterministically outputs a key pair <code>(pk, sk)</code> from a uniformly random string of <code>Nk</code> bytes.<a href="#section-2.2-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.4.1"><code>BL</code>: An asymmetric key blinding scheme with opaque blinding factors and algebraic properties, consisting of the functions:<a href="#section-2.2-2.4.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2-2.4.2.1">
+                <p id="section-2.2-2.4.2.1.1">BL-Generate-Blinding-Key-Pair(): Outputs a blinding key pair <code>(pk, sk)</code>.<a href="#section-2.2-2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.4.2.2">
+                <p id="section-2.2-2.4.2.2.1">BL-Derive-Blinding-Factor(msg, ctx): Outputs a blinding factor <code>bf</code> based on two byte string inputs, message <code>msg</code> and domain separation parameter <code>ctx</code>.<a href="#section-2.2-2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.4.2.3">
+                <p id="section-2.2-2.4.2.3.1">BL-Blind-Public-Key(pk, bf): Outputs the result <code>pk'</code> of blinding <code>pk</code> with <code>bf</code>. This again is a blinding public key.<a href="#section-2.2-2.4.2.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.4.2.4">
+                <p id="section-2.2-2.4.2.4.1">BL-Blind-Private-Key(sk, bf): Outputs the result <code>sk'</code> of blinding <code>sk</code> with <code>bf</code>. This again is a blinding private key.<a href="#section-2.2-2.4.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.4.2.5">
+                <p id="section-2.2-2.4.2.5.1">BL-Combine-Blinding-Factors(bf1, bf2): Outputs a blinding factor <code>bf</code> such that for all blinding key pairs <code>(pk, sk)</code>:<a href="#section-2.2-2.4.2.5.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2-2.4.2.5.2.1">
+                    <p id="section-2.2-2.4.2.5.2.1.1"><code>BL-Blind-Public-Key(pk, bf) == BL-Blind-Public-Key(BL-Blind-Public-Key(pk, bf1), bf2)</code><a href="#section-2.2-2.4.2.5.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                  <li class="normal" id="section-2.2-2.4.2.5.2.2">
+                    <p id="section-2.2-2.4.2.5.2.2.1"><code>BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-Blind-Private-Key(pk, bf1), bf2)</code><a href="#section-2.2-2.4.2.5.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
 </li>
           <li class="normal" id="section-2.2-2.5">
-            <p id="section-2.2-2.5.1"><code>serialize(pk)</code>: Serializes a public key <code>pk</code> to a fixed-size string.<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.5.1"><code>KEM</code>: A key encapsulation mechanism, consisting of the functions:<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2-2.5.2.1">
+                <p id="section-2.2-2.5.2.1.1">KEM-Derive-Key-Pair(msg, ctx): Outputs a key encapsulation key pair <code>(pk, sk)</code>.<a href="#section-2.2-2.5.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.5.2.2">
+                <p id="section-2.2-2.5.2.2.1">KEM-Encaps(pk, ctx): Outputs <code>(k, c)</code> consisting of a shared secret <code>k</code> and a ciphertext <code>c</code>, taking key encapsulation public key <code>pk</code> and domain separation parameter <code>ctx</code>, a byte string.<a href="#section-2.2-2.5.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.5.2.3">
+                <p id="section-2.2-2.5.2.3.1">KEM-Decaps(sk, c, ctx): Outputs shared secret <code>k</code>, taking key encapsulation private key <code>sk</code> and domain separation <code>ctx</code>, a byte string.<a href="#section-2.2-2.5.2.3.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </li>
           <li class="normal" id="section-2.2-2.6">
-            <p id="section-2.2-2.6.1"><code>expand(msg, DST, L)</code>: Outputs a uniformly random string of <code>L</code> bytes using a cryptographic hash or extendable-output function and input byte strings <code>msg</code> and <code>DST</code>.<a href="#section-2.2-2.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-2.2-2.7">
-            <p id="section-2.2-2.7.1"><code>BL</code>: An asymmetric key blinding scheme <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span>, consisting of the functions:<a href="#section-2.2-2.7.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-2.2-2.7.2.1">
-                <p id="section-2.2-2.7.2.1.1">BL-Blind-Public-Key(pk, tau, info): Outputs <code>pk</code> blinded with blinding factor <code>tau</code> and domain separation parameter <code>info</code>, both byte strings.<a href="#section-2.2-2.7.2.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-2.2-2.7.2.2">
-                <p id="section-2.2-2.7.2.2.1">BL-Blind-Private-Key(sk, tau, info): Outputs <code>sk</code> blinded with blinding factor <code>tau</code> and domain separation parameter <code>info</code>, both byte strings.<a href="#section-2.2-2.7.2.2.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-</li>
-          <li class="normal" id="section-2.2-2.8">
-            <p id="section-2.2-2.8.1"><code>ARKG</code>: An asynchronous remote key generation instantiation <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span>, encapsulating an asymmetric key blinding scheme instantiation <code>BL</code> and a key encapsulation mechanism <code>KEM</code>, and consisting of the functions:<a href="#section-2.2-2.8.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-2.2-2.8.2.1">
-                <p id="section-2.2-2.8.2.1.1">ARKG-Derive-Public-Key(pk, info): Outputs <code>(pk', kh)</code> where <code>pk'</code> is a derived public key and <code>kh</code> is a key handle to derive the associated private key, based on an ARKG public seed <code>pk = (pk_kem, pk_bl)</code> and application-specific information <code>info</code>.<a href="#section-2.2-2.8.2.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-2.2-2.8.2.2">
-                <p id="section-2.2-2.8.2.2.1">ARKG-Derive-Private-Key(sk, kh, info): Outputs <code>sk'</code>, a blinded private key based on ARKG private seed <code>sk = (sk_kem, sk_bl)</code>, a key handle <code>kh</code>, and application-specific information <code>info</code>.<a href="#section-2.2-2.8.2.2.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-</li>
-          <li class="normal" id="section-2.2-2.9">
-            <p id="section-2.2-2.9.1"><code>HDK-Root(pk_device, seed)</code>: See <span><a href="#the-hdk-root-function" class="internal xref">The HDK-Root function</a> (<a href="#the-hdk-root-function" class="auto internal xref">Section 2.3</a>)</span>.<a href="#section-2.2-2.9.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-2.2-2.10">
-            <p id="section-2.2-2.10.1"><code>HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)</code>: See <span><a href="#the-hdk-derive-remote-function" class="internal xref">The HDK-Derive-Remote function</a> (<a href="#the-hdk-derive-remote-function" class="auto internal xref">Section 2.6</a>)</span>.<a href="#section-2.2-2.10.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-2.2-2.11">
-            <p id="section-2.2-2.11.1"><code>HDK-Authenticate(sk_device, sk_hdk, reader_data)</code>: See <span><a href="#the-hdk-authenticate-function" class="internal xref">The HDK-Authenticate function</a> (<a href="#the-hdk-authenticate-function" class="auto internal xref">Section 2.7</a>)</span>.<a href="#section-2.2-2.11.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.6.1"><code>Authenticate(sk_device, reader_data, bf)</code>: Outputs <code>device_data</code> for use in a protocol for proof of possession, taking a BL blinding private key <code>sk_device</code>, remotely received <code>reader_data</code>, and a BL blinding factor <code>bf</code>.<a href="#section-2.2-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-2.2-3">A concrete HDK instantiation <span class="bcp14">MUST</span> specify the instantiation of each of the above functions and values.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2-3">An HDK instantiation <span class="bcp14">MUST</span> specify the instantiation of each of the above functions and values.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2-4">An HDK instantiation <span class="bcp14">MUST</span> define Authenticate such that the <code>device_data</code> can be verified using the blinded public key <code>pk = BL-Blind-Public-Key(sk, bf)</code>. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="the-hdk-root-function">
+<div id="the-hdk-function">
 <section id="section-2.3">
-        <h3 id="name-the-hdk-root-function">
-<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-the-hdk-root-function" class="section-name selfRef">The HDK-Root function</a>
+        <h3 id="name-the-hdk-function">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-the-hdk-function" class="section-name selfRef">The HDK function</a>
         </h3>
-<p id="section-2.3-1">A solution instance creates a root HDK using a seed and a device public key. The generation of the seed is out of scope for this specification.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-1">A local unit or a remote party deterministically computes an HDK from a salt and an index. The salt can be an initial seed value of <code>Ns</code> bytes or it can be taken from another parent HDK. The secure generation of the seed is out of scope for this specification.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.3-2">
 <pre>
 Inputs:
-- pk_device, a device public key.
-- seed, a string of Ns bytes.
-
-Outputs:
-- pk, the root public key.
-- sk, the root private key.
-- salt, the root salt.
-
-def HDK-Root(pk_device, seed)
-</pre><a href="#section-2.3-2" class="pilcrow">¶</a>
-</div>
-</section>
-</div>
-<div id="the-hdk-derive-local-function">
-<section id="section-2.4">
-        <h3 id="name-the-hdk-derive-local-functi">
-<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-the-hdk-derive-local-functi" class="section-name selfRef">The HDK-Derive-Local function</a>
-        </h3>
-<p id="section-2.4-1">A solution instance derives a key pair and a salt from an HDK and an index.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.4-2">
-<pre>
-Inputs:
-- pk, a public key.
-- sk, a private key.
 - salt, a string of Ns bytes.
 - index, an integer between 0 and 2^32-1 (inclusive).
 
 Outputs:
-- pk', the next-level public key at the provided index.
-- sk', the next-level private key at the provided index.
-- salt', the next-level salt at the provided index.
+- bf, the blinding factor at the provided index.
+- salt', the salt for HDK derivation at the provided index.
 
-def HDK-Derive-Local((pk, sk, salt), index):
-    msg = serialize(pk) || I2OSP(index, 4)
-    okm = expand(msg, ID || salt, Nk + Ns)
-    tau = okm[0:Nk]
-    info = "HDK-Derive-Local"
-    sk' = BL-Blind-Private-Key(sk, tau, info)
-    pk' = BL-Blind-Public-Key(pk, tau, info)
-    salt' = okm[Nk:]
-    return (pk', sk', salt')
-</pre><a href="#section-2.4-2" class="pilcrow">¶</a>
+def HDK(salt, index):
+    msg = salt || I2OSP(index, 4)
+    bf = BL-Derive-Blinding-Factor(msg, ID)
+    salt' = H1(msg)
+    return (bf, salt')
+</pre><a href="#section-2.3-2" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="the-hdk-seed-remote-function">
+<div id="the-local-hdk-procedure">
+<section id="section-2.4">
+        <h3 id="name-the-local-hdk-procedure">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-the-local-hdk-procedure" class="section-name selfRef">The local HDK procedure</a>
+        </h3>
+<p id="section-2.4-1">This is a procedure executed locally by a unit.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.4-2">To begin, the unit securely generates a <code>seed</code> salt of <code>Ns</code> bytes and a device key pair:<a href="#section-2.4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.4-3">
+<pre>
+seed = random(Ns) # specification of random out of scope
+(pk_device, sk_device) = BL-Generate-Blinding-Key-Pair()
+</pre><a href="#section-2.4-3" class="pilcrow">¶</a>
+</div>
+<p id="section-2.4-4">The unit <span class="bcp14">MUST</span> generate <code>sk_device</code> within a secure cryptographic device.<a href="#section-2.4-4" class="pilcrow">¶</a></p>
+<p id="section-2.4-5">Whenever the unit requires the HDK with some <code>index</code> at level 0, the unit computes:<a href="#section-2.4-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.4-6">
+<pre>
+(bf, salt) = HDK(seed, index)
+
+pk = BL-Blind-Public-Key( pk_device, bf) # optional
+sk = BL-Blind-Private-Key(sk_device, bf) # optional
+</pre><a href="#section-2.4-6" class="pilcrow">¶</a>
+</div>
+<p id="section-2.4-7">Now the unit can use the blinded key pair <code>(pk, sk)</code> or derive child HDKeys.<a href="#section-2.4-7" class="pilcrow">¶</a></p>
+<p id="section-2.4-8">Whenever the unit requires the HDK with some <code>index</code> at level <code>n &gt; 0</code> based on a parent HDK <code>hdk = (bf, salt)</code> with blinded key pair <code>(pk, sk)</code> at level <code>n</code>, the unit computes:<a href="#section-2.4-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.4-9">
+<pre>
+(bf', salt') = HDK(salt, index)
+
+pk' = BL-Blind-Public-Key( pk, bf') # optional
+sk' = BL-Blind-Private-Key(sk, bf') # optional
+</pre><a href="#section-2.4-9" class="pilcrow">¶</a>
+</div>
+<p id="section-2.4-10">Now the unit can use the blinded key pair <code>(pk', sk')</code> or derive child HDKeys.<a href="#section-2.4-10" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="the-remote-hdk-protocol">
 <section id="section-2.5">
-        <h3 id="name-the-hdk-seed-remote-functio">
-<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-the-hdk-seed-remote-functio" class="section-name selfRef">The HDK-Seed-Remote function</a>
+        <h3 id="name-the-remote-hdk-protocol">
+<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-the-remote-hdk-protocol" class="section-name selfRef">The remote HDK protocol</a>
         </h3>
-<p id="section-2.5-1">A solution instance derives an ARKG seed from an HDK.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.5-2">
+<p id="section-2.5-1">This is a protocol between a local unit and a remote issuer.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.5-2">As a prerequisite, the unit possesses a <code>salt</code> of <code>Ns</code> bytes associated with a parent blinding key pair <code>(pk, sk)</code> generated using the local HDK procedure.<a href="#section-2.5-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.5-3">
 <pre>
-Inputs:
-- pk, a public key.
-- sk, a private key.
-- salt, a string of Ns bytes.
+# 1. Unit computes:
+(pk_kem, sk_kem) = KEM-Derive-Key-Pair(salt, ID)
 
-Outputs:
-- pk', an ARKG public seed.
-- sk', an ARKG private seed.
+# 2. Unit shares with issuer: (pk, pk_kem)
 
-def HDK-Seed-Remote((pk, sk, salt)):
-    okm = expand("seed", ID || salt, Nk)
-    (pk_kem, sk_kem) = key(okm)
-    pk_bl = pk
-    sk_bl = sk
-    return ((pk_kem, pk_bl), (sk_kem, sk_bl))
-</pre><a href="#section-2.5-2" class="pilcrow">¶</a>
+# 3. Issuer computes:
+(salt, kh) = KEM-Encaps(pk_kem, ID)
+
+# 4. Issuer shares with unit: kh
+
+# Subsequently, for any index known to both parties:
+
+# 5. Issuer computes:
+(bf, salt') = HDK(salt, index)
+pk' = BL-Blind-Public-Key(pk, bf)
+
+# 6. Issuer shares with unit: pk'
+
+# 7. Unit verifies integrity:
+(bf, salt') = HDK(salt, index)
+pk' == BL-Blind-Public-Key(pk, bf)
+
+# 8. Unit computes:
+sk' = BL-Blind-Private-Key(sk, bf)
+</pre><a href="#section-2.5-3" class="pilcrow">¶</a>
 </div>
-<p id="section-2.5-3">Given an ARKG public seed <code>pk</code>, an issuer can derive an ARKG key handle <code>kh</code> and blinded public key <code>pk'</code> using:<a href="#section-2.5-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.5-4">
-<pre>
-(pk', kh) = ARKG-Derive-Public-Key(pk, "")
-</pre><a href="#section-2.5-4" class="pilcrow">¶</a>
-</div>
+<p id="section-2.5-4">Step 4 <span class="bcp14">MAY</span> be postponed to be combined with step 6. Steps 5 to 8 <span class="bcp14">MAY</span> be combined in concurrent execution for multiple indices.<a href="#section-2.5-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="the-hdk-derive-remote-function">
+<div id="combining-blinding-factors">
 <section id="section-2.6">
-        <h3 id="name-the-hdk-derive-remote-funct">
-<a href="#section-2.6" class="section-number selfRef">2.6. </a><a href="#name-the-hdk-derive-remote-funct" class="section-name selfRef">The HDK-Derive-Remote function</a>
+        <h3 id="name-combining-blinding-factors">
+<a href="#section-2.6" class="section-number selfRef">2.6. </a><a href="#name-combining-blinding-factors" class="section-name selfRef">Combining blinding factors</a>
         </h3>
-<p id="section-2.6-1">A solution instance derives a key pair and a salt from an HDK and an ARKG key handle.<a href="#section-2.6-1" class="pilcrow">¶</a></p>
+<p id="section-2.6-1">A unit <span class="bcp14">MUST</span> not persist a blinded private key. Instead, if persistence is needed, a unit can persist either the blinding factor of each HDK, or a path consisting of the seed salt, indices and key handles. In both cases, the unit needs to combine parent blinding factor <code>bf1</code> with child blinding factor <code>bf2</code> before blinding the parent private key <code>sk</code>:<a href="#section-2.6-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.6-2">
 <pre>
-Inputs:
-- pk_device, the device public key.
-- pk, a public key.
-- sk, a private key.
-- salt, a string of Ns bytes.
-- kh, an ARKG key handle.
-
-Outputs:
-- pk', the next-level public key for the provided key handle.
-- sk', the next-level private key for the provided key handle.
-- salt', the next-level salt for the provided key handle.
-
-def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh)
+bf = BL-Combine-Blinding-Factors(bf1, bf2)
 </pre><a href="#section-2.6-2" class="pilcrow">¶</a>
 </div>
-</section>
-</div>
-<div id="the-hdk-authenticate-function">
-<section id="section-2.7">
-        <h3 id="name-the-hdk-authenticate-functi">
-<a href="#section-2.7" class="section-number selfRef">2.7. </a><a href="#name-the-hdk-authenticate-functi" class="section-name selfRef">The HDK-Authenticate function</a>
-        </h3>
-<p id="section-2.7-1">A solution instance authenticates the device by creating a blinded proof applying the device private key and an HDK private key. This yields device data which it can use to prove possession of the device-bound document. The application-specific data for proof of possession is out of scope for HDK.<a href="#section-2.7-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.7-2">
-<pre>
-Inputs:
-- sk_device, a (reference to a) device private key.
-- sk_hdk, an HDK private key.
-- reader_data, a byte string of solution instance-specific data.
-
-Outputs:
-- device_data, a byte string of device data for proving possession.
-
-def HDK-Authenticate(sk_device, sk_hdk, reader_data)
-</pre><a href="#section-2.7-2" class="pilcrow">¶</a>
-</div>
-<p id="section-2.7-3">Implementations of this function typically perform pre-processing on the <code>reader_data</code>, invoke the device key operation on the result, and perform post-processing on the output.<a href="#section-2.7-3" class="pilcrow">¶</a></p>
-<p id="section-2.7-4">A HDK instantiation <span class="bcp14">MUST</span> define HDK-Authenticate such that the <code>device_data</code> can be verified using the public key in the same HDK as <code>sk_hdk</code>. The reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.<a href="#section-2.7-4" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="the-hdk-export-blinding-factor-function">
-<section id="section-2.8">
-        <h3 id="name-the-hdk-export-blinding-fac">
-<a href="#section-2.8" class="section-number selfRef">2.8. </a><a href="#name-the-hdk-export-blinding-fac" class="section-name selfRef">The HDK-Export-Blinding-Factor function</a>
-        </h3>
-<p id="section-2.8-1">When presenting multiple documents, a reader could require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible, such as <span>[<a href="#Verheul2024" class="cite xref">Verheul2024</a>]</span>.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
-<p id="section-2.8-2">For example, a solution instance could prove that two elliptic curve keys <code>B1 = [bf1]D</code> and <code>B2 = [bf2]D</code>, where <code>bf1</code> and <code>bf2</code> are multiplicative blinding factors for a common device public key <code>D</code>, are associated using a zero-knowledge protocol. In this protocol, the solution instance proves that they know the discrete logarithm of <code>B2 = [bf2/bf1]B1</code> with respect to generator <code>B1</code>.<a href="#section-2.8-2" class="pilcrow">¶</a></p>
-<p id="section-2.8-3">The construction of proof of association protocols requires availability to the prover of the blinding factors. The following function enables exporting these blinding factors.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.8-4">
-<pre>
-Inputs:
-- pk, an HDK public key.
-- sk, an HDK private key.
-- salt, an HDK salt which is a string of Ns bytes.
-
-Outputs:
-- bf, an HDK private key which is used as a blinding factor.
-
-def HDK-Export-Blinding-Factor((pk, sk, salt)):
-    bf = sk
-    return bf
-</pre><a href="#section-2.8-4" class="pilcrow">¶</a>
-</div>
-<p id="section-2.8-5">Implementations <span class="bcp14">SHOULD</span> use a plausibly deniable proof of association protocol to ensure that the interactive presentation does not accidentally generate evidence that is potentially non-repudiable.<a href="#section-2.8-5" class="pilcrow">¶</a></p>
+<p id="section-2.6-3">Subsequently, the unit can apply the Authenticate function to the parent blinding key. The unit can combine multiple blinding factors in the HDK path.<a href="#section-2.6-3" class="pilcrow">¶</a></p>
+<p id="section-2.6-4">If the unit uses the blinded private key directly, the unit <span class="bcp14">MUST</span> use it within the secure cryptographic device protecting the device private key.<a href="#section-2.6-4" class="pilcrow">¶</a></p>
+<p id="section-2.6-5">If the unit uses the blinded private key directly, the unit <span class="bcp14">MUST</span> ensure the secure cryptographic device deletes it securely from memory after usage.<a href="#section-2.6-5" class="pilcrow">¶</a></p>
+<p id="section-2.6-6">When presenting multiple documents, a reader can require a proof that multiple keys are associated to a single device. Several protocols for a cryptographic proof of association are possible, such as <span>[<a href="#Verheul2024" class="cite xref">Verheul2024</a>]</span>. For example, a unit could prove in a zero-knowledge protocol knowledge of the association between two elliptic curve keys <code>B1 = [bf1]D</code> and <code>B2 = [bf2]D</code>, where <code>bf1</code> and <code>bf2</code> are multiplicative blinding factors for a common blinding public key <code>D</code>. In this protocol, the association is known by the discrete logarithm of <code>B2 = [bf2/bf1]B1</code> with respect to generator <code>B1</code>. The unit can apply BL-Combine-Blinding-Factors to obtain values to compute this association.<a href="#section-2.6-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1611,154 +1603,214 @@ def HDK-Export-Blinding-Factor((pk, sk, salt)):
         <h3 id="name-using-elliptic-curves">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-using-elliptic-curves" class="section-name selfRef">Using elliptic curves</a>
         </h3>
-<p id="section-3.1-1">Instantiations of HDK using elliptic curves requires the following cryptographic construct:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">Instantiations of HDK using elliptic curves require the following cryptographic constructs:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-2.1">
             <p id="section-3.1-2.1.1"><code>EC</code>: An elliptic curve with elements of type Element and scalars of type Scalar, consisting of the functions:<a href="#section-3.1-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-2.1.2.1">
-                <p id="section-3.1-2.1.2.1.1">EC-Add(A, B): Outputs the sum between Elements <code>A</code> and <code>B</code>.<a href="#section-3.1-2.1.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.1.1">EC-Random(): Outputs a random Scalar <code>k</code>.<a href="#section-3.1-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.1.2.2">
-                <p id="section-3.1-2.1.2.2.1">EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element <code>A</code> and Scalar <code>k</code>.<a href="#section-3.1-2.1.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.2.1">EC-Add(A, B): Outputs the sum between Elements <code>A</code> and <code>B</code>.<a href="#section-3.1-2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.1.2.3">
-                <p id="section-3.1-2.1.2.3.1">EC-Scalar-Base-Mult(k): Outputs the scalar multiplication between the base Element and Scalar <code>k</code>.<a href="#section-3.1-2.1.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.3.1">EC-Scalar-Mult(A, k): Outputs the scalar multiplication between Element <code>A</code> and Scalar <code>k</code>.<a href="#section-3.1-2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.1.2.4">
-                <p id="section-3.1-2.1.2.4.1">EC-Order(): Outputs the order of the base Element.<a href="#section-3.1-2.1.2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.4.1">EC-Scalar-Base-Mult(k): Outputs the scalar multiplication between the base Element and Scalar <code>k</code>.<a href="#section-3.1-2.1.2.4.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.1.2.5">
-                <p id="section-3.1-2.1.2.5.1">EC-Serialize-Element(A): Outputs a byte string representing Element <code>A</code>.<a href="#section-3.1-2.1.2.5.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.5.1">EC-Order(): Outputs the order of the base Element.<a href="#section-3.1-2.1.2.5.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-3.1-2.1.2.6">
+                <p id="section-3.1-2.1.2.6.1">EC-Serialize-Element(A): Outputs a byte string representing Element <code>A</code>.<a href="#section-3.1-2.1.2.6.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-3.1-2.2">
+            <p id="section-3.1-2.2.1"><code>H2C</code>: A hash-to-curve suite <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> for EC, providing the function:<a href="#section-3.1-2.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-2.2.2.1">
+                <p id="section-3.1-2.2.2.1.1">hash_to_field(msg, count): Outputs <code>count</code> EC Elements based on the result of cryptographically hashing <code>msg</code> (see <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>, Section 5.2).<a href="#section-3.1-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
-<p id="section-3.1-3">These instantiations instantiate the following:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.1-4">
+<div class="alignLeft art-text artwork" id="section-3.1-3">
 <pre>
-def serialize(pk):
-    return EC-Serialize-Element(pk)
-
-def key(bytes):
-    sk' = OS2IP(bytes) mod (EC-Order() - 1)
-    sk = sk' + 1
+def BL-Generate-Blinding-Key-Pair():
+    sk = EC-Random()
     pk = EC-Scalar-Base-Mult(sk)
     return (pk, sk)
-</pre><a href="#section-3.1-4" class="pilcrow">¶</a>
+
+def BL-Derive-Blinding-Factor(msg, ctx):
+    bf = hash_to_field(msg, count) with the parameters:
+        DST: ID || ctx
+        F: GF(EC-Order()), the scalar field
+            of the prime order subgroup of EC
+        p: EC-Order()
+        m: 1
+        L: as defined in H2C
+        expand_message: as defined in H2C
+    return bf
+</pre><a href="#section-3.1-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="using-ecdh-message-authentication-codes-for-proof-of-possession">
+<div id="using-ec-multiplicative-blinding">
 <section id="section-3.2">
-        <h3 id="name-using-ecdh-message-authenti">
-<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-using-ecdh-message-authenti" class="section-name selfRef">Using ECDH message authentication codes for proof of possession</a>
+        <h3 id="name-using-ec-multiplicative-bli">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-using-ec-multiplicative-bli" class="section-name selfRef">Using EC multiplicative blinding</a>
         </h3>
-<p id="section-3.2-1">Such instantiations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.1</a>)</span>) and require the following cryptographic construct:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-1">Such instantations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.1</a>)</span>) and instantiate the following:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.2-2">
+<pre>
+def BL-Blind-Public-Key(pk, bf):
+    pk' = EC-Scalar-Mult(pk, bf)
+    return pk
+
+def BL-Blind-Private-Key(sk, bf):
+    sk' = sk * bf mod EC-Order()
+    return sk
+
+def BL-Combine-Blinding-Factors(bf1, bf2):
+    bf = bf1 * bf2 mod EC-Order()
+    return bf
+</pre><a href="#section-3.2-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="using-ec-additive-blinding">
+<section id="section-3.3">
+        <h3 id="name-using-ec-additive-blinding">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-using-ec-additive-blinding" class="section-name selfRef">Using EC additive blinding</a>
+        </h3>
+<p id="section-3.3-1">Such instantations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.1</a>)</span>) and instantiate the following:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3-2">
+<pre>
+def BL-Blind-Public-Key(pk, bf):
+    pk' = EC-Add(pk, EC-Scalar-Base-Mult(bf))
+    return pk
+
+def BL-Blind-Private-Key(sk, bf):
+    sk' = sk + bf mod EC-Order()
+    return sk
+
+def BL-Combine-Blinding-Factors(bf1, bf2):
+    bf = bf1 + bf2 mod EC-Order()
+    return bf
+</pre><a href="#section-3.3-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="using-ecdh-shared-secrets">
+<section id="section-3.4">
+        <h3 id="name-using-ecdh-shared-secrets">
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-using-ecdh-shared-secrets" class="section-name selfRef">Using ECDH shared secrets</a>
+        </h3>
+<p id="section-3.4-1">Such instantiations of HDK use EC multiplicative blinding (see <span><a href="#using-ec-multiplicative-blinding" class="internal xref">Using EC multiplicative blinding</a> (<a href="#using-ec-multiplicative-blinding" class="auto internal xref">Section 3.2</a>)</span>) and require the following cryptographic construct:<a href="#section-3.4-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.2-2.1">
-            <p id="section-3.2-2.1.1"><code>ECDH</code>: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with elliptic curve <code>EC</code>, consisting of the functions:<a href="#section-3.2-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.4-2.1">
+            <p id="section-3.4-2.1.1"><code>ECDH</code>: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with elliptic curve <code>EC</code>, consisting of the functions:<a href="#section-3.4-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.2-2.1.2.1">
-                <p id="section-3.2-2.1.2.1.1">ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.<a href="#section-3.2-2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.4-2.1.2.1">
+                <p id="section-3.4-2.1.2.1.1">ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.<a href="#section-3.4-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
-<p id="section-3.2-3">In such instantiations, the reader provides an ephemeral public key <code>reader_data</code>. The HDK-Authenticate function returns <code>device_data</code> consisting of a binary encoded x-coordinate <code>Z_AB</code> of an ECDH operation with <code>sk_device</code> and <code>sk_hdk</code>. Subsequently, the solution instance creates a message authentication code (MAC), such as in ECDH-MAC authentication defined in <span>[<a href="#ISO18013-5" class="cite xref">ISO18013-5</a>]</span>. The reader verifies this MAC by performing an ECDH operation with its ephemeral private key and the HDK public key.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
-<p id="section-3.2-4">These instantiations instantiate the following:<a href="#section-3.2-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.2-5">
+<p id="section-3.4-3">In such instantiations, the reader provides an ephemeral public key <code>reader_data</code>. The Authenticate function returns shared secret <code>device_data</code> consisting of a binary encoded x-coordinate <code>Z_AB</code> of an ECDH operation with the blinded private key. Subsequently, the unit creates a message authentication code (MAC), such as in ECDH-MAC authentication defined in <span>[<a href="#ISO18013-5" class="cite xref">ISO18013-5</a>]</span>. The reader verifies this MAC by performing an ECDH operation with its ephemeral private key and the blinded public key.<a href="#section-3.4-3" class="pilcrow">¶</a></p>
+<p id="section-3.4-4">These instantiations instantiate the following:<a href="#section-3.4-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.4-5">
 <pre>
-def HDK-Root(pk_device, seed):
-    msg = serialize(pk_device)
-    okm = expand(msg, ID || seed, Nk + Ns)
-    (_, sk') = key(okm[0:Nk])
-    pk' = EC-Scalar-Mult(pk_device, sk')
-    salt' = okm[Nk:]
-    return (pk', sk', salt')
-
-def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
-    (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
-    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, "")
-    pk' = EC-Scalar-Mult(pk_device, sk')
-    msg = serialize(pk')
-    salt' = expand(msg, ID || salt, Ns)
-    return (pk', sk', salt')
-
-def HDK-Authenticate(sk_device, sk_hdk, reader_data):
-    P' = EC-Scalar-Mult(reader_data, sk_hdk)
+def Authenticate(sk_device, reader_data, bf):
+    P' = EC-Scalar-Mult(reader_data, bf)
 
     # Compute Z_AB within the secure cryptographic device.
     Z_AB = ECDH-Create-Shared-Secret(sk_device, P')
 
     return Z_AB
-</pre><a href="#section-3.2-5" class="pilcrow">¶</a>
+</pre><a href="#section-3.4-5" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="using-ec-sdsa-signatures-for-proof-of-possession">
-<section id="section-3.3">
-        <h3 id="name-using-ec-sdsa-signatures-fo">
-<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-using-ec-sdsa-signatures-fo" class="section-name selfRef">Using EC-SDSA signatures for proof of possession</a>
+<div id="using-ec-digital-signatures">
+<section id="section-3.5">
+        <h3 id="name-using-ec-digital-signatures">
+<a href="#section-3.5" class="section-number selfRef">3.5. </a><a href="#name-using-ec-digital-signatures" class="section-name selfRef">Using EC digital signatures</a>
         </h3>
-<p id="section-3.3-1">Such instantiations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.1</a>)</span>) require the following cryptographic construct:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.5-1">Such instantiations of HDK use EC additive blinding (see <span><a href="#using-ec-additive-blinding" class="internal xref">Using EC additive blinding</a> (<a href="#using-ec-additive-blinding" class="auto internal xref">Section 3.3</a>)</span>) and require the following cryptographic construct:<a href="#section-3.5-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.3-2.1">
-            <p id="section-3.3-2.1.1"><code>DSA</code>: an EC-SDSA (Schnorr) digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>, consisting of the functions:<a href="#section-3.3-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.5-2.1">
+            <p id="section-3.5-2.1.1"><code>DSA</code>: An EC digital signature algorithm , consisting of the functions:<a href="#section-3.5-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.3-2.1.2.1">
-                <p id="section-3.3-2.1.2.1.1">DSA-Sign(sk, message): Outputs the signature <code>(c, r)</code> created using private signing key <code>sk</code> over byte string <code>message</code>.<a href="#section-3.3-2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.5-2.1.2.1">
+                <p id="section-3.5-2.1.2.1.1">DSA-Sign(sk, msg): Outputs the signature <code>(c, r)</code> created using private signing key <code>sk</code> over byte string <code>msg</code>.<a href="#section-3.5-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-3.3-2.1.2.2">
-                <p id="section-3.3-2.1.2.2.1">DSA-Verify(signature, pk, message): Outputs whether <code>signature</code> is a signature over <code>message</code> using public verification key <code>pk</code>.<a href="#section-3.3-2.1.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-3.5-2.1.2.2">
+                <p id="section-3.5-2.1.2.2.1">DSA-Verify(signature, pk, msg): Outputs whether <code>signature</code> is a signature over <code>msg</code> using public verification key <code>pk</code>.<a href="#section-3.5-2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-3.3-2.1.2.3">
-                <p id="section-3.3-2.1.2.3.1">DSA-Serialize(c, r): Outputs the byte array serialization of the signature <code>(c, r)</code>.<a href="#section-3.3-2.1.2.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-3.5-2.1.2.3">
+                <p id="section-3.5-2.1.2.3.1">DSA-Serialize(c, r): Outputs the byte array serialization of the signature <code>(c, r)</code>.<a href="#section-3.5-2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-3.3-2.1.2.4">
-                <p id="section-3.3-2.1.2.4.1">DSA-Deserialize(bytes): Outputs the signature <code>(c, r)</code> represented by byte string <code>bytes</code>.<a href="#section-3.3-2.1.2.4.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-3.5-2.1.2.4">
+                <p id="section-3.5-2.1.2.4.1">DSA-Deserialize(bytes): Outputs the signature <code>(c, r)</code> represented by byte string <code>bytes</code>.<a href="#section-3.5-2.1.2.4.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
-<p id="section-3.3-3">The reader <span class="bcp14">MUST</span> create an input byte string <code>reader_data</code> with sufficient entropy for each challenge.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
-<p id="section-3.3-4">The reader <span class="bcp14">MUST</span> verify the proof <code>device_data</code> using DSA-Verify with the HDK public key.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.3-5">
+<p id="section-3.5-3">The reader is expected to create an input byte string <code>reader_data</code> with sufficient entropy for each challenge.<a href="#section-3.5-3" class="pilcrow">¶</a></p>
+<p id="section-3.5-4">The reader is expected to verify the proof <code>device_data</code> using DSA-Verify with the blinded public key.<a href="#section-3.5-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="using-ec-sdsa-signatures">
+<section id="section-3.6">
+        <h3 id="name-using-ec-sdsa-signatures">
+<a href="#section-3.6" class="section-number selfRef">3.6. </a><a href="#name-using-ec-sdsa-signatures" class="section-name selfRef">Using EC-SDSA signatures</a>
+        </h3>
+<p id="section-3.6-1">Such instantiations of HDK use EC digital signatures (see <span><a href="#using-ec-digital-signatures" class="internal xref">Using EC digital signatures</a> (<a href="#using-ec-digital-signatures" class="auto internal xref">Section 3.5</a>)</span>) and EC digital and instantiate the following:<a href="#section-3.6-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.6-2.1">
+            <p id="section-3.6-2.1.1"><code>DSA</code>: An EC-SDSA (Schnorr) digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>.<a href="#section-3.6-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<div class="alignLeft art-text artwork" id="section-3.6-3">
 <pre>
-def HDK-Root(pk_device, seed):
-    msg = serialize(pk_device)
-    okm = expand(msg, ID || seed, Nk + Ns)
-    (pk_blind, sk') = key(okm[0:Nk])
-    pk' = EC-Add(pk_device, pk_blind)
-    salt' = okm[Nk:]
-    return (pk', sk', salt')
-
-def HDK-Derive-Remote(pk_device, (pk, sk, salt), kh):
-    (pk_arkg, sk_arkg) = HDK-Seed-Remote((pk, sk, salt))
-    sk' = ARKG-Derive-Private-Key(sk_arkg, kh, "")
-    pk' = EC-Add(pk_device, EC-Scalar-Base-Mult(sk'))
-    msg = serialize(pk')
-    salt' = expand(msg, ID || salt, Ns)
-    return (pk', sk', salt')
-
-def HDK-Authenticate(sk_device, sk_hdk, reader_data):
+def Authenticate(sk_device, reader_data, bf):
     # Compute signature within the secure cryptographic device.
     signature = DSA-Sign(sk_device, reader_data)
 
     (c, s) = DSA-Deserialize(proof)
-    s' = s + c * sk_hdk mod EC-Order()
-    proof = DSA-Serialize(c, s')
-    return proof
-</pre><a href="#section-3.3-5" class="pilcrow">¶</a>
+    s' = s + c * bf mod EC-Order()
+    device_data = DSA-Serialize(c, s')
+    return device_data
+</pre><a href="#section-3.6-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="using-ecdsa-signatures-for-proof-of-possession">
-<section id="section-3.4">
-        <h3 id="name-using-ecdsa-signatures-for-">
-<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-using-ecdsa-signatures-for-" class="section-name selfRef">Using ECDSA signatures for proof of possession</a>
+<div id="using-ecdsa-signatures">
+<section id="section-3.7">
+        <h3 id="name-using-ecdsa-signatures">
+<a href="#section-3.7" class="section-number selfRef">3.7. </a><a href="#name-using-ecdsa-signatures" class="section-name selfRef">Using ECDSA signatures</a>
         </h3>
-<p id="section-3.4-1">Due to potential patent claims, this document does not specify an implementation for threshold ECDSA.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.7-1">Such instantiations of HDK use EC digital signatures (see <span><a href="#using-ec-digital-signatures" class="internal xref">Using EC digital signatures</a> (<a href="#using-ec-digital-signatures" class="auto internal xref">Section 3.5</a>)</span>) and instantiate the following:<a href="#section-3.7-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.7-2.1">
+            <p id="section-3.7-2.1.1"><code>DSA</code>: An ECDSA digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>.<a href="#section-3.7-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<div class="alignLeft art-text artwork" id="section-3.7-3">
+<pre>
+def Authenticate(sk_device, reader_data, bf):
+    # Blind private key and create signature
+    # within the secure cryptographic device.
+    sk' = BL-Blind-Private-Key(sk_device, bf)
+    device_data = DSA-Sign(sk', reader_data)
+    return device_data
+</pre><a href="#section-3.7-3" class="pilcrow">¶</a>
+</div>
+<p id="section-3.7-4">Due to potential patent claims, this document does not specify an instantiation with multi-party ECDSA signing, even though this would be theoretically possible using EC multiplicative blinding.<a href="#section-3.7-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1774,85 +1826,98 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         <h3 id="name-hdk-ecdh-p256">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-hdk-ecdh-p256" class="section-name selfRef">HDK-ECDH-P256</a>
         </h3>
-<p id="section-4.1-1">This instantiation uses ECDH (see <span><a href="#using-ecdh-message-authentication-codes-for-proof-of-possession" class="internal xref">Using ECDH message authentication codes for proof of possession</a> (<a href="#using-ecdh-message-authentication-codes-for-proof-of-possession" class="auto internal xref">Section 3.2</a>)</span>).<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">This instantiation uses ECDH for proof of possession (see <span><a href="#using-ecdh-shared-secrets" class="internal xref">Using ECDH shared secrets</a> (<a href="#using-ecdh-shared-secrets" class="auto internal xref">Section 3.4</a>)</span>) and for <code>KEM</code>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1-2.1">
             <p id="section-4.1-2.1.1"><code>ID</code>: <code>"HDK-ECDH-P256-v1"</code><a href="#section-4.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-2.2">
-            <p id="section-4.1-2.2.1"><code>Nr</code>: 48<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.2.1"><code>Ns</code>: 32<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-2.3">
-            <p id="section-4.1-2.3.1"><code>Ns</code>: 32<a href="#section-4.1-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-2.4">
-            <p id="section-4.1-2.4.1"><code>expand</code>: <code>expand_message_xmd</code> from <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> with:<a href="#section-4.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.3.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span> with:<a href="#section-4.1-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.1-2.4.2.1">
-                <p id="section-4.1-2.4.2.1.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span><a href="#section-4.1-2.4.2.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.1-2.4.2.2">
-                <p id="section-4.1-2.4.2.2.1"><code>b_in_bytes</code>: 32<a href="#section-4.1-2.4.2.2.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.1-2.4.2.3">
-                <p id="section-4.1-2.4.2.3.1"><code>s_in_bytes</code>: 64<a href="#section-4.1-2.4.2.3.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.1-2.3.2.1">
+                <p id="section-4.1-2.3.2.1.1"><code>H1(msg)</code>: Implemented by computing <code>H(ID || msg)</code>.<a href="#section-4.1-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
+          <li class="normal" id="section-4.1-2.4">
+            <p id="section-4.1-2.4.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span><a href="#section-4.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
           <li class="normal" id="section-4.1-2.5">
-            <p id="section-4.1-2.5.1"><code>ARKG</code>: ARKG instantiation as described in <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> with the identifier <code>ARKG-P256MUL-ECDH</code>, <code>KEM</code> as defined above, and <code>BL</code> with elliptic curve arithmetic as described in <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> Section 3.1, but with multiplicative instead of additive blinding.<a href="#section-4.1-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.5.1"><code>ECDH</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-2.6">
-            <p id="section-4.1-2.6.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span>.<a href="#section-4.1-2.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-2.7">
-            <p id="section-4.1-2.7.1"><code>ECDH</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.1-2.7.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.6.1"><code>KEM</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.1-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.1-3">The holder <span class="bcp14">MUST</span> generate <code>sk_device</code> as an <code>ECDH</code> private key in the secure cryptographic device.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="hdk-ecsdsa-p256">
+<div id="hdk-ecdsa-p256">
 <section id="section-4.2">
-        <h3 id="name-hdk-ecsdsa-p256">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-hdk-ecsdsa-p256" class="section-name selfRef">HDK-ECSDSA-P256</a>
+        <h3 id="name-hdk-ecdsa-p256">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-hdk-ecdsa-p256" class="section-name selfRef">HDK-ECDSA-P256</a>
         </h3>
-<p id="section-4.2-1">This instantiation uses EC-SDSA (see <span><a href="#using-ec-sdsa-signatures-for-proof-of-possession" class="internal xref">Using EC-SDSA signatures for proof of possession</a> (<a href="#using-ec-sdsa-signatures-for-proof-of-possession" class="auto internal xref">Section 3.3</a>)</span>).<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">This instantiation uses ECDSA for proof of possession (see <span><a href="#using-ecdsa-signatures" class="internal xref">Using ECDSA signatures</a> (<a href="#using-ecdsa-signatures" class="auto internal xref">Section 3.7</a>)</span>) and ECDH for <code>KEM</code>.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2-2.1">
             <p id="section-4.2-2.1.1"><code>ID</code>: <code>"HDK-ECSDSA-P256-v1"</code><a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.2">
-            <p id="section-4.2-2.2.1"><code>Nr</code>: 48<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.2.1"><code>Ns</code>: 32<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.3">
-            <p id="section-4.2-2.3.1"><code>Ns</code>: 32<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.2-2.4">
-            <p id="section-4.2-2.4.1"><code>expand</code>: <code>expand_message_xmd</code> from <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> with:<a href="#section-4.2-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.3.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span> with:<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2-2.4.2.1">
-                <p id="section-4.2-2.4.2.1.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span><a href="#section-4.2-2.4.2.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2-2.4.2.2">
-                <p id="section-4.2-2.4.2.2.1"><code>b_in_bytes</code>: 32<a href="#section-4.2-2.4.2.2.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2-2.4.2.3">
-                <p id="section-4.2-2.4.2.3.1"><code>s_in_bytes</code>: 64<a href="#section-4.2-2.4.2.3.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.2-2.3.2.1">
+                <p id="section-4.2-2.3.2.1.1"><code>H1(msg)</code>: Implemented by computing <code>H(ID || msg)</code>.<a href="#section-4.2-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
+          <li class="normal" id="section-4.2-2.4">
+            <p id="section-4.2-2.4.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span><a href="#section-4.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
           <li class="normal" id="section-4.2-2.5">
-            <p id="section-4.2-2.5.1"><code>ARKG</code>: ARKG instantiation as described in <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> with the identifier <code>ARKG-P256ADD-ECDH</code>, <code>KEM</code> as defined above, and <code>BL</code> with elliptic curve arithmetic as described in <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> Section 3.1.<a href="#section-4.2-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.5.1"><code>DSA</code>: ECDSA with curve <code>EC</code>.<a href="#section-4.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.6">
-            <p id="section-4.2-2.6.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span>.<a href="#section-4.2-2.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.2-2.7">
-            <p id="section-4.2-2.7.1"><code>DSA</code>: EC-SDSA-opt (the optimised EC-SDSA) with curve <code>EC</code>.<a href="#section-4.2-2.7.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.6.1"><code>KEM</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.2-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.2-3">The holder <span class="bcp14">MUST</span> generate <code>sk_device</code> as a <code>DSA</code> private key in the secure cryptographic device.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="hdk-ecsdsa-p256">
+<section id="section-4.3">
+        <h3 id="name-hdk-ecsdsa-p256">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-hdk-ecsdsa-p256" class="section-name selfRef">HDK-ECSDSA-P256</a>
+        </h3>
+<p id="section-4.3-1">This instantiation uses EC-SDSA for proof of possession (see <span><a href="#using-ec-sdsa-signatures" class="internal xref">Using EC-SDSA signatures</a> (<a href="#using-ec-sdsa-signatures" class="auto internal xref">Section 3.6</a>)</span>) and ECDH for <code>KEM</code>.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3-2.1">
+            <p id="section-4.3-2.1.1"><code>ID</code>: <code>"HDK-ECSDSA-P256-v1"</code><a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.2">
+            <p id="section-4.3-2.2.1"><code>Ns</code>: 32<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.3">
+            <p id="section-4.3-2.3.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span> with:<a href="#section-4.3-2.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3-2.3.2.1">
+                <p id="section-4.3-2.3.2.1.1"><code>H1(msg)</code>: Implemented by computing <code>H(ID || msg)</code>.<a href="#section-4.3-2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-4.3-2.4">
+            <p id="section-4.3-2.4.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span><a href="#section-4.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.5">
+            <p id="section-4.3-2.5.1"><code>DSA</code>: EC-SDSA-opt (the optimised EC-SDSA) with curve <code>EC</code>.<a href="#section-4.3-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.6">
+            <p id="section-4.3-2.6.1"><code>KEM</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.3-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
 </section>
@@ -1867,7 +1932,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         <h3 id="name-secure-cryptographic-device">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-secure-cryptographic-device" class="section-name selfRef">Secure cryptographic device</a>
         </h3>
-<p id="section-5.1-1">The HDK algorithm assumes that the holder controls a secure cryptographic device that protects the device key pair <code>(pk_device, sk_device)</code>. The device key is under sole control of the holder.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">The HDK approach assumes that the holder controls a secure cryptographic device that protects the device key pair <code>(pk_device, sk_device)</code>. The device key is under sole control of the holder.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">In the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span>, this device is typically called a Wallet Secure Cryptographic Device (WSCD), running a personalised Wallet Secure Cryptographic Application (WSCA) that exposes a Secure Cryptographic Interface (SCI) to a Wallet Instance (WI) running on a User Device (UD). The WSCD is certified to protect access to the device private key with high attack potential resistance to achieve high level of assurance authentication as per <span>[<a href="#EU2015-1502" class="cite xref">EU2015-1502</a>]</span>. This typically means that the key is associated with a strong possession factor and with a rate-limited Personal Identification Number (PIN) check as a knowledge factor, and the verification of both factors actively involve the WSCD.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 <p id="section-5.1-3">An example deployment of HDK in this context is illustrated below.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5.1-4">
@@ -1988,7 +2053,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
 <p id="section-5.1-13">The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives within the WSCD:<a href="#section-5.1-13" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.1-14.1">
-            <p id="section-5.1-14.1.1">In the case of HDK-ECDH-P256:<a href="#section-5.1-14.1.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-14.1.1">In the case of HDK-ECDH-P256 (see <a href="#hdk-ecdh-p256" class="auto internal xref">Section 4.1</a>):<a href="#section-5.1-14.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.1-14.1.2.1">
                 <p id="section-5.1-14.1.2.1.1">P-256 ECDH key pair generation<a href="#section-5.1-14.1.2.1.1" class="pilcrow">¶</a></p>
@@ -1999,13 +2064,24 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
             </ul>
 </li>
           <li class="normal" id="section-5.1-14.2">
-            <p id="section-5.1-14.2.1">In the case of HDK-ECSDSA-P256:<a href="#section-5.1-14.2.1" class="pilcrow">¶</a></p>
+            <p id="section-5.1-14.2.1">In the case of HDK-ECDSA-P256 (see <a href="#hdk-ecdsa-p256" class="auto internal xref">Section 4.2</a>):<a href="#section-5.1-14.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5.1-14.2.2.1">
-                <p id="section-5.1-14.2.2.1.1">P-256 EC-SDSA key pair generation<a href="#section-5.1-14.2.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-5.1-14.2.2.1.1">P-256 ECDSA blinding key pair generation<a href="#section-5.1-14.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-5.1-14.2.2.2">
-                <p id="section-5.1-14.2.2.2.1">P-256 EC-SDSA signature creation<a href="#section-5.1-14.2.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-5.1-14.2.2.2.1">P-256 ECDSA blinded signature creation<a href="#section-5.1-14.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-5.1-14.3">
+            <p id="section-5.1-14.3.1">In the case of HDK-ECSDSA-P256 (see <a href="#hdk-ecsdsa-p256" class="auto internal xref">Section 4.3</a>):<a href="#section-5.1-14.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.1-14.3.2.1">
+                <p id="section-5.1-14.3.2.1.1">P-256 EC-SDSA key pair generation<a href="#section-5.1-14.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-5.1-14.3.2.2">
+                <p id="section-5.1-14.3.2.2.1">P-256 EC-SDSA signature creation<a href="#section-5.1-14.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -2020,14 +2096,14 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
         <h3 id="name-trust-evidence">
 <a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-trust-evidence" class="section-name selfRef">Trust evidence</a>
         </h3>
-<p id="section-5.2-1">Some issuers could require evidence from a solution provider of the security of the holder's cryptographic device. This evidence is in the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span> divided into initial "Wallet Trust Evidence" and related "Issuer Trust Evidence". Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. In HDK, these public keys are specified as follows.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-1">Some issuers could require evidence from a solution provider of the security of the holder's cryptographic device. This evidence can in the context of <span>[<a href="#EU2024-1183" class="cite xref">EU2024-1183</a>]</span> be divided into initial "Wallet Trust Evidence" and related "Issuer Trust Evidence". Each is a protected document that contains a trust evidence public key associated with a private key that is protected in the secure cryptographic device. With HDK, these public keys are specified as follows.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <div id="wallet-trust-evidence">
 <section id="section-5.2.1">
           <h4 id="name-wallet-trust-evidence">
 <a href="#section-5.2.1" class="section-number selfRef">5.2.1. </a><a href="#name-wallet-trust-evidence" class="section-name selfRef">Wallet Trust Evidence</a>
           </h4>
-<p id="section-5.2.1-1">The Wallet Trust Evidence public key is the root HDK public key. To achieve reader unlinkability, the wallet <span class="bcp14">SHOULD</span> limit access to a trusted person identification document provider only.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.2.1-2">To prevent association across identities, the solution provider <span class="bcp14">MUST</span> before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that the HDK-Root output is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of <code>sk'</code> with a Schnorr non-interactive zero-knowledge proof <span>[<a href="#RFC8235" class="cite xref">RFC8235</a>]</span> with base point <code>pk_device</code>. This would ensure,that the root blinding key <code>sk'</code> is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-1">The Wallet Trust Evidence public key is the first level 0 HDK public key. To achieve reader unlinkability, the wallet <span class="bcp14">SHOULD</span> limit access to a trusted person identification document provider only.<a href="#section-5.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.2.1-2">To prevent association across identities, the solution provider <span class="bcp14">MUST</span> before issuing Wallet Trust Evidence ensure that (a) a newly generated device key pair is used and (b) the wallet follows the protocol so that the HDK output is bound to exactly this key. For (a), the solution provider could rely on freshness of a key attestation and ensure that each device public key is attested only once. For (b), the wallet could proof knowledge of the blinding factor <code>bf</code> with a Schnorr non-interactive zero-knowledge proof <span>[<a href="#RFC8235" class="cite xref">RFC8235</a>]</span> with base point <code>pk_device</code>. This would ensure that the root blinding key <code>bf</code> is not shared with the solution provider to reduce the risk of the solution provider unblinding future derived keys.<a href="#section-5.2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="issuer-trust-evidence">
@@ -2035,7 +2111,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
           <h4 id="name-issuer-trust-evidence">
 <a href="#section-5.2.2" class="section-number selfRef">5.2.2. </a><a href="#name-issuer-trust-evidence" class="section-name selfRef">Issuer Trust Evidence</a>
           </h4>
-<p id="section-5.2.2-1">The Issuer Trust Evidence public key can be any non-root HDK public key. The solution provider <span class="bcp14">MUST</span> verify that the wallet knows the associated private key before issuing Issuer Trust Evidence. The solution provider <span class="bcp14">MUST</span> ensure that <code>sk_device</code> is under sole control of the solution instance holder. To achieve reader unlinkability, the solution instance <span class="bcp14">MUST</span> limit access of Issuer Trust Evidence to a single issuer. Subsequent issuers within the same HDK tree do not need to receive any Issuer Trust Evidence, since they can derive equally secure keys by applying ARKG to presented keys attested by trusted (other) issuers.<a href="#section-5.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2.2-1">The Issuer Trust Evidence public key can be any other HDK public key. The solution provider <span class="bcp14">MUST</span> verify that the wallet knows the associated private key before issuing Issuer Trust Evidence. The solution provider <span class="bcp14">MUST</span> ensure that <code>sk_device</code> is under sole control of the unit holder. To achieve reader unlinkability, the unit <span class="bcp14">MUST</span> limit access of Issuer Trust Evidence to a single issuer. Subsequent issuers within the same HDK tree do not need to receive any Issuer Trust Evidence, since they can derive equally secure keys by applying the remote HDK protocol to presented keys attested by trusted (other) issuers.<a href="#section-5.2.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2057,7 +2133,7 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Credential</td>
-              <td class="text-left" rowspan="1" colspan="1">attestation</td>
+              <td class="text-left" rowspan="1" colspan="1">document</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Credential Issuer</td>
@@ -2069,17 +2145,12 @@ def HDK-Authenticate(sk_device, sk_hdk, reader_data):
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Wallet</td>
-              <td class="text-left" rowspan="1" colspan="1">solution instance</td>
+              <td class="text-left" rowspan="1" colspan="1">unit</td>
             </tr>
           </tbody>
         </table>
-<p id="section-5.3-3">HDK enables solution instances and issuers cooperatively to establish the cryptographic key material that issued attestations will be bound to.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
-<p id="section-5.3-4">For asynchronous batch issuance, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in <a href="https://github.com/openid/OpenID4VCI/issues/359">openid/OpenID4VCI#359</a>. In the update, the solution instance shares an ARKG public seed with the issuer, and the issuer shares a key handle for each attestation, generated using:<a href="#section-5.3-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-5.3-5">
-<pre>
-ARKG-Derive-Public-Key(key_generation_public_key, "")
-</pre><a href="#section-5.3-5" class="pilcrow">¶</a>
-</div>
+<p id="section-5.3-3">HDK enables unit and issuers cooperatively to establish the cryptographic key material that issued documents will be bound to.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">For the remote HDK protocol, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in <a href="https://github.com/openid/OpenID4VCI/issues/359">openid/OpenID4VCI#359</a>. In the update, the unit shares a key encapsulation public key with the issuer, and the issuer returns a key handle. Then documents can be re-issued, potentially in batches, using synchronised indices. Alternatively, re-issued documents can have their own key handles.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2114,10 +2185,6 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <dt id="FIPS180-4">[FIPS180-4]</dt>
         <dd>
 <span class="refAuthor">National Institute of Standards and Technology (NIST)</span>, <span class="refTitle">"Secure Hash Standard (SHS)"</span>, <span class="seriesInfo">FIPS 180-4</span>, <span class="seriesInfo">DOI 10.6028/NIST.FIPS.180-4</span>, <time datetime="2012-06" class="refDate">June 2012</time>, <span>&lt;<a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final">https://csrc.nist.gov/pubs/fips/180-4/upd1/final</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="I-D.draft-bradleylundberg-cfrg-arkg-02">[I-D.draft-bradleylundberg-cfrg-arkg-02]</dt>
-        <dd>
-<span class="refAuthor">Lundberg, E.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"The Asynchronous Remote Key Generation (ARKG) algorithm"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-bradleylundberg-cfrg-arkg-02</span>, <time datetime="2024-05-27" class="refDate">27 May 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-bradleylundberg-cfrg-arkg-02">https://datatracker.ietf.org/doc/html/draft-bradleylundberg-cfrg-arkg-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="ISO18013-5">[ISO18013-5]</dt>
         <dd>
@@ -2179,6 +2246,10 @@ ARKG-Derive-Public-Key(key_generation_public_key, "")
 <dt id="EU2024-1183">[EU2024-1183]</dt>
         <dd>
 <span class="refAuthor">The European Parliament and the Council of the European Union</span>, <span class="refTitle">"Amending Regulation (EU) No 910/2014 as regards establishing the European Digital Identity Framework"</span>, <span class="seriesInfo">(EU) 2024/1183</span>, <time datetime="2024-04" class="refDate">April 2024</time>, <span>&lt;<a href="https://data.europa.eu/eli/reg/2024/1183/oj">https://data.europa.eu/eli/reg/2024/1183/oj</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.draft-bradleylundberg-cfrg-arkg-02">[I-D.draft-bradleylundberg-cfrg-arkg-02]</dt>
+        <dd>
+<span class="refAuthor">Lundberg, E.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"The Asynchronous Remote Key Generation (ARKG) algorithm"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-bradleylundberg-cfrg-arkg-02</span>, <time datetime="2024-05-27" class="refDate">27 May 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-bradleylundberg-cfrg-arkg-02">https://datatracker.ietf.org/doc/html/draft-bradleylundberg-cfrg-arkg-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SCAL3">[SCAL3]</dt>
         <dd>
