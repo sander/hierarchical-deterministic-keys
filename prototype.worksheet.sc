@@ -217,6 +217,8 @@ class StubDevice extends Device:
   val (pk, sk) = randomScalar() match { case sk => (sk.scalarBaseMult, sk) }
   override def ECDH(pk: Point): OS = sk.scalarMult(pk).x.os
 
+// Implementation of draft-dijkhuis-cfrg-hdkeys-01
+
 case class HDK(pk: Point, sk: BigInt, salt: OS)
 object HDK:
   private val ID = "HDK-ECDH-P256-v1".getBytes
