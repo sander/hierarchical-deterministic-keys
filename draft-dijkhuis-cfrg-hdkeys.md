@@ -338,12 +338,15 @@ pk' = BL-Blind-Public-Key(pk, bf)
 # 6. Issuer shares with unit: pk'
 
 # 7. Unit verifies integrity:
-(bf, salt') = HDK(salt, index)
+salt' = KEM-Decaps(sk_kem, kh, ID)
+(bf, salt'') = HDK(salt', index)
 pk' == BL-Blind-Public-Key(pk, bf)
 
 # 8. Unit computes:
 sk' = BL-Blind-Private-Key(sk, bf)
 ~~~
+
+After step 7, the unit can use the value of `salt''` to derive next-level HDKeys.
 
 Step 4 MAY be postponed to be combined with step 6. Steps 5 to 8 MAY be combined in concurrent execution for multiple indices.
 
