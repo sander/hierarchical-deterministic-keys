@@ -1,156 +1,167 @@
-(load "~/quicklisp/setup.lisp")
 (ql:quickload "ironclad")
 
-(defpackage :bytes
+(defpackage :prototype
   (:use :common-lisp)
-  (:export :|| :i2osp :os2ip :strxor :ascii))
-(defpackage :rfc9380
-  (:use :common-lisp)
-  (:import-from :bytes :|| :i2osp :os2ip :strxor :ascii))
-(defpackage :hmac
-  (:use :common-lisp)
-  (:export :sha256))
-(defpackage :hkdf
-  (:use :common-lisp)
-  (:import-from :bytes :i2osp :os2ip :||)
-  (:export :extract :expand))
-(defpackage :bl
-  (:use :common-lisp)
-  (:import-from :bytes :|| :ascii)
-  (:import-from :crypto :ec-scalar-mult :+secp256r1-l+)
-  (:export :keygen :generate-key-pair :blind-public-key :blind-private-key))
-(defpackage :kem
-  (:use :common-lisp)
-  (:import-from :bytes :|| :ascii :i2osp :os2ip))
-(defpackage :arkg
-  (:use :common-lisp)
-  (:import-from :bytes :|| :ascii))
-(defpackage :hdk
-  (:use :common-lisp))
+  (:import-from :crypto :+secp256r1-l+ :+secp256r1-g+ :EC-Scalar-Mult))
 
-
-(in-package :bytes)
+(in-package :prototype)
 
 (defun || (&rest bs) (apply #'concatenate '(vector (unsigned-byte 8)) bs))
-(defun i2osp (i n) (crypto:integer-to-octets i :n-bits (* n 8)))
-(defun os2ip (os) (crypto:octets-to-integer os))
+(defun I2OSP (i n) (crypto:integer-to-octets i :n-bits (* n 8)))
+(defun OS2IP (os) (crypto:octets-to-integer os))
 (defun strxor (s1 s2) (map 'crypto::simple-octet-vector #'logxor s1 s2))
-(defun ascii (s) (crypto:ascii-string-to-byte-array s))
+(defun ASCII (s) (crypto:ascii-string-to-byte-array s))
+(defun read-bytes (&rest hex-strings)
+  (read-from-string (apply #'concatenate 'string "#x" hex-strings)))
 
-
-(in-package :rfc9380)
-
-(defun sha256 (&rest bs) (loop with hash = (crypto:make-digest :sha256)
-                               for b in bs do (crypto:update-digest hash b)
-                               finally (return (crypto:produce-digest hash))))
-(defun expand-message-xmd (msg dst len)
-  (loop with dst = (|| dst (i2osp (length dst) 1))
+(defun H (&rest bs) (loop with hash = (crypto:make-digest :sha256)
+                          for b in bs do (crypto:update-digest hash b)
+                          finally (return (crypto:produce-digest hash))))
+(defun expand_message_xmd (msg dst len)
+  (loop with dst = (|| dst (I2OSP (length dst) 1))
         with b = (make-array len :fill-pointer 0)
-        with b0 = (sha256 (i2osp 0 64) msg (i2osp len 2) (i2osp 0 1) dst)
+        with b0 = (H (I2OSP 0 64) msg (I2OSP len 2) (I2OSP 0 1) dst)
         for i from 1 upto (ceiling (/ len 32))
-        for bi = (sha256 b0 (i2osp 1 1) dst)
-          then (sha256 (strxor b0 bi) (i2osp i 1) dst)
+        for bi = (H b0 (I2OSP 1 1) dst)
+          then (H (strxor b0 bi) (I2OSP i 1) dst)
         do (loop for j across bi do (vector-push j b))
         finally (return (coerce b 'crypto::simple-octet-vector))))
 
-(loop with vectors = '(("" "QUUX-V01-CS02-with-expander-SHA256-128" #x20 #x68a985b87eb6b46952128911f2a4412bbc302a9d759667f87f7a21d803f07235)
-                       ("abc" "QUUX-V01-CS02-with-expander-SHA256-128" #x20 #xd8ccab23b5985ccea865c6c97b6e5b8350e794e603b4b97902f53a8a0d605615)
-                       ("" "QUUX-V01-CS02-with-expander-SHA256-128" #x80 #xaf84c27ccfd45d41914fdff5df25293e221afc53d8ad2ac06d5e3e29485dadbee0d121587713a3e0dd4d5e69e93eb7cd4f5df4cd103e188cf60cb02edc3edf18eda8576c412b18ffb658e3dd6ec849469b979d444cf7b26911a08e63cf31f9dcc541708d3491184472c2c29bb749d4286b004ceb5ee6b9a7fa5b646c993f0ced))
-      for (msg dst len result) in vectors
-      do (assert (= (os2ip (expand-message-xmd (ascii msg) (ascii dst) len))
-                    result)))
+(defparameter *q* nil)
+(defparameter *DST* nil)
 
-(defparameter *order* nil)
-(defparameter *dst* nil)
+(defun hash_to_field (msg) (mod (OS2IP (expand_message_xmd msg *DST* 48)) *q*))
 
-(defun hash-to-field (msg)
-  (mod (os2ip (expand-message-xmd msg *dst* 48)) *order*))
+(defparameter *ID* (ASCII "HDK-ECDH-P256-v1"))
 
+(defparameter *EC* :secp256r1)
+(defun EC-Order () +secp256r1-l+)
+(defun EC-Random () (1+ (crypto:strong-random (1- (EC-Order)))))
+(defun EC-Scalar-Base-Mult (k) (EC-Scalar-Mult +secp256r1-g+ k))
 
-(in-package :bl)
+(defun BL-Generate-Blinding-Key-Pair ()
+  (let ((sk (EC-Random))) (values (EC-Scalar-Base-Mult sk) sk)))
+(defun BL-Derive-Blinding-Factor (msg ctx)
+  (let ((*DST* (|| *ID* ctx)) (*q* (EC-Order)))
+    (hash_to_field msg)))
+(defun BL-Blind-Public-Key (pk bf) (EC-Scalar-Mult pk bf))
+(defun BL-Blind-Private-Key (sk bf) (mod (* sk bf) (EC-Order)))
+(defun BL-Combine-Blinding-Factors (bf1 bf2) (mod (* bf1 bf2) (EC-Order)))
 
-(defparameter *dst-ext* (ascii "ARKG-P256MUL-ECDH"))
-(define-condition keygen (condition) ())
-(defun generate-key-pair () (restart-case (error 'keygen) (use-value (v) v)))
-(defun blind (tau info)
-  (let ((rfc9380::*dst* (|| (ascii "ARKG-BL-EC.") *dst-ext* info))
-        (rfc9380::*order* +secp256r1-l+))
-    (rfc9380::hash-to-field tau)))
-(defun blind-public-key (pk tau info) (ec-scalar-mult pk (blind tau info)))
-(defun blind-private-key (sk tau info) (* sk (blind tau info)))
+(defun ECDH-Create-Shared-Secret (sk pk)
+  (crypto:ec-encode-scalar
+   *EC* (getf (crypto:ec-destructure-point (EC-Scalar-Mult pk sk)) :x)))
 
-(defun generate-with-crypto (c)
-  (multiple-value-bind (s P) (crypto:generate-key-pair :secp256r1)
-    (use-value (cons s P) c)))
-(defun generate-static (c)
-  (use-value (cons 1 2) c))
-(handler-bind ((keygen #'generate-with-crypto)) (generate-key-pair))
-(handler-bind ((keygen #'generate-static)) (generate-key-pair))
-
-
-(in-package :hmac)
-
-(defun sha256 (key &rest bs)
+(defun HMAC-SHA256 (key &rest bs)
   (loop with mac = (crypto:make-mac :hmac key :sha256)
         for b in bs do (crypto:update-mac mac b)
         finally (return (crypto:produce-mac mac))))
 
-
-(in-package :hkdf)
-
-(defun extract (salt ikm) (hmac:sha256 salt ikm))
-(defun expand (prk info len)
+(defun HKDF-Extract (salt ikm) (HMAC-SHA256 salt ikm))
+(defun HKDF-Expand (prk info len)
   (loop with tb = (make-array len :fill-pointer 0)
         for i from 1 upto (ceiling (/ len 32))
-        for ti = (hmac:sha256 prk (|| info (i2osp i 1)))
-          then (hmac:sha256 prk (|| ti info (i2osp i 1)))
+        for ti = (HMAC-SHA256 prk (|| info (I2OSP i 1)))
+          then (HMAC-SHA256 prk (|| ti info (I2OSP i 1)))
         do (loop for j across ti do (vector-push j tb))
         finally (return (coerce tb 'crypto::simple-octet-vector))))
 
-(assert (let* ((prk (extract (i2osp #x000102030405060708090a0b0c 13)
-                             (i2osp #x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b 22)))
-               (okm (expand prk (i2osp #xf0f1f2f3f4f5f6f7f8f9 10) 42)))
-          (and (= (os2ip prk) #x077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5)
-               (= (os2ip okm) #x3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865))))
+(defun KEM-Derive-Key-Pair (msg ctx) ; TODO #80
+  (let* ((*DST* (|| *ID* '(#x01) ctx))
+	 (*q* (EC-Order))
+	 (sk (hash_to_field msg)))
+    (values (EC-Scalar-Base-Mult sk) sk)))
+(defun KEM-Encaps (pk ctx)
+  (multiple-value-bind (sk-prime pk-prime) (crypto:generate-key-pair *EC*)
+    (let* ((k-prime (ECDH-Create-Shared-Secret
+		     (crypto:ec-decode-scalar
+		      *EC*
+		      (getf (crypto:destructure-private-key sk-prime) :x))
+		     pk))
+	   (prk (HKDF-Extract (I2OSP 0 32) k-prime)))
+      (values (HKDF-Expand prk (|| (ASCII "TMPKEM") ctx) 32) pk-prime))))
+(defun KEM-Decaps (sk c ctx)
+  (let* ((pk-prime (crypto:ec-decode-point
+		    *EC*
+		    (getf (crypto:destructure-public-key c) :y)))
+	 (k-prime (ECDH-Create-Shared-Secret sk pk-prime))
+	 (prk (HKDF-Extract (I2OSP 0 32) k-prime)))
+    (HKDF-Expand prk (|| (ASCII "TMPKEM") ctx) 32)))
 
+(defun Authenticate (sk_device reader_data bf)
+  (let ((P-prime (EC-Scalar-Mult reader_data bf)))
+    (ECDH-Create-Shared-Secret sk_device P-prime)))
 
-(in-package :kem)
+(defun H1 (msg) (H *ID* msg))
+(defparameter *Ns* 32)
+(defun HDK (salt index)
+  (let ((msg (|| salt (I2OSP index 4))))
+    (values (BL-Derive-Blinding-Factor msg *ID*) (H1 msg))))
 
-(defparameter *dst-ext* (ascii "ARKG-P256MUL-ECDH"))
+(defun fold (salt path &optional bf)
+  (cond ((null path) (values bf salt))
+	((typep (car path) 'number)
+	 (multiple-value-bind (bf-prime salt) (HDK salt (car path))
+	   (if (null bf) (fold salt (cdr path) bf-prime)
+	       (fold salt (cdr path)
+		     (BL-Combine-Blinding-Factors bf bf-prime)))))
+	(t (multiple-value-bind (pk sk) (KEM-Derive-Key-Pair salt *ID*)
+	     (fold (KEM-Decaps sk (car path) *ID*) (cdr path) bf)))))
+(defun delegate (salt path &optional bf)
+  (multiple-value-bind (bf salt-prime) (fold salt path bf)
+    (multiple-value-bind (pk) (KEM-Derive-Key-Pair salt-prime *ID*)
+      pk)))
 
-(defun ecp2os (P) (subseq (getf (crypto:destructure-public-key P) :y) 1))
-(defun os2ecp (b) (crypto:make-public-key
-                   :secp256r1
-                   :y (concatenate 'crypto::simple-octet-vector #(4) b)))
-(defun ecdh (pk sk) (crypto:diffie-hellman sk pk))
-(defun mk (prk info)
-  (hkdf:expand prk (|| (ascii "ARKG-KEM-HMAC-mac.") *dst-ext* info) 32))
-(defun t (prk info)
-  (subseq
-   (hmac:sha256 (mk prk info) (|| (ascii "ARKG-KEM-HMAC.") *dst-ext* info))
-   0 16))
-(defun k (prk info)
-  (hkdf:expand prk (|| (ascii "ARKG-KEM-HMAC-shared.") *dst-ext* info) 32))
+(assert
+ (multiple-value-bind (bf salt) (fold (H1 (I2OSP #x01 1)) (list 1 2))
+   (multiple-value-bind (pk sk) (KEM-Derive-Key-Pair salt *ID*)
+     (multiple-value-bind (salt-issuer kh) (KEM-Encaps pk *ID*)
+       (multiple-value-bind (bf-issuer salt-issuer-prime) (HDK salt-issuer 3)
+	 (let ((salt-unit (KEM-Decaps sk kh *ID*)))
+	   (multiple-value-bind (bf-unit salt-unit-prime) (HDK salt-unit 3)
+	     (multiple-value-bind (bf-later salt-later)
+		 (fold (H1 (I2OSP #x01 1)) (list 1 2 kh 3))
+	       (and (= bf-issuer bf-unit)
+		    (= (OS2IP salt-issuer) (OS2IP salt-unit))
+		    (= (OS2IP salt-issuer-prime) (OS2IP salt-unit-prime))
+		    (= (BL-Combine-Blinding-Factors bf bf-issuer)
+		       bf-later))))))))))
 
-(defun generate-key-pair () (crypto:generate-key-pair :secp256r1))
-(defun encaps (pk info)
-  (multiple-value-bind (sk-prime pk-prime) (generate-key-pair)
-    (let* ((k-prime (ecdh pk sk-prime))
-           (c-prime (ecp2os pk-prime))
-           (prk (hkdf:extract (i2osp 0 32) k-prime)))
-      (values (k prk info) (|| (t prk info) c-prime)))))
-(defun decaps (sk c info)
-  (let* ((t-in (subseq c 0 16))
-         (c-prime (subseq c 16))
-         (pk-prime (os2ecp c-prime))
-         (k-prime (ecdh pk-prime sk))
-         (prk (hkdf:extract (i2osp 0 32) k-prime)))
-    (assert (= (os2ip t-in) (os2ip (t prk info))))
-    (k prk info)))
+(defclass unit ()
+  ((seed :reader unit-seed :initform (crypto:random-data *Ns*))
+   (device :reader unit-device
+	   :initform (multiple-value-list (BL-Generate-Blinding-Key-Pair)))))
+(defun unit-device-ecdh (u pk)
+  (ECDH-Create-Shared-Secret (cdr (unit-device u)) pk))
+			    
+(loop with vectors =
+      `((""
+	 "QUUX-V01-CS02-with-expander-SHA256-128" #x20
+	 ,(read-bytes
+	   "68a985b87eb6b46952128911f2a4412bbc302a9d759667f87f7a21d803f07235"))
+        ("abc"
+	 "QUUX-V01-CS02-with-expander-SHA256-128" #x20
+	 ,(read-bytes
+	   "d8ccab23b5985ccea865c6c97b6e5b8350e794e603b4b97902f53a8a0d605615"))
+        (""
+	 "QUUX-V01-CS02-with-expander-SHA256-128" #x80
+	 ,(read-bytes
+	   "af84c27ccfd45d41914fdff5df25293e221afc53d8ad2ac06d5e3e29485dadbe"
+	   "e0d121587713a3e0dd4d5e69e93eb7cd4f5df4cd103e188cf60cb02edc3edf18"
+	   "eda8576c412b18ffb658e3dd6ec849469b979d444cf7b26911a08e63cf31f9dc"
+	   "c541708d3491184472c2c29bb749d4286b004ceb5ee6b9a7fa5b646c993f0ced")))
+      for (msg dst len result) in vectors
+      do (assert (= (OS2IP (expand_message_xmd (ASCII msg) (ASCII dst) len))
+                    result)))
 
-(assert (multiple-value-bind (sk pk) (generate-key-pair)
-          (multiple-value-bind (k c) (encaps pk (ascii "info"))
-            (= (os2ip k) (os2ip (decaps sk c (ascii "info")))))))
+(assert (let* ((prk (HKDF-Extract (I2OSP #x000102030405060708090a0b0c 13)
+                             (I2OSP #x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b 22)))
+               (okm (HKDF-Expand prk (I2OSP #xf0f1f2f3f4f5f6f7f8f9 10) 42)))
+          (and (= (OS2IP prk) #x077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5)
+               (= (OS2IP okm) #x3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865))))
 
-
-;;(defun random-scalar () (+ (crypto:strong-random *n*) 1))
+(assert (multiple-value-bind (pk sk) (KEM-Derive-Key-Pair
+				      (I2OSP #x01 4)
+				      (I2OSP #x02 4))
+	  (multiple-value-bind (k c) (KEM-Encaps pk (ASCII "info"))
+	    (= (OS2IP k) (OS2IP (KEM-Decaps sk c (ASCII "info")))))))
