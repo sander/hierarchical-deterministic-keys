@@ -4,8 +4,8 @@
 
 Crypto Forum                                         S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                          21 December 2024
-Expires: 24 June 2025
+Intended status: Informational                          22 December 2024
+Expires: 25 June 2025
 
 
                     Hierarchical Deterministic Keys
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 June 2025.
+   This Internet-Draft will expire on 25 June 2025.
 
 Copyright Notice
 
@@ -444,11 +444,15 @@ Table of Contents
    # 6. Issuer shares with unit: pk'
 
    # 7. Unit verifies integrity:
-   (bf, salt') = HDK(salt, index)
+   salt' = KEM-Decaps(sk_kem, kh, ID)
+   (bf, salt'') = HDK(salt', index)
    pk' == BL-Blind-Public-Key(pk, bf)
 
    # 8. Unit computes:
    sk' = BL-Blind-Private-Key(sk, bf)
+
+   After step 7, the unit can use the value of salt'' to derive next-
+   level HDKeys.
 
    Step 4 MAY be postponed to be combined with step 6.  Steps 5 to 8 MAY
    be combined in concurrent execution for multiple indices.
