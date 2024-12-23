@@ -1021,18 +1021,6 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-
               bradleylundberg-cfrg-arkg-02>.
 
-   [SCAL3]    Cleverbase ID B.V., "SCAL3: Verify that systems operate
-              under your sole control, version de8c5ae", March 2024,
-              <https://github.com/cleverbase/scal3>.
-
-   [TR03181]  Federal Office for Information Security (BSI),
-              "Cryptographic Service Provider 2 (CSP2)", BSI TR-03181
-              Version 0.94, April 2023,
-              <https://www.bsi.bund.de/EN/Themen/Unternehmen-und-
-              Organisationen/Standards-und-Zertifizierung/Technische-
-              Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-
-              03181_node.html>.
-
    [Verheul2024]
               Verheul, E., "Attestation Proof of Association –
               provability that attestation keys are bound to the same
