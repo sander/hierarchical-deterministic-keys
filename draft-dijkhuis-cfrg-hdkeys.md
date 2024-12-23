@@ -93,20 +93,6 @@ informative:
             (EU): 2024/1183
         date: 2024-04
     I-D.draft-bradleylundberg-cfrg-arkg-02:
-    SCAL3:
-        title: "SCAL3: Verify that systems operate under your sole control, version de8c5ae"
-        target: https://github.com/cleverbase/scal3
-        author:
-            - organization: Cleverbase ID B.V.
-        date: 2024-03
-    TR03181:
-        title: Cryptographic Service Provider 2 (CSP2)
-        target: https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-03181_node.html
-        author:
-            - organization: Federal Office for Information Security (BSI)
-        seriesinfo:
-            BSI: TR-03181 Version 0.94
-        date: 2023-04
     Verheul2024:
         title: Attestation Proof of Association – provability that attestation keys are bound to the same hardware and person
         target: https://eprint.iacr.org/2024/1444
@@ -608,28 +594,7 @@ The internal registry can be managed by the WSCA agent, by the WSCA service, or 
 
 In a distributed WSCA architecture, the WSCA could internally apply distributed key generation. A description of this is out of scope for the current document.
 
-The HDK algorithm can support any of the following WSCD architectures:
-
-1. Local external standalone device, for example:
-   - GlobalPlatform secure element, running for example a Java Card applet as WSCA for:
-     - Personal Identity Verification (PIV)
-     - Fast IDentity Online 2 (FIDO2)
-2. Local internal standalone programmable cryptographic chip, for example:
-   - Smartphone embedded universal integrated circuit card (eUICC), running for example a Subscriber Identity Module (SIM) as WSCA; also called eSIM
-   - Smartphone embedded secure element (eSE), running for example a Java Card applet as WSCA
-3. Local internal preprogammed security platform, for example:
-   - Android trusted execution environment acting as WSCA
-   - Android StrongBox secure element acting as WSCA
-   - iOS Secure Enclave system-on-chip acting as WSCA
-   - Trusted Platform Module (TPM) acting as WSCA
-4. Remote HSM, for example:
-   - Cryptographic module certified against EN 419221-5:2018 with a local client application providing a WSCA service, remotely controlled for example using:
-     - PIV card as possession factor and PIN verification using a HSM-backed Device-Enhanced Augmented PAKE (an approach proposed by Sweden)
-     - Android/iOS security platform or standalone device, applying asymmetric cryptography to enable detection of remote HSM corruption as described in [SCAL3]
-
-In all cases, the WSCD may implement a Cryptographic Service Provider [TR03181] to reduce the scope for Common Criteria certification of the WSCA.
-
-The solution proposal discussed herein works in all four WSCD architectures that support the required cryptographic primitives within the WSCD:
+The solution proposal discussed herein works in all any WSCD architecture that supports the required cryptographic primitives:
 
 - In the case of HDK-ECDH-P256 (see [HDK-ECDH-P256](#hdk-ecdh-p256)):
   - P-256 ECDH key pair generation
@@ -642,10 +607,6 @@ The solution proposal discussed herein works in all four WSCD architectures that
   - P-256 EC-SDSA signature creation
 
 The other HDK operations can be performed in a WSCA or WSCA agent running on any UD, including hostile ones with limited sandboxing capabilities, such as in a smartphone's rich execution environment or in a personal computer web browser.
-
-If the user enters the PIN in the WI instead of on the WSCD directly, the WI MUST process it directly after entering, the WI MUST keep the plaintext PIN confidential, and the WI MUST delete the PIN from memory as soon as the encrypted PIN or data derived from the PIN is passed over the SCI.
-
-The rate-limiting of the PIN check MUST be managed within the WSCD or on securely managed SCI infrastructure. In particular, the rate-limiting MUST NOT be managed solely in local WI or WSCA agent software since it is assumed that attackers could modify this without detection.
 
 ## Trust evidence
 
