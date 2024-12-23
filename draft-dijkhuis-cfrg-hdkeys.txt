@@ -4,8 +4,8 @@
 
 Crypto Forum                                         S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                          22 December 2024
-Expires: 25 June 2025
+Intended status: Informational                          23 December 2024
+Expires: 26 June 2025
 
 
                     Hierarchical Deterministic Keys
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 June 2025.
+   This Internet-Draft will expire on 26 June 2025.
 
 Copyright Notice
 
@@ -821,59 +821,8 @@ Table of Contents
    distributed key generation.  A description of this is out of scope
    for the current document.
 
-   The HDK algorithm can support any of the following WSCD
-   architectures:
-
-   1.  Local external standalone device, for example:
-
-       *  GlobalPlatform secure element, running for example a Java Card
-          applet as WSCA for:
-
-          -  Personal Identity Verification (PIV)
-
-          -  Fast IDentity Online 2 (FIDO2)
-
-   2.  Local internal standalone programmable cryptographic chip, for
-       example:
-
-       *  Smartphone embedded universal integrated circuit card (eUICC),
-          running for example a Subscriber Identity Module (SIM) as
-          WSCA; also called eSIM
-
-       *  Smartphone embedded secure element (eSE), running for example
-          a Java Card applet as WSCA
-
-   3.  Local internal preprogammed security platform, for example:
-
-       *  Android trusted execution environment acting as WSCA
-
-       *  Android StrongBox secure element acting as WSCA
-
-       *  iOS Secure Enclave system-on-chip acting as WSCA
-
-       *  Trusted Platform Module (TPM) acting as WSCA
-
-   4.  Remote HSM, for example:
-
-       *  Cryptographic module certified against EN 419221-5:2018 with a
-          local client application providing a WSCA service, remotely
-          controlled for example using:
-
-          -  PIV card as possession factor and PIN verification using a
-             HSM-backed Device-Enhanced Augmented PAKE (an approach
-             proposed by Sweden)
-
-          -  Android/iOS security platform or standalone device,
-             applying asymmetric cryptography to enable detection of
-             remote HSM corruption as described in [SCAL3]
-
-   In all cases, the WSCD may implement a Cryptographic Service Provider
-   [TR03181] to reduce the scope for Common Criteria certification of
-   the WSCA.
-
-   The solution proposal discussed herein works in all four WSCD
-   architectures that support the required cryptographic primitives
-   within the WSCD:
+   The solution proposal discussed herein works in all any WSCD
+   architecture that supports the required cryptographic primitives:
 
    *  In the case of HDK-ECDH-P256 (see Section 4.1):
 
@@ -897,18 +846,6 @@ Table of Contents
    running on any UD, including hostile ones with limited sandboxing
    capabilities, such as in a smartphone's rich execution environment or
    in a personal computer web browser.
-
-   If the user enters the PIN in the WI instead of on the WSCD directly,
-   the WI MUST process it directly after entering, the WI MUST keep the
-   plaintext PIN confidential, and the WI MUST delete the PIN from
-   memory as soon as the encrypted PIN or data derived from the PIN is
-   passed over the SCI.
-
-   The rate-limiting of the PIN check MUST be managed within the WSCD or
-   on securely managed SCI infrastructure.  In particular, the rate-
-   limiting MUST NOT be managed solely in local WI or WSCA agent
-   software since it is assumed that attackers could modify this without
-   detection.
 
 5.2.  Trust evidence
 
@@ -1083,18 +1020,6 @@ Table of Contents
               Draft, draft-bradleylundberg-cfrg-arkg-02, 27 May 2024,
               <https://datatracker.ietf.org/doc/html/draft-
               bradleylundberg-cfrg-arkg-02>.
-
-   [SCAL3]    Cleverbase ID B.V., "SCAL3: Verify that systems operate
-              under your sole control, version de8c5ae", March 2024,
-              <https://github.com/cleverbase/scal3>.
-
-   [TR03181]  Federal Office for Information Security (BSI),
-              "Cryptographic Service Provider 2 (CSP2)", BSI TR-03181
-              Version 0.94, April 2023,
-              <https://www.bsi.bund.de/EN/Themen/Unternehmen-und-
-              Organisationen/Standards-und-Zertifizierung/Technische-
-              Richtlinien/TR-nach-Thema-sortiert/tr03181/TR-
-              03181_node.html>.
 
    [Verheul2024]
               Verheul, E., "Attestation Proof of Association –
