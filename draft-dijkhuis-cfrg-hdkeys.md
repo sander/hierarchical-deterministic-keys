@@ -42,6 +42,7 @@ normative:
     RFC7800:
     RFC8017:
     RFC8235:
+    RFC9180:
     RFC9380:
     SEC2:
         title: "SEC 2: Recommended Elliptic Curve Domain Parameters, Version 2.0"
@@ -233,10 +234,10 @@ The parameters of an HDK instantiation are:
   - BL-Combine-Blinding-Factors(bf1, bf2): Outputs a blinding factor `bf` such that for all blinding key pairs `(pk, sk)`:
     - `BL-Blind-Public-Key(pk, bf) == BL-Blind-Public-Key(BL-Blind-Public-Key(pk, bf1), bf2)`
     - `BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-Blind-Private-Key(pk, bf1), bf2)`
-- `KEM`: A key encapsulation mechanism, consisting of the functions:
-    - KEM-Derive-Key-Pair(msg, ctx): Outputs a key encapsulation key pair `(pk, sk)`.
-    - KEM-Encaps(pk, ctx): Outputs `(k, c)` consisting of a shared secret `k` and a ciphertext `c`, taking key encapsulation public key `pk` and domain separation parameter `ctx`, a byte string.
-    - KEM-Decaps(sk, c, ctx): Outputs shared secret `k`, taking key encapsulation private key `sk` and domain separation `ctx`, a byte string.
+- `KEM`: A key encapsulation mechanism [RFC9180], consisting of the functions:
+    - KEM-Derive-Key-Pair(ikm): Outputs a key encapsulation key pair `(sk, pk)`.
+    - KEM-Encap(pk): Outputs `(k, c)` consisting of a shared secret `k` and a ciphertext `c`, taking key encapsulation public key `pk`.
+    - KEM-Decap(c, sk): Outputs shared secret `k`, taking ciphertext `c` and key encapsulation private key `sk`.
 - `Authenticate(sk_device, reader_data, bf)`: Outputs `device_data` for use in a protocol for proof of possession, taking a BL blinding private key `sk_device`, remotely received `reader_data`, and a BL blinding factor `bf`.
 
 An HDK instantiation MUST specify the instantiation of each of the above functions and values.
@@ -306,12 +307,12 @@ As a prerequisite, the unit possesses a `salt` of `Ns` bytes associated with a p
 
 ~~~
 # 1. Unit computes:
-(pk_kem, sk_kem) = KEM-Derive-Key-Pair(salt, ID)
+(sk_kem, pk_kem) = KEM-Derive-Key-Pair(salt)
 
 # 2. Unit shares with issuer: (pk, pk_kem)
 
 # 3. Issuer computes:
-(salt, kh) = KEM-Encaps(pk_kem, ID)
+(salt, kh) = KEM-Encap(pk_kem)
 
 # 4. Issuer shares with unit: kh
 
@@ -324,7 +325,7 @@ pk' = BL-Blind-Public-Key(pk, bf)
 # 6. Issuer shares with unit: pk'
 
 # 7. Unit verifies integrity:
-salt' = KEM-Decaps(sk_kem, kh, ID)
+salt' = KEM-Decap(kh, sk_kem)
 (bf, salt'') = HDK(salt', index)
 pk' == BL-Blind-Public-Key(pk, bf)
 
@@ -505,7 +506,7 @@ This instantiation uses ECDH for proof of possession (see [Using ECDH shared sec
   - `H1(msg)`: Implemented by computing `H(ID || msg)`.
 - `EC`: The NIST curve `secp256r1` (P-256) [SEC2]
 - `ECDH`: ECKA-DH with curve `EC`
-- `KEM`: ECKA-DH with curve `EC`
+- `KEM`: DHKEM(P-256, HKDF-SHA256) [RFC9180]
 
 ## HDK-ECDSA-P256
 
@@ -517,7 +518,7 @@ This instantiation uses ECDSA for proof of possession (see [Using ECDSA signatur
   - `H1(msg)`: Implemented by computing `H(ID || msg)`.
 - `EC`: The NIST curve `secp256r1` (P-256) [SEC2]
 - `DSA`: ECDSA with curve `EC`.
-- `KEM`: ECKA-DH with curve `EC`
+- `KEM`: DHKEM(P-256, HKDF-SHA256) [RFC9180]
 
 ## HDK-ECSDSA-P256
 
@@ -529,7 +530,7 @@ This instantiation uses EC-SDSA for proof of possession (see [Using EC-SDSA sign
   - `H1(msg)`: Implemented by computing `H(ID || msg)`.
 - `EC`: The NIST curve `secp256r1` (P-256) [SEC2]
 - `DSA`: EC-SDSA-opt (the optimised EC-SDSA) with curve `EC`.
-- `KEM`: ECKA-DH with curve `EC`
+- `KEM`: DHKEM(P-256, HKDF-SHA256) [RFC9180]
 
 # Application considerations
 

@@ -15,7 +15,7 @@
 ;; Create a key handle and issue a first batch of PID
 (defvar *kh*)
 (defvar *pid*)
-(multiple-value-bind (salt kh) (KEM-Encaps *pk-kem* *ID*)
+(multiple-value-bind (salt kh) (KEM-Encap *pk-kem*)
   (setf *kh* kh)
   (setf *pid* (loop for i in '(0 1 2 3)
                     collect (make-document *evidence* salt i))))
