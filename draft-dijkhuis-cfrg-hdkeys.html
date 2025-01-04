@@ -1454,16 +1454,16 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
             </ul>
 </li>
           <li class="normal" id="section-2.2-2.5">
-            <p id="section-2.2-2.5.1"><code>KEM</code>: A key encapsulation mechanism, consisting of the functions:<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.5.1"><code>KEM</code>: A key encapsulation mechanism <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>, consisting of the functions:<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.2-2.5.2.1">
-                <p id="section-2.2-2.5.2.1.1">KEM-Derive-Key-Pair(msg, ctx): Outputs a key encapsulation key pair <code>(pk, sk)</code>.<a href="#section-2.2-2.5.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.5.2.1.1">KEM-Derive-Key-Pair(ikm): Outputs a key encapsulation key pair <code>(sk, pk)</code>.<a href="#section-2.2-2.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.5.2.2">
-                <p id="section-2.2-2.5.2.2.1">KEM-Encaps(pk, ctx): Outputs <code>(k, c)</code> consisting of a shared secret <code>k</code> and a ciphertext <code>c</code>, taking key encapsulation public key <code>pk</code> and domain separation parameter <code>ctx</code>, a byte string.<a href="#section-2.2-2.5.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.5.2.2.1">KEM-Encap(pk): Outputs <code>(k, c)</code> consisting of a shared secret <code>k</code> and a ciphertext <code>c</code>, taking key encapsulation public key <code>pk</code>.<a href="#section-2.2-2.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.5.2.3">
-                <p id="section-2.2-2.5.2.3.1">KEM-Decaps(sk, c, ctx): Outputs shared secret <code>k</code>, taking key encapsulation private key <code>sk</code> and domain separation <code>ctx</code>, a byte string.<a href="#section-2.2-2.5.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.5.2.3.1">KEM-Decap(c, sk): Outputs shared secret <code>k</code>, taking ciphertext <code>c</code> and key encapsulation private key <code>sk</code>.<a href="#section-2.2-2.5.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1546,12 +1546,12 @@ sk' = BL-Blind-Private-Key(sk, bf') # optional
 <div class="alignLeft art-text artwork" id="section-2.5-3">
 <pre>
 # 1. Unit computes:
-(pk_kem, sk_kem) = KEM-Derive-Key-Pair(salt, ID)
+(sk_kem, pk_kem) = KEM-Derive-Key-Pair(salt)
 
 # 2. Unit shares with issuer: (pk, pk_kem)
 
 # 3. Issuer computes:
-(salt, kh) = KEM-Encaps(pk_kem, ID)
+(salt, kh) = KEM-Encap(pk_kem)
 
 # 4. Issuer shares with unit: kh
 
@@ -1564,7 +1564,7 @@ pk' = BL-Blind-Public-Key(pk, bf)
 # 6. Issuer shares with unit: pk'
 
 # 7. Unit verifies integrity:
-salt' = KEM-Decaps(sk_kem, kh, ID)
+salt' = KEM-Decap(kh, sk_kem)
 (bf, salt'') = HDK(salt', index)
 pk' == BL-Blind-Public-Key(pk, bf)
 
@@ -1851,7 +1851,7 @@ def Authenticate(sk_device, reader_data, bf):
             <p id="section-4.1-2.5.1"><code>ECDH</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-2.6">
-            <p id="section-4.1-2.6.1"><code>KEM</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.1-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.6.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span><a href="#section-4.1-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1884,7 +1884,7 @@ def Authenticate(sk_device, reader_data, bf):
             <p id="section-4.2-2.5.1"><code>DSA</code>: ECDSA with curve <code>EC</code>.<a href="#section-4.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.6">
-            <p id="section-4.2-2.6.1"><code>KEM</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.2-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.6.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span><a href="#section-4.2-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1917,7 +1917,7 @@ def Authenticate(sk_device, reader_data, bf):
             <p id="section-4.3-2.5.1"><code>DSA</code>: EC-SDSA-opt (the optimised EC-SDSA) with curve <code>EC</code>.<a href="#section-4.3-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.3-2.6">
-            <p id="section-4.3-2.6.1"><code>KEM</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.3-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-4.3-2.6.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span><a href="#section-4.3-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -2145,6 +2145,10 @@ def Authenticate(sk_device, reader_data, bf):
 <dt id="RFC8235">[RFC8235]</dt>
         <dd>
 <span class="refAuthor">Hao, F., Ed.</span>, <span class="refTitle">"Schnorr Non-interactive Zero-Knowledge Proof"</span>, <span class="seriesInfo">RFC 8235</span>, <span class="seriesInfo">DOI 10.17487/RFC8235</span>, <time datetime="2017-09" class="refDate">September 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8235">https://www.rfc-editor.org/rfc/rfc8235</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9180">[RFC9180]</dt>
+        <dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Bhargavan, K.</span>, <span class="refAuthor">Lipp, B.</span>, and <span class="refAuthor">C. Wood</span>, <span class="refTitle">"Hybrid Public Key Encryption"</span>, <span class="seriesInfo">RFC 9180</span>, <span class="seriesInfo">DOI 10.17487/RFC9180</span>, <time datetime="2022-02" class="refDate">February 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9180">https://www.rfc-editor.org/rfc/rfc9180</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9380">[RFC9380]</dt>
         <dd>
