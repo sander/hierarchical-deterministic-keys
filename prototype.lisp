@@ -1,6 +1,6 @@
 (defpackage #:prototype
-  (:export #:KEM-Encaps
-           #:HDK #:*ID*
+  (:export #:KEM-Encap
+           #:HDK
            #:make-unit #:activate #:prove-possession #:request #:accept
            #:make-reader #:pk #:verify
            #:make-document)
@@ -66,29 +66,55 @@
         do (loop for j across ti do (vector-push j tb))
         finally (return (coerce tb '(vector (unsigned-byte 8))))))
 
-(defun ECP2OS (point)
-  (|| (I2OSP (getf (crypto:ec-destructure-point point) :x) 32)
-      (I2OSP (getf (crypto:ec-destructure-point point) :y) 32)))
-(defun OS2ECP (b)
-  (crypto:ec-make-point
-   *EC* :x (OS2IP (subseq b 0 32)) :y (OS2IP (subseq b 32))))
-
-(defun KEM-Derive-Key-Pair (msg ctx) ; TODO #80
-  (let* ((*DST* (|| *ID* '(#x01) ctx))
-	 (*q* (EC-Order))
-	 (sk (hash_to_field msg)))
-    (values (EC-Scalar-Base-Mult sk) sk)))
-(defun KEM-Encaps (pk ctx)
-  (let* ((sk-prime (EC-Random))
-         (pk-prime (EC-Scalar-Base-Mult sk-prime))
-         (k-prime (ECDH-Create-Shared-Secret sk-prime pk))
-	 (prk (HKDF-Extract (I2OSP 0 32) k-prime)))
-    (values (HKDF-Expand prk (|| (ASCII "TMPKEM") ctx) 32) (ECP2OS pk-prime))))
-(defun KEM-Decaps (sk c ctx)
-  (let* ((pk-prime (OS2ECP c))
-	 (k-prime (ECDH-Create-Shared-Secret sk pk-prime))
-	 (prk (HKDF-Extract (I2OSP 0 32) k-prime)))
-    (HKDF-Expand prk (|| (ASCII "TMPKEM") ctx) 32)))
+;; RFC 9180, DHKEM(P-256, HKDF-SHA256)
+(defparameter *Nsecret* 32)
+(defparameter *Nsk* 32)
+(defparameter *suite_id* (|| (ASCII "KEM") (I2OSP #x0010 2)))
+(defparameter *bitmask* #xff)
+(labels
+    ((labeled-extract (salt label ikm)
+       (HKDF-Extract salt (|| (ASCII "HPKE-v1") *suite_id* (ASCII label) ikm)))
+     (labeled-expand (prk label info L)
+       (HKDF-Expand prk (|| (I2OSP L 2) (ASCII "HPKE-v1")
+                            *suite_id* (ASCII label) info)
+                    L))
+     (extract-and-expand (dh kem_context)
+       (let* ((eae_prk (labeled-extract (ASCII "") "eae_prk" dh))
+              (shared_secret
+                (labeled-expand eae_prk "shared_secret" kem_context *Nsecret*)))
+         shared_secret))
+     (generate-key-pair ()
+       (let ((sk (EC-Random))) (values sk (EC-Scalar-Base-Mult sk))))
+     (serialize-public-key (pk)
+       (|| (I2OSP (getf (crypto:ec-destructure-point pk) :x) 32)
+           (I2OSP (getf (crypto:ec-destructure-point pk) :y) 32)))
+     (deserialize-public-key (b)
+       (crypto:ec-make-point *EC* :x (OS2IP (subseq b 0 32))
+                                  :y (OS2IP (subseq b 32)))))
+  (defun KEM-Derive-Key-Pair (ikm)
+    (loop with dkp_prk = (labeled-extract (ASCII "") "dkp_prk" ikm)
+          for counter from 0 upto 254
+          for bytes
+            = (labeled-expand dkp_prk "candidate" (I2OSP counter 1) *Nsk*)
+          for sk = (progn
+                     (setf (aref bytes 0) (logand (aref bytes 0) *bitmask*))
+                     (OS2IP bytes))
+          when (not (= sk 0)) return (values sk (EC-Scalar-Base-Mult sk))))
+  (defun KEM-Encap (pkR)
+    (multiple-value-bind (skE pkE) (generate-key-pair)
+      (let* ((dh (ECDH-Create-Shared-Secret skE pkR))
+             (enc (serialize-public-key pkE))
+             (pkRm (serialize-public-key pkR))
+             (kem_context (|| enc pkRm))
+             (shared_secret (extract-and-expand dh kem_context)))
+        (values shared_secret enc))))
+  (defun KEM-Decap (enc skR)
+    (let* ((pkE (deserialize-public-key enc))
+           (dh (ECDH-Create-Shared-Secret skR pkE))
+           (pkRm (serialize-public-key (EC-Scalar-Base-Mult skR)))
+           (kem_context (|| enc pkRm))
+           (shared_secret (extract-and-expand dh kem_context)))
+      shared_secret)))
 
 (defun Authenticate (sk_device reader_data bf)
   (ECDH-Create-Shared-Secret sk_device (EC-Scalar-Mult reader_data bf)))
@@ -103,12 +129,11 @@
   (cond ((null path) (values bf salt))
 	((typep (car path) 'number)
 	 (multiple-value-bind (bf-prime salt) (HDK salt (car path))
-	   (if (null bf) (fold salt (cdr path) bf-prime)
-	       (fold salt (cdr path)
-		     (BL-Combine-Blinding-Factors bf bf-prime)))))
-	(t (multiple-value-bind (pk sk) (KEM-Derive-Key-Pair salt *ID*)
-             (declare (ignore pk))
-             (fold (KEM-Decaps sk (car path) *ID*) (cdr path) bf)))))
+           (fold salt (cdr path)
+                 (if (null bf) bf-prime
+                     (BL-Combine-Blinding-Factors bf bf-prime)))))
+	(t (fold (KEM-Decap (car path) (KEM-Derive-Key-Pair salt)) (cdr path)
+                 bf))))
 
 (defclass document () ((pk :reader pk :initarg :pk)))
 (defun make-document (doc salt index)
@@ -127,11 +152,11 @@
 (defun create-shared-secret (app hdk reader-pk)
   (Authenticate (cadr (device app)) reader-pk (fold (seed app) hdk)))
 (defun delegate-key-creation (app hdk)
-  (KEM-Derive-Key-Pair (nth-value 1 (fold (seed app) hdk)) *ID*))
+  (KEM-Derive-Key-Pair (nth-value 1 (fold (seed app) hdk))))
 (defun accept-key (app hdk kh index pk-expected)
-  (multiple-value-bind (pk sk) (delegate-key-creation app hdk)
+  (multiple-value-bind (sk pk) (delegate-key-creation app hdk)
     (declare (ignore pk))
-    (let ((salt (KEM-Decaps sk kh *ID*))
+    (let ((salt (KEM-Decap kh sk))
           (pk-bl (get-key-info app hdk)))
       (assert (EC-Point-Equal
                pk-expected
@@ -152,7 +177,7 @@
 (defun prove-possession (unit doc reader-data)
   (create-shared-secret (app unit) (unit-hdk unit doc) reader-data))
 (defun request (unit doc-parent)
-  (delegate-key-creation (app unit) (unit-hdk unit doc-parent)))
+  (nth-value 1 (delegate-key-creation (app unit) (unit-hdk unit doc-parent))))
 (defun accept (unit doc-parent kh index doc)
   (let* ((hdk (unit-hdk unit doc-parent))
          (app (app unit)))
@@ -200,16 +225,20 @@
         "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34"
         "007208d5b887185865")))))
 
-(assert (multiple-value-bind (pk sk) (KEM-Derive-Key-Pair
-				      (I2OSP #x01 4)
-				      (I2OSP #x02 4))
-	  (multiple-value-bind (k c) (KEM-Encaps pk (ASCII "info"))
-	    (= (OS2IP k) (OS2IP (KEM-Decaps sk c (ASCII "info")))))))
+(assert
+ (= (KEM-Derive-Key-Pair
+     (I2OSP
+      #x4270e54ffd08d79d5928020af4686d8f6b7d35dbe470265f1f5aa22816ce860e 32))
+    #x4995788ef4b9d6132b249ce59a77281493eb39af373d236a1fe415cb0c2d7beb))
+
+(assert (multiple-value-bind (sk pk) (KEM-Derive-Key-Pair (I2OSP #x01 4))
+	  (multiple-value-bind (k c) (KEM-Encap pk)
+	    (= (OS2IP k) (OS2IP (KEM-Decap c sk))))))
 
 (let* ((app (make-app))
        (pk-bl (get-key-info app +hdk-root+))
-       (pk-kem (delegate-key-creation app +hdk-root+)))
-  (multiple-value-bind (salt kh) (KEM-Encaps pk-kem *ID*)
+       (pk-kem (nth-value 1 (delegate-key-creation app +hdk-root+))))
+  (multiple-value-bind (salt kh) (KEM-Encap pk-kem)
     (let ((pk-expected (BL-Blind-Public-Key pk-bl (HDK salt 0))))
       (accept-key app +hdk-root+ kh 0 pk-expected))))
 
@@ -219,7 +248,7 @@
          (device-data (prove-possession unit doc (pk reader))))
     (assert (verify reader doc device-data)))
   (let ((pk-kem (request unit doc)))
-    (multiple-value-bind (salt kh) (KEM-Encaps pk-kem *ID*)
+    (multiple-value-bind (salt kh) (KEM-Encap pk-kem)
       (let* ((range '(0 1 2 3 4 5 6 7 8))
              (docs (loop for i in range collect (make-document doc salt i))))
         (loop for i in range for d in docs do (accept unit doc kh i d))
