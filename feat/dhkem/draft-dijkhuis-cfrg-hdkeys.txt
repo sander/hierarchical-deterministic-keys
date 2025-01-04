@@ -333,18 +333,17 @@ Table of Contents
          o  BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-
             Blind-Private-Key(pk, bf1), bf2)
 
-   *  KEM: A key encapsulation mechanism, consisting of the functions:
+   *  KEM: A key encapsulation mechanism [RFC9180], consisting of the
+      functions:
 
-      -  KEM-Derive-Key-Pair(msg, ctx): Outputs a key encapsulation key
-         pair (pk, sk).
+      -  KEM-Derive-Key-Pair(ikm): Outputs a key encapsulation key pair
+         (sk, pk).
 
-      -  KEM-Encaps(pk, ctx): Outputs (k, c) consisting of a shared
-         secret k and a ciphertext c, taking key encapsulation public
-         key pk and domain separation parameter ctx, a byte string.
+      -  KEM-Encap(pk): Outputs (k, c) consisting of a shared secret k
+         and a ciphertext c, taking key encapsulation public key pk.
 
-      -  KEM-Decaps(sk, c, ctx): Outputs shared secret k, taking key
-         encapsulation private key sk and domain separation ctx, a byte
-         string.
+      -  KEM-Decap(c, sk): Outputs shared secret k, taking ciphertext c
+         and key encapsulation private key sk.
 
    *  Authenticate(sk_device, reader_data, bf): Outputs device_data for
       use in a protocol for proof of possession, taking a BL blinding
@@ -426,12 +425,12 @@ Table of Contents
    HDK procedure.
 
    # 1. Unit computes:
-   (pk_kem, sk_kem) = KEM-Derive-Key-Pair(salt, ID)
+   (sk_kem, pk_kem) = KEM-Derive-Key-Pair(salt)
 
    # 2. Unit shares with issuer: (pk, pk_kem)
 
    # 3. Issuer computes:
-   (salt, kh) = KEM-Encaps(pk_kem, ID)
+   (salt, kh) = KEM-Encap(pk_kem)
 
    # 4. Issuer shares with unit: kh
 
@@ -444,7 +443,7 @@ Table of Contents
    # 6. Issuer shares with unit: pk'
 
    # 7. Unit verifies integrity:
-   salt' = KEM-Decaps(sk_kem, kh, ID)
+   salt' = KEM-Decap(kh, sk_kem)
    (bf, salt'') = HDK(salt', index)
    pk' == BL-Blind-Public-Key(pk, bf)
 
@@ -693,7 +692,7 @@ Table of Contents
 
    *  ECDH: ECKA-DH with curve EC
 
-   *  KEM: ECKA-DH with curve EC
+   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180]
 
 4.2.  HDK-ECDSA-P256
 
@@ -712,7 +711,7 @@ Table of Contents
 
    *  DSA: ECDSA with curve EC.
 
-   *  KEM: ECKA-DH with curve EC
+   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180]
 
 4.3.  HDK-ECSDSA-P256
 
@@ -731,7 +730,7 @@ Table of Contents
 
    *  DSA: EC-SDSA-opt (the optimised EC-SDSA) with curve EC.
 
-   *  KEM: ECKA-DH with curve EC
+   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180]
 
 5.  Application considerations
 
@@ -970,6 +969,10 @@ Table of Contents
    [RFC8235]  Hao, F., Ed., "Schnorr Non-interactive Zero-Knowledge
               Proof", RFC 8235, DOI 10.17487/RFC8235, September 2017,
               <https://www.rfc-editor.org/rfc/rfc8235>.
+
+   [RFC9180]  Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
+              Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
+              February 2022, <https://www.rfc-editor.org/rfc/rfc9180>.
 
    [RFC9380]  Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S.,
               and C. A. Wood, "Hashing to Elliptic Curves", RFC 9380,
