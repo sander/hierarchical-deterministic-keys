@@ -1429,15 +1429,21 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
             </ul>
 </li>
           <li class="normal" id="section-2.2-2.4">
-            <p id="section-2.2-2.4.1"><code>D</code>: An digital signature algorithm or shared secret creation algorithm based on public key cryptography, consisting of the functions:<a href="#section-2.2-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.4.1"><code>DSA</code>: A digital signature algorithm, consisting of the functions:<a href="#section-2.2-2.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.2-2.4.2.1">
-                <p id="section-2.2-2.4.2.1.1">D-Generate-Key-Pair(): Outputs a key pair <code>(sk, pk)</code>.<a href="#section-2.2-2.4.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.4.2.1.1">DSA-Generate-Key-Pair(): Outputs a key pair <code>(sk, pk)</code>.<a href="#section-2.2-2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.4.2.2">
+                <p id="section-2.2-2.4.2.2.1">DSA-Sign(sk, msg): Outputs the signature created using private signing key <code>sk</code> over byte string <code>msg</code>.<a href="#section-2.2-2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-2.2-2.4.2.3">
+                <p id="section-2.2-2.4.2.3.1">DSA-Verify(signature, pk, msg): Outputs whether <code>signature</code> is a signature over <code>msg</code> using public verification key <code>pk</code>.<a href="#section-2.2-2.4.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
           <li class="normal" id="section-2.2-2.5">
-            <p id="section-2.2-2.5.1"><code>BL</code>: An asymmetric key blinding scheme for <code>D</code> as defined in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>, with opaque blinding factors and algebraic properties, consisting of the functions:<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.5.1"><code>BL</code>: A key blinding scheme for <code>DSA</code> as defined in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>, with opaque blinding factors and algebraic properties, consisting of the functions:<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.2-2.5.2.1">
                 <p id="section-2.2-2.5.2.1.1">BL-Derive-Blind-Key(ikm): Outputs a blind key <code>bk</code> based on input keying material <code>ikm</code>.<a href="#section-2.2-2.5.2.1.1" class="pilcrow">¶</a></p>
@@ -1446,18 +1452,21 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
                 <p id="section-2.2-2.5.2.2.1">BL-Derive-Blinding-Factor(bk, ctx): Outputs a blinding factor <code>bf</code> based on a blind key <code>bk</code> and an application context byte string <code>ctx</code>.<a href="#section-2.2-2.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.5.2.3">
-                <p id="section-2.2-2.5.2.3.1">BL-Blind-Public-Key(pk, bk, ctx): Outputs the result <code>pk'</code> of blinding public key <code>pk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>. This again is a public key in <code>D</code>.<a href="#section-2.2-2.5.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.5.2.3.1">BL-Blind-Public-Key(pk, bk, ctx): Outputs the result public key <code>pk'</code> of blinding public key <code>pk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>.<a href="#section-2.2-2.5.2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.5.2.4">
-                <p id="section-2.2-2.5.2.4.1">BL-Blind-Private-Key(sk, bf): Outputs the result <code>sk'</code> of blinding private key <code>sk</code> with blinding factor <code>bf</code>. This result is a private key in <code>D</code>, such that if <code>bf = BL-Derive-Blinding-Factor(bk, ctx)</code> for some <code>bk</code> and <code>ctx</code>, the associated public key in <code>D</code> equals <code>BL-Blind-Public-Key(pk, bk, ctx)</code>.<a href="#section-2.2-2.5.2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.5.2.4.1">BL-Blind-Private-Key(sk, bf): Outputs the result private key <code>sk'</code> of blinding private key <code>sk</code> with blinding factor <code>bf</code>. This result <code>sk'</code> is such that if <code>bf = BL-Derive-Blinding-Factor(bk, ctx)</code> for some <code>bk</code> and <code>ctx</code>, <code>(sk', pk')</code> forms a key pair for <code>pk' = BL-Blind-Public-Key(pk, bk, ctx)</code>.<a href="#section-2.2-2.5.2.4.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.5.2.5">
-                <p id="section-2.2-2.5.2.5.1">BL-Combine(bf1, bf2): Outputs a blinding factor <code>bf</code> such that for all key pairs <code>(pk, sk)</code> in <code>D</code>:<a href="#section-2.2-2.5.2.5.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.5.2.5.1">BL-Combine(bf1, bf2): Outputs a blinding factor <code>bf</code> such that for all key pairs <code>(sk, pk)</code>:<a href="#section-2.2-2.5.2.5.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.2-2.5.2.5.2.1">
-                    <p id="section-2.2-2.5.2.5.2.1.1"><code>BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-Blind-Private-Key(pk, bf1), bf2)</code><a href="#section-2.2-2.5.2.5.2.1.1" class="pilcrow">¶</a></p>
+                    <p id="section-2.2-2.5.2.5.2.1.1"><code>BL-Blind-Private-Key(sk, bf) == BL-Blind-Private-Key(BL-Blind-Private-Key(sk, bf1), bf2)</code><a href="#section-2.2-2.5.2.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 </ul>
+</li>
+              <li class="normal" id="section-2.2-2.5.2.6">
+                <p id="section-2.2-2.5.2.6.1">BL-Blind-Sign(sk, bf, msg): Outputs a <code>signature</code> for which <code>DSA-Verify(signature, pk', msg)</code> where <code>(sk', pk')</code> form the key pair with <code>sk' = BL-Blind-Private-Key(sk, bf)</code>.<a href="#section-2.2-2.5.2.6.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1594,7 +1603,7 @@ sk = BL-Blind-Private-Key(sk_device, bf) # optional
 sk' = BL-Blind-Private-Key(sk, bf') # optional
 </pre><a href="#section-2.6-9" class="pilcrow">¶</a>
 </div>
-<p id="section-2.6-10">Now the unit can use the blinded key pair <code>(sk', pk')</code> or derive child HDKeys.<a href="#section-2.6-10" class="pilcrow">¶</a></p>
+<p id="section-2.6-10">Now the unit can use the blinded key pair <code>(sk', pk')</code>, sign using BL-Blind-Sign, or derive child HDKeys.<a href="#section-2.6-10" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-remote-hdk-protocol">
@@ -1687,7 +1696,7 @@ sk' = BL-Blind-Private-Key(sk, bf) # optional
         </ul>
 <div class="alignLeft art-text artwork" id="section-3.1-3">
 <pre>
-def D-Generate-Blinding-Key-Pair():
+def DSA-Generate-Key-Pair():
     sk = EC-Random()
     pk = EC-Scalar-Base-Mult(sk)
     return (sk, pk)
@@ -1778,23 +1787,46 @@ def BL-Combine(bf1, bf2):
             <p id="section-3.4-2.1.1"><code>ECDH</code>: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with elliptic curve <code>EC</code>, consisting of the functions:<a href="#section-3.4-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.4-2.1.2.1">
-                <p id="section-3.4-2.1.2.1.1">ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string representing an Element.<a href="#section-3.4-2.1.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-3.4-2.1.2.1.1">ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared secret byte string <code>Z_AB</code> representing the x-coordinate of the Element <code>EC-Scalar-Mult(pk_other, sk_self)</code>.<a href="#section-3.4-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
         </ul>
-<p id="section-3.4-3">In such instantiations, the reader provides an ephemeral public key <code>reader_data</code>. The Authenticate function returns shared secret <code>device_data</code> consisting of a binary encoded x-coordinate <code>Z_AB</code> of an ECDH operation with the blinded private key. Subsequently, the unit creates a message authentication code (MAC), such as in ECDH-MAC authentication defined in <span>[<a href="#ISO18013-5" class="cite xref">ISO18013-5</a>]</span>. The reader verifies this MAC by performing an ECDH operation with its ephemeral private key and the blinded public key.<a href="#section-3.4-3" class="pilcrow">¶</a></p>
-<p id="section-3.4-4">These instantiations instantiate the following:<a href="#section-3.4-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.4-5">
+<p id="section-3.4-3">Note that ECDH enables an alternative way of authenticating a DSA key pair <code>(sk, pk)</code> without creation or verification of a signature:<a href="#section-3.4-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.4-4">
 <pre>
-def Authenticate(sk_device, reader_data, bf):
-    P' = EC-Scalar-Mult(reader_data, bf)
+# 1. Unit shares with reader: pk
 
-    # Compute Z_AB within the secure cryptographic device.
-    Z_AB = ECDH-Create-Shared-Secret(sk_device, P')
+# 2. Reader computes:
+(sk_reader, pk_reader) = DSA-Generate-Key-Pair()
 
-    return Z_AB
-</pre><a href="#section-3.4-5" class="pilcrow">¶</a>
+# 3. Reader shares with unit: pk_reader
+
+# 4. Unit computes:
+Z_AB = ECDH-Create-Shared-Secret(sk, pk_reader)
+
+# 5. Reader computes:
+Z_AB = ECDH-Create-Shared-Secret(sk_reader, pk)
+</pre><a href="#section-3.4-4" class="pilcrow">¶</a>
+</div>
+<p id="section-3.4-5">Now with the shared secret <code>Z_AB</code>, the unit and the reader can compute a secret shared key. The unit can convince the reader that it possesses <code>sk</code> for example by sharing a message authentication code created using this key. The reader can verify this by recomputing the code using its value of <code>Z_AB</code>. This is for example used in ECDH-MAC authentication defined in <span>[<a href="#ISO18013-5" class="cite xref">ISO18013-5</a>]</span>.<a href="#section-3.4-5" class="pilcrow">¶</a></p>
+<p id="section-3.4-6">In this example, step 1 can be postponed in the interactions between the unit and the reader if a trustworthy earlier commitment to <code>pk</code> is available, for example in a sealed document.<a href="#section-3.4-6" class="pilcrow">¶</a></p>
+<p id="section-3.4-7">Similarly, ECDH enables authentication of a DSA key pair <code>(sk', pk')</code> blinded from an original key pair <code>(sk, pk)</code> using a blinding factor <code>bf</code> such that:<a href="#section-3.4-7" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.4-8">
+<pre>
+sk' = BL-Blind-Private-Key(sk, bf)
+    = sk * bf mod EC-Order()
+pk' = EC-Scalar-Mult(pk, bf)
+</pre><a href="#section-3.4-8" class="pilcrow">¶</a>
+</div>
+<p id="section-3.4-9">In this case, the computation in step 4 can be performed as such:<a href="#section-3.4-9" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.4-10">
+<pre>
+# 4. Unit computes:
+Z_AB = ECDH-Create-Shared-Secret(sk', pk_reader)
+     = ECDH-Create-Shared-Secret(sk * bf mod EC-Order(), pk_reader)
+     = ECDH-Create-Shared-Secret(sk, EC-Scalar-Mult(pk_reader, bf))
+</pre><a href="#section-3.4-10" class="pilcrow">¶</a>
 </div>
 </section>
 </div>

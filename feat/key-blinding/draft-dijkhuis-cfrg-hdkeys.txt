@@ -312,13 +312,17 @@ Table of Contents
 
       -  H1(msg): Outputs Ns bytes.
 
-   *  D: An digital signature algorithm or shared secret creation
-      algorithm based on public key cryptography, consisting of the
-      functions:
+   *  DSA: A digital signature algorithm, consisting of the functions:
 
-      -  D-Generate-Key-Pair(): Outputs a key pair (sk, pk).
+      -  DSA-Generate-Key-Pair(): Outputs a key pair (sk, pk).
 
-   *  BL: An asymmetric key blinding scheme for D as defined in
+      -  DSA-Sign(sk, msg): Outputs the signature created using private
+         signing key sk over byte string msg.
+
+      -  DSA-Verify(signature, pk, msg): Outputs whether signature is a
+         signature over msg using public verification key pk.
+
+   *  BL: A key blinding scheme for DSA as defined in
       [I-D.draft-irtf-cfrg-signature-key-blinding-07], with opaque
       blinding factors and algebraic properties, consisting of the
       functions:
@@ -330,21 +334,25 @@ Table of Contents
          bf based on a blind key bk and an application context byte
          string ctx.
 
-      -  BL-Blind-Public-Key(pk, bk, ctx): Outputs the result pk' of
-         blinding public key pk with blind key bk and application
-         context byte string ctx.  This again is a public key in D.
+      -  BL-Blind-Public-Key(pk, bk, ctx): Outputs the result public key
+         pk' of blinding public key pk with blind key bk and application
+         context byte string ctx.
 
-      -  BL-Blind-Private-Key(sk, bf): Outputs the result sk' of
-         blinding private key sk with blinding factor bf.  This result
-         is a private key in D, such that if bf = BL-Derive-Blinding-
-         Factor(bk, ctx) for some bk and ctx, the associated public key
-         in D equals BL-Blind-Public-Key(pk, bk, ctx).
+      -  BL-Blind-Private-Key(sk, bf): Outputs the result private key
+         sk' of blinding private key sk with blinding factor bf.  This
+         result sk' is such that if bf = BL-Derive-Blinding-Factor(bk,
+         ctx) for some bk and ctx, (sk', pk') forms a key pair for pk' =
+         BL-Blind-Public-Key(pk, bk, ctx).
 
       -  BL-Combine(bf1, bf2): Outputs a blinding factor bf such that
-         for all key pairs (pk, sk) in D:
+         for all key pairs (sk, pk):
 
-         o  BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-
-            Blind-Private-Key(pk, bf1), bf2)
+         o  BL-Blind-Private-Key(sk, bf) == BL-Blind-Private-Key(BL-
+            Blind-Private-Key(sk, bf1), bf2)
+
+      -  BL-Blind-Sign(sk, bf, msg): Outputs a signature for which DSA-
+         Verify(signature, pk', msg) where (sk', pk') form the key pair
+         with sk' = BL-Blind-Private-Key(sk, bf).
 
    *  KEM: A key encapsulation mechanism [RFC9180], consisting of the
       functions:
@@ -492,8 +500,8 @@ Table of Contents
 
    sk' = BL-Blind-Private-Key(sk, bf') # optional
 
-   Now the unit can use the blinded key pair (sk', pk') or derive child
-   HDKeys.
+   Now the unit can use the blinded key pair (sk', pk'), sign using BL-
+   Blind-Sign, or derive child HDKeys.
 
 2.7.  The remote HDK protocol
 
@@ -569,7 +577,7 @@ Table of Contents
          the result of cryptographically hashing msg (see [RFC9380],
          Section 5.2).
 
-   def D-Generate-Blinding-Key-Pair():
+   def DSA-Generate-Key-Pair():
        sk = EC-Random()
        pk = EC-Scalar-Base-Mult(sk)
        return (sk, pk)
@@ -645,26 +653,50 @@ Table of Contents
       functions:
 
       -  ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared
-         secret byte string representing an Element.
+         secret byte string Z_AB representing the x-coordinate of the
+         Element EC-Scalar-Mult(pk_other, sk_self).
 
-   In such instantiations, the reader provides an ephemeral public key
-   reader_data.  The Authenticate function returns shared secret
-   device_data consisting of a binary encoded x-coordinate Z_AB of an
-   ECDH operation with the blinded private key.  Subsequently, the unit
-   creates a message authentication code (MAC), such as in ECDH-MAC
-   authentication defined in [ISO18013-5].  The reader verifies this MAC
-   by performing an ECDH operation with its ephemeral private key and
-   the blinded public key.
+   Note that ECDH enables an alternative way of authenticating a DSA key
+   pair (sk, pk) without creation or verification of a signature:
 
-   These instantiations instantiate the following:
+   # 1. Unit shares with reader: pk
 
-   def Authenticate(sk_device, reader_data, bf):
-       P' = EC-Scalar-Mult(reader_data, bf)
+   # 2. Reader computes:
+   (sk_reader, pk_reader) = DSA-Generate-Key-Pair()
 
-       # Compute Z_AB within the secure cryptographic device.
-       Z_AB = ECDH-Create-Shared-Secret(sk_device, P')
+   # 3. Reader shares with unit: pk_reader
 
-       return Z_AB
+   # 4. Unit computes:
+   Z_AB = ECDH-Create-Shared-Secret(sk, pk_reader)
+
+   # 5. Reader computes:
+   Z_AB = ECDH-Create-Shared-Secret(sk_reader, pk)
+
+   Now with the shared secret Z_AB, the unit and the reader can compute
+   a secret shared key.  The unit can convince the reader that it
+   possesses sk for example by sharing a message authentication code
+   created using this key.  The reader can verify this by recomputing
+   the code using its value of Z_AB.  This is for example used in ECDH-
+   MAC authentication defined in [ISO18013-5].
+
+   In this example, step 1 can be postponed in the interactions between
+   the unit and the reader if a trustworthy earlier commitment to pk is
+   available, for example in a sealed document.
+
+   Similarly, ECDH enables authentication of a DSA key pair (sk', pk')
+   blinded from an original key pair (sk, pk) using a blinding factor bf
+   such that:
+
+   sk' = BL-Blind-Private-Key(sk, bf)
+       = sk * bf mod EC-Order()
+   pk' = EC-Scalar-Mult(pk, bf)
+
+   In this case, the computation in step 4 can be performed as such:
+
+   # 4. Unit computes:
+   Z_AB = ECDH-Create-Shared-Secret(sk', pk_reader)
+        = ECDH-Create-Shared-Secret(sk * bf mod EC-Order(), pk_reader)
+        = ECDH-Create-Shared-Secret(sk, EC-Scalar-Mult(pk_reader, bf))
 
 3.5.  Using EC digital signatures
 
