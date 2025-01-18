@@ -72,13 +72,14 @@ Table of Contents
      2.6.  The local HDK procedure
      2.7.  The remote HDK protocol
    3.  Generic HDK instantiations
-     3.1.  Using elliptic curves
-     3.2.  Using EC multiplicative blinding
-     3.3.  Using EC additive blinding
-     3.4.  Using ECDH shared secrets
-     3.5.  Using EC digital signatures
-     3.6.  Using EC-SDSA signatures
-     3.7.  Using ECDSA signatures
+     3.1.  Using digital signatures
+     3.2.  Using elliptic curves
+     3.3.  Using EC multiplicative blinding
+     3.4.  Using EC additive blinding
+     3.5.  Using ECDH shared secrets
+     3.6.  Using EC digital signatures
+     3.7.  Using EC-SDSA signatures
+     3.8.  Using ECDSA signatures
    4.  Concrete HDK instantiations
      4.1.  HDK-ECDH-P256
      4.2.  HDK-ECDSA-P256
@@ -526,7 +527,50 @@ Table of Contents
 
 3.  Generic HDK instantiations
 
-3.1.  Using elliptic curves
+3.1.  Using digital signatures
+
+   Instantiations of HDK using digital signatures require the following
+   cryptographic constructs:
+
+   *  DSA: A digital signature algorithm , consisting of the functions:
+
+      -  Sign(sk, msg): Outputs the signature created using private
+         signing key sk over byte string msg.
+
+      -  Verify(signature, pk, msg): Outputs whether signature is a
+         signature over msg using public verification key pk.
+
+   Using these constructs, an example proof of possession protocol is:
+
+   # 1. Unit shares with reader: pk
+
+   # 2. Reader computes:
+   nonce = generate_random_nonce() # out of scope for this spec
+
+   # 3. Reader shares with unit: nonce
+
+   # 4. Unit computes:
+   msg = create_message(pk, nonce) # out of scope for this spec
+   signature = Sign(sk, msg)
+
+   # 5. Reader computes:
+   msg = create_message(pk, nonce) # out of scope for this spec
+   Verify(signature, pk, msg)
+
+   By design of BL, the same proof of possession protocol can be used
+   with blinded key pairs and BlindSign, in such a way that the reader
+   does not recognise that key blinding was used.
+
+   An instantiation using DSA intantiates the following:
+
+   def BlindSign(sk, bf, msg):
+       sk' = BlindPrivateKey(sk, bf)
+       signature = Sign(sk', msg)
+       return signature
+
+   *  [I-D.draft-irtf-cfrg-signature-key-blinding-07]
+
+3.2.  Using elliptic curves
 
    Instantiations of HDK using elliptic curves require the following
    cryptographic constructs:
@@ -588,10 +632,10 @@ Table of Contents
            expand_message: as defined in H2C
        return bf
 
-3.2.  Using EC multiplicative blinding
+3.3.  Using EC multiplicative blinding
 
    Such instantations of HDK use elliptic curves (see Using elliptic
-   curves (Section 3.1)) and instantiate the following:
+   curves (Section 3.2)) and instantiate the following:
 
    def BlindPublicKey(pk, bk, ctx):
        bf = DeriveBlindingFactor(bk, ctx)
@@ -606,10 +650,10 @@ Table of Contents
        bf = bf1 * bf2 mod Order()
        return bf
 
-3.3.  Using EC additive blinding
+3.4.  Using EC additive blinding
 
    Such instantations of HDK use elliptic curves (see Using elliptic
-   curves (Section 3.1)) and instantiate the following:
+   curves (Section 3.2)) and instantiate the following:
 
    def BlindPublicKey(pk, bk, ctx):
        bf = DeriveBlindingFactor(bk, ctx)
@@ -624,10 +668,10 @@ Table of Contents
        bf = bf1 + bf2 mod Order()
        return bf
 
-3.4.  Using ECDH shared secrets
+3.5.  Using ECDH shared secrets
 
    Such instantiations of HDK use EC multiplicative blinding (see Using
-   EC multiplicative blinding (Section 3.2)) and require the following
+   EC multiplicative blinding (Section 3.3)) and require the following
    cryptographic construct:
 
    *  ECDH: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman
@@ -680,10 +724,10 @@ Table of Contents
         = CreateSharedSecret(sk * bf mod Order(), pkR)
         = CreateSharedSecret(sk, ScalarMult(pkR, bf))
 
-3.5.  Using EC digital signatures
+3.6.  Using EC digital signatures
 
    Such instantiations of HDK use EC additive blinding (see Using EC
-   additive blinding (Section 3.3)) and require the following
+   additive blinding (Section 3.4)) and require the following
    cryptographic construct:
 
    *  DSA: An EC digital signature algorithm , consisting of the
@@ -694,12 +738,6 @@ Table of Contents
 
       -  Verify(signature, pk, msg): Outputs whether signature is a
          signature over msg using public verification key pk.
-
-      -  Serialize(c, r): Outputs the byte array serialization of the
-         signature (c, r).
-
-      -  Deserialize(bytes): Outputs the signature (c, r) represented by
-         byte string bytes.
 
    Using these constructs, an example proof of possession protocol is:
 
@@ -729,10 +767,10 @@ Table of Contents
        signature = Sign(sk', msg)
        return signature
 
-3.6.  Using EC-SDSA signatures
+3.7.  Using EC-SDSA signatures
 
    Such instantiations of HDK use EC digital signatures (see Using EC
-   digital signatures (Section 3.5)) and instantiate the following:
+   digital signatures (Section 3.6)) and instantiate the following:
 
    *  DSA: An EC-SDSA (Schnorr) digital signature algorithm [TR03111],
       representing signatures as pairs (c, s).
@@ -750,10 +788,10 @@ Table of Contents
        signature = (c, s')
        return signature
 
-3.7.  Using ECDSA signatures
+3.8.  Using ECDSA signatures
 
    Such instantiations of HDK use EC digital signatures (see Using EC
-   digital signatures (Section 3.5)) and instantiate the following:
+   digital signatures (Section 3.6)) and instantiate the following:
 
    *  DSA: An ECDSA digital signature algorithm [TR03111].
 
@@ -772,7 +810,7 @@ Table of Contents
 4.1.  HDK-ECDH-P256
 
    This instantiation uses ECDH for proof of possession (see Using ECDH
-   shared secrets (Section 3.4)) and for KEM.
+   shared secrets (Section 3.5)) and for KEM.
 
    *  ID: "HDK-ECDH-P256-v1"
 
@@ -791,9 +829,9 @@ Table of Contents
 4.2.  HDK-ECDSA-P256
 
    This instantiation uses ECDSA for proof of possession (see Using
-   ECDSA signatures (Section 3.7)) and ECDH for KEM.
+   ECDSA signatures (Section 3.8)) and ECDH for KEM.
 
-   *  ID: "HDK-ECSDSA-P256-v1"
+   *  ID: "HDK-ECDSA-P256-v1"
 
    *  Ns: 32
 
@@ -810,7 +848,7 @@ Table of Contents
 4.3.  HDK-ECSDSA-P256
 
    This instantiation uses EC-SDSA for proof of possession (see Using
-   EC-SDSA signatures (Section 3.6)) and ECDH for KEM.
+   EC-SDSA signatures (Section 3.7)) and ECDH for KEM.
 
    *  ID: "HDK-ECSDSA-P256-v1"
 
