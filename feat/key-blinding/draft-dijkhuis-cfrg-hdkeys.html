@@ -1424,7 +1424,7 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
             <p id="section-2.2-2.3.1"><code>H</code>: A cryptographic hash function.<a href="#section-2.2-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.2-2.3.2.1">
-                <p id="section-2.2-2.3.2.1.1">H(msg): Outputs <code>Ns</code> bytes.<a href="#section-2.2-2.3.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.3.2.1.1">H1(msg): Outputs <code>Ns</code> bytes.<a href="#section-2.2-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1518,7 +1518,7 @@ Outputs:
 - salt', the next salt for HDK derivation.
 
 def HDK-Derive-Salt(salt, ctx):
-    salt' = H(ID || salt || ctx)
+    salt' = H1(ID || salt || ctx)
     return salt'
 </pre><a href="#section-2.4-2" class="pilcrow">¶</a>
 </div>
@@ -1671,6 +1671,9 @@ sk' = BL-Blind-Private-Key(sk, bf) # optional
               <li class="normal" id="section-3.1-2.1.2.6">
                 <p id="section-3.1-2.1.2.6.1">EC-Serialize-Element(A): Outputs a byte string representing Element <code>A</code>.<a href="#section-3.1-2.1.2.6.1" class="pilcrow">¶</a></p>
 </li>
+              <li class="normal" id="section-3.1-2.1.2.7">
+                <p id="section-3.1-2.1.2.7.1">EC-Serialize-Scalar(k): Outputs a byte string representing Scalar <code>k</code>.`<a href="#section-3.1-2.1.2.7.1" class="pilcrow">¶</a></p>
+</li>
             </ul>
 </li>
           <li class="normal" id="section-3.1-2.2">
@@ -1689,8 +1692,21 @@ def D-Generate-Blinding-Key-Pair():
     pk = EC-Scalar-Base-Mult(sk)
     return (sk, pk)
 
-def BL-Derive-Blind-Key(ikm, ctx):
-    bf = hash_to_field(msg, count) with the parameters:
+def BL-Derive-Blind-Key(ikm):
+    bk_scalar = hash_to_field(ikm, 1) with the parameters:
+        DST: ID || ctx
+        F: GF(EC-Order()), the scalar field
+            of the prime order subgroup of EC
+        p: EC-Order()
+        m: 1
+        L: as defined in H2C
+        expand_message: as defined in H2C
+    bk = EC-Serialize-Scalar(bk_scalar)
+    return bk
+
+def BL-Derive-Blinding-Factor(bk, ctx):
+    msg = bk || 0x00 || ctx
+    bf = hash_to_field(msg, 1) with the parameters:
         DST: ID || ctx
         F: GF(EC-Order()), the scalar field
             of the prime order subgroup of EC
@@ -1711,7 +1727,8 @@ def BL-Derive-Blind-Key(ikm, ctx):
 <p id="section-3.2-1">Such instantations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.1</a>)</span>) and instantiate the following:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.2-2">
 <pre>
-def BL-Blind-Public-Key(pk, bf):
+def BL-Blind-Public-Key(pk, bk, ctx):
+    bf = BL-Derive-Blinding-Factor(bk, ctx)
     pk' = EC-Scalar-Mult(pk, bf)
     return pk
 
@@ -1719,7 +1736,7 @@ def BL-Blind-Private-Key(sk, bf):
     sk' = sk * bf mod EC-Order()
     return sk
 
-def BL-Combine-Blinding-Factors(bf1, bf2):
+def BL-Combine(bf1, bf2):
     bf = bf1 * bf2 mod EC-Order()
     return bf
 </pre><a href="#section-3.2-2" class="pilcrow">¶</a>
@@ -1734,7 +1751,8 @@ def BL-Combine-Blinding-Factors(bf1, bf2):
 <p id="section-3.3-1">Such instantations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.1</a>)</span>) and instantiate the following:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.3-2">
 <pre>
-def BL-Blind-Public-Key(pk, bf):
+def BL-Blind-Public-Key(pk, bk, ctx):
+    bf = BL-Derive-Blinding-Factor(bk, ctx)
     pk' = EC-Add(pk, EC-Scalar-Base-Mult(bf))
     return pk
 
@@ -1742,7 +1760,7 @@ def BL-Blind-Private-Key(sk, bf):
     sk' = sk + bf mod EC-Order()
     return sk
 
-def BL-Combine-Blinding-Factors(bf1, bf2):
+def BL-Combine(bf1, bf2):
     bf = bf1 + bf2 mod EC-Order()
     return bf
 </pre><a href="#section-3.3-2" class="pilcrow">¶</a>

@@ -310,7 +310,7 @@ Table of Contents
 
    *  H: A cryptographic hash function.
 
-      -  H(msg): Outputs Ns bytes.
+      -  H1(msg): Outputs Ns bytes.
 
    *  D: An digital signature algorithm or shared secret creation
       algorithm based on public key cryptography, consisting of the
@@ -398,7 +398,7 @@ Table of Contents
    - salt', the next salt for HDK derivation.
 
    def HDK-Derive-Salt(salt, ctx):
-       salt' = H(ID || salt || ctx)
+       salt' = H1(ID || salt || ctx)
        return salt'
 
 2.5.  The HDK function
@@ -559,6 +559,9 @@ Table of Contents
       -  EC-Serialize-Element(A): Outputs a byte string representing
          Element A.
 
+      -  EC-Serialize-Scalar(k): Outputs a byte string representing
+         Scalar k.`
+
    *  H2C: A hash-to-curve suite [RFC9380] for EC, providing the
       function:
 
@@ -571,8 +574,21 @@ Table of Contents
        pk = EC-Scalar-Base-Mult(sk)
        return (sk, pk)
 
-   def BL-Derive-Blind-Key(ikm, ctx):
-       bf = hash_to_field(msg, count) with the parameters:
+   def BL-Derive-Blind-Key(ikm):
+       bk_scalar = hash_to_field(ikm, 1) with the parameters:
+           DST: ID || ctx
+           F: GF(EC-Order()), the scalar field
+               of the prime order subgroup of EC
+           p: EC-Order()
+           m: 1
+           L: as defined in H2C
+           expand_message: as defined in H2C
+       bk = EC-Serialize-Scalar(bk_scalar)
+       return bk
+
+   def BL-Derive-Blinding-Factor(bk, ctx):
+       msg = bk || 0x00 || ctx
+       bf = hash_to_field(msg, 1) with the parameters:
            DST: ID || ctx
            F: GF(EC-Order()), the scalar field
                of the prime order subgroup of EC
@@ -587,7 +603,8 @@ Table of Contents
    Such instantations of HDK use elliptic curves (see Using elliptic
    curves (Section 3.1)) and instantiate the following:
 
-   def BL-Blind-Public-Key(pk, bf):
+   def BL-Blind-Public-Key(pk, bk, ctx):
+       bf = BL-Derive-Blinding-Factor(bk, ctx)
        pk' = EC-Scalar-Mult(pk, bf)
        return pk
 
@@ -595,7 +612,7 @@ Table of Contents
        sk' = sk * bf mod EC-Order()
        return sk
 
-   def BL-Combine-Blinding-Factors(bf1, bf2):
+   def BL-Combine(bf1, bf2):
        bf = bf1 * bf2 mod EC-Order()
        return bf
 
@@ -604,7 +621,8 @@ Table of Contents
    Such instantations of HDK use elliptic curves (see Using elliptic
    curves (Section 3.1)) and instantiate the following:
 
-   def BL-Blind-Public-Key(pk, bf):
+   def BL-Blind-Public-Key(pk, bk, ctx):
+       bf = BL-Derive-Blinding-Factor(bk, ctx)
        pk' = EC-Add(pk, EC-Scalar-Base-Mult(bf))
        return pk
 
@@ -612,7 +630,7 @@ Table of Contents
        sk' = sk + bf mod EC-Order()
        return sk
 
-   def BL-Combine-Blinding-Factors(bf1, bf2):
+   def BL-Combine(bf1, bf2):
        bf = bf1 + bf2 mod EC-Order()
        return bf
 
