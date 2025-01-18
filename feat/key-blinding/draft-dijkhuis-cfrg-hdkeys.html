@@ -1488,6 +1488,26 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
 <p id="section-2.2-3">An HDK instantiation <span class="bcp14">MUST</span> specify the instantiation of each of the above functions and values.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
 <p id="section-2.2-4">Note that by design of <code>BL</code>, when a document is issued using HDK, the reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
 <p id="section-2.2-5">An HDK implementation <span class="bcp14">MAY</span> leave BL-Blind-Private-Key implicit in cases where the blinding method is constructed in a distributed way. In those cases, the secure cryptographic device holding the private key does not need to support key blinding, and the value of the blinded private key is never available during computation.<a href="#section-2.2-5" class="pilcrow">¶</a></p>
+<p id="section-2.2-6">Using these constructs, an example proof of possession protocol is:<a href="#section-2.2-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.2-7">
+<pre>
+# 1. Unit shares with reader: pk
+
+# 2. Reader computes:
+nonce = generate_random_nonce() # out of scope for this spec
+
+# 3. Reader shares with unit: nonce
+
+# 4. Unit computes:
+msg = create_message(pk, nonce) # out of scope for this spec
+signature = DSA-Sign(sk, msg)
+
+# 5. Reader computes:
+msg = create_message(pk, nonce) # out of scope for this spec
+DSA-Verify(signature, pk, msg)
+</pre><a href="#section-2.2-7" class="pilcrow">¶</a>
+</div>
+<p id="section-2.2-8">By design of <code>BL</code>, the same proof of possession protocol can be used with blinded key pairs and BL-Blind-Sign, in such a way that the reader does not recognise that key blinding was used.<a href="#section-2.2-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-hdk-context">

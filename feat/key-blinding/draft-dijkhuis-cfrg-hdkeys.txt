@@ -379,6 +379,27 @@ Table of Contents
    key does not need to support key blinding, and the value of the
    blinded private key is never available during computation.
 
+   Using these constructs, an example proof of possession protocol is:
+
+   # 1. Unit shares with reader: pk
+
+   # 2. Reader computes:
+   nonce = generate_random_nonce() # out of scope for this spec
+
+   # 3. Reader shares with unit: nonce
+
+   # 4. Unit computes:
+   msg = create_message(pk, nonce) # out of scope for this spec
+   signature = DSA-Sign(sk, msg)
+
+   # 5. Reader computes:
+   msg = create_message(pk, nonce) # out of scope for this spec
+   DSA-Verify(signature, pk, msg)
+
+   By design of BL, the same proof of possession protocol can be used
+   with blinded key pairs and BL-Blind-Sign, in such a way that the
+   reader does not recognise that key blinding was used.
+
 2.3.  The HDK context
 
    A local unit or remote party creates an HDK context from an index.
