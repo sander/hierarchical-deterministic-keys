@@ -66,10 +66,11 @@ Table of Contents
        2.1.2.  Remote deterministic key derivation
        2.1.3.  Blinded proof of possession
      2.2.  Instantiation parameters
-     2.3.  The HDK function
-     2.4.  The local HDK procedure
-     2.5.  The remote HDK protocol
-     2.6.  Combining blinding factors
+     2.3.  The HDK context
+     2.4.  The HDK salt
+     2.5.  The HDK function
+     2.6.  The local HDK procedure
+     2.7.  The remote HDK protocol
    3.  Generic HDK instantiations
      3.1.  Using elliptic curves
      3.2.  Using EC multiplicative blinding
@@ -173,9 +174,9 @@ Table of Contents
    containing sufficient entropy.  Now tree nodes are constructed as
    follows.
 
-                             +----+
-   Confidential static data: |seed|
-                             +-+--+
+                             +----+ +--+
+   Confidential static data: |seed| |pk|
+                             +-+--+ +--+
                                v
                              +----+ +----+
    Level 0 HDKeys:           |hdk0| |hdk1|
@@ -190,17 +191,18 @@ Table of Contents
                                 +------+ +------+
 
    The unit computes a Level 0 HDK at the root node using a
-   deterministic function: (bf0, salt0) = hdk0 = HDK(seed, 0).  The HDK
-   consists of a first blinding factor bf0 and a first byte string salt0
-   to derive next-level keys.  Using bf0 and the device key pair, the
-   unit can compute blinded public and private keys and proofs of
-   possession.
+   deterministic function, taking the device public key pk and the seed
+   as input: (pk0, salt0, bf0) = hdk0 = HDK(0, pk, seed).  The HDK
+   consists of a first blinded public key pk0, a first byte string salt0
+   to derive next-level keys, and a first blinding factor bf0.  Using
+   bf0 and the device key pair, the unit can compute blinded private
+   keys and proofs of possession.
 
-   The unit computes any Level n > 0 HDK from any other HDK (bf, salt)
-   using the same deterministic function: (bf', salt') = hdk' =
-   HDK(salt, index).  The function takes the previous-level salt as
-   input, and an index starting at 0.  The function returns a new HDK as
-   output, which can be used in the same way as the root HDK.
+   The unit computes any Level n > 0 HDK from any other HDK (pk, salt,
+   bf) using the same deterministic function: (pk', salt', bf') = hdk' =
+   HDK(index, pk, salt, bf).  The function takes as input the index
+   starting at 0, an the previous-level HDK.  The function returns a new
+   HDK as output, which can be used in the same way as the root HDK.
 
 2.1.2.  Remote deterministic key derivation
 
@@ -213,7 +215,9 @@ Table of Contents
    This approach is similar to Asynchronous Remote Key Generation (ARKG)
    [I-D.draft-bradleylundberg-cfrg-arkg-02], but not the same since ARKG
    does not enable distributed proof of possession with deterministic
-   hierarchies.  This makes it difficult to implement with cryptographic
+   hierarchies.  These hierarchies can be used for example to enable
+   remote parties to derive keys from previously derived keys.  Not
+   supporting these makes it difficult to implement with cryptographic
    devices that lack specific firmware support.
 
    To enable remote derivation of child HDKeys, the unit uses the parent
@@ -237,8 +241,8 @@ Table of Contents
 
    In this example, a document is issued with binding to a public key
    pk', which is a blinding public key pk blinded with the blinding
-   factor bf in some HDK hdk = (bf, salt).  The unit can present the
-   document with a proof of possession of the corresponding blinded
+   factor bf in some HDK hdk = (pk', salt, bf).  The unit can present
+   the document with a proof of possession of the corresponding blinded
    private key, which is the blinding private key sk blinded with bf.
    The unit applies some authentication function device_data =
    authenticate(sk, reader_data, bf) to the blinding private key,
@@ -306,29 +310,38 @@ Table of Contents
 
    *  H: A cryptographic hash function.
 
-      -  H1(msg): Outputs Ns bytes.
+      -  H(msg): Outputs Ns bytes.
 
-   *  BL: An asymmetric key blinding scheme with opaque blinding factors
-      and algebraic properties, consisting of the functions:
+   *  D: An digital signature algorithm or shared secret creation
+      algorithm based on public key cryptography, consisting of the
+      functions:
 
-      -  BL-Generate-Blinding-Key-Pair(): Outputs a blinding key pair
-         (pk, sk).
+      -  D-Generate-Key-Pair(): Outputs a key pair (sk, pk).
 
-      -  BL-Derive-Blinding-Factor(msg, ctx): Outputs a blinding factor
-         bf based on two byte string inputs, message msg and domain
-         separation parameter ctx.
+   *  BL: An asymmetric key blinding scheme for D as defined in
+      [I-D.draft-irtf-cfrg-signature-key-blinding-07], with opaque
+      blinding factors and algebraic properties, consisting of the
+      functions:
 
-      -  BL-Blind-Public-Key(pk, bf): Outputs the result pk' of blinding
-         pk with bf.  This again is a blinding public key.
+      -  BL-Derive-Blind-Key(ikm): Outputs a blind key bk based on input
+         keying material ikm.
+
+      -  BL-Derive-Blinding-Factor(bk, ctx): Outputs a blinding factor
+         bf based on a blind key bk and an application context byte
+         string ctx.
+
+      -  BL-Blind-Public-Key(pk, bk, ctx): Outputs the result pk' of
+         blinding public key pk with blind key bk and application
+         context byte string ctx.  This again is a public key in D.
 
       -  BL-Blind-Private-Key(sk, bf): Outputs the result sk' of
-         blinding sk with bf.  This again is a blinding private key.
+         blinding private key sk with blinding factor bf.  This result
+         is a private key in D, such that if bf = BL-Derive-Blinding-
+         Factor(bk, ctx) for some bk and ctx, the associated public key
+         in D equals BL-Blind-Public-Key(pk, bk, ctx).
 
-      -  BL-Combine-Blinding-Factors(bf1, bf2): Outputs a blinding
-         factor bf such that for all blinding key pairs (pk, sk):
-
-         o  BL-Blind-Public-Key(pk, bf) == BL-Blind-Public-Key(BL-Blind-
-            Public-Key(pk, bf1), bf2)
+      -  BL-Combine(bf1, bf2): Outputs a blinding factor bf such that
+         for all key pairs (pk, sk) in D:
 
          o  BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-
             Blind-Private-Key(pk, bf1), bf2)
@@ -345,131 +358,88 @@ Table of Contents
       -  KEM-Decap(c, sk): Outputs shared secret k, taking ciphertext c
          and key encapsulation private key sk.
 
-   *  Authenticate(sk_device, reader_data, bf): Outputs device_data for
-      use in a protocol for proof of possession, taking a BL blinding
-      private key sk_device, remotely received reader_data, and a BL
-      blinding factor bf.
-
    An HDK instantiation MUST specify the instantiation of each of the
    above functions and values.
 
-   An HDK instantiation MUST define Authenticate such that the
-   device_data can be verified using the blinded public key pk = BL-
-   Blind-Public-Key(sk, bf).  The reader does not need to know that HDK
-   was applied: the public key will look like any other public key used
-   for proofs of possession.
+   Note that by design of BL, when a document is issued using HDK, the
+   reader does not need to know that HDK was applied: the public key
+   will look like any other public key used for proofs of possession.
 
-2.3.  The HDK function
+   An HDK implementation MAY leave BL-Blind-Private-Key implicit in
+   cases where the blinding method is constructed in a distributed way.
+   In those cases, the secure cryptographic device holding the private
+   key does not need to support key blinding, and the value of the
+   blinded private key is never available during computation.
 
-   A local unit or a remote party deterministically computes an HDK from
-   a salt and an index.  The salt can be an initial seed value of Ns
-   bytes or it can be taken from another parent HDK.  The secure
-   generation of the seed is out of scope for this specification.
+2.3.  The HDK context
+
+   A local unit or remote party creates an HDK context from an index.
 
    Inputs:
-   - salt, a string of Ns bytes.
    - index, an integer between 0 and 2^32-1 (inclusive).
 
    Outputs:
-   - bf, the blinding factor at the provided index.
+   - ctx, an application context byte string.
+
+   def HDK-Create-Context(index):
+       ctx = ID || I2OSP(index, 4)
+       return ctx
+
+2.4.  The HDK salt
+
+   A local unit or remote party derives a next-level HDK salt from
+   within an HDK context.
+
+   Inputs:
+   - salt, a string of Ns bytes.
+   - ctx, an HDK context byte string.
+
+   Outputs:
+   - salt', the next salt for HDK derivation.
+
+   def HDK-Derive-Salt(salt, ctx):
+       salt' = H(ID || salt || ctx)
+       return salt'
+
+2.5.  The HDK function
+
+   A local unit or a remote party deterministically computes an HDK from
+   an index, a parent public key, a salt, and an optional parent
+   blinding factor.  The salt can be an initial seed value of Ns bytes
+   or it can be taken from another parent HDK.  The secure generation of
+   the seed is out of scope for this specification.
+
+   Inputs:
+   - index, an integer between 0 and 2^32-1 (inclusive).
+   - pk, a public key to be blinded.
+   - salt, a string of Ns bytes.
+   - bf, a blinding factor to combine with, Nil otherwise.
+
+   Outputs:
+   - pk', the blinded public key at the provided index.
    - salt', the salt for HDK derivation at the provided index.
+   - bf', the blinding factor at the provided index.
 
-   def HDK(salt, index):
-       msg = salt || I2OSP(index, 4)
-       bf = BL-Derive-Blinding-Factor(msg, ID)
-       salt' = H1(msg)
-       return (bf, salt')
+   def HDK(index, pk, salt, bf = Nil):
+       ctx   = HDK-Create-Context(index)
+       salt' = HDK-Derive-Salt(salt, ctx)
 
-2.4.  The local HDK procedure
+       bk  = BL-Derive-Blind-Key(salt)
+       pk' = BL-Blind-Public-Key(bk, ctx)
+       bf' = if bf == Nil:
+           BL-Derive-Blinding-Factor(bk, ctx)
+       else:
+           BL-Combine(bf, BL-Derive-Blinding-Factor(bk, ctx))
 
-   This is a procedure executed locally by a unit.
+       return (pk', salt', bf')
 
-   To begin, the unit securely generates a seed salt of Ns bytes and a
-   device key pair:
-
-   seed = random(Ns) # specification of random out of scope
-   (pk_device, sk_device) = BL-Generate-Blinding-Key-Pair()
-
-   The unit MUST generate sk_device within a secure cryptographic
-   device.
-
-   Whenever the unit requires the HDK with some index at level 0, the
-   unit computes:
-
-   (bf, salt) = HDK(seed, index)
-
-   pk = BL-Blind-Public-Key( pk_device, bf) # optional
-   sk = BL-Blind-Private-Key(sk_device, bf) # optional
-
-   Now the unit can use the blinded key pair (pk, sk) or derive child
-   HDKeys.
-
-   Whenever the unit requires the HDK with some index at level n > 0
-   based on a parent HDK hdk = (bf, salt) with blinded key pair (pk, sk)
-   at level n, the unit computes:
-
-   (bf', salt') = HDK(salt, index)
-
-   pk' = BL-Blind-Public-Key( pk, bf') # optional
-   sk' = BL-Blind-Private-Key(sk, bf') # optional
-
-   Now the unit can use the blinded key pair (pk', sk') or derive child
-   HDKeys.
-
-2.5.  The remote HDK protocol
-
-   This is a protocol between a local unit and a remote issuer.
-
-   As a prerequisite, the unit possesses a salt of Ns bytes associated
-   with a parent blinding key pair (pk, sk) generated using the local
-   HDK procedure.
-
-   # 1. Unit computes:
-   (sk_kem, pk_kem) = KEM-Derive-Key-Pair(salt)
-
-   # 2. Unit shares with issuer: (pk, pk_kem)
-
-   # 3. Issuer computes:
-   (salt, kh) = KEM-Encap(pk_kem)
-
-   # 4. Issuer shares with unit: kh
-
-   # Subsequently, for any index known to both parties:
-
-   # 5. Issuer computes:
-   (bf, salt') = HDK(salt, index)
-   pk' = BL-Blind-Public-Key(pk, bf)
-
-   # 6. Issuer shares with unit: pk'
-
-   # 7. Unit verifies integrity:
-   salt' = KEM-Decap(kh, sk_kem)
-   (bf, salt'') = HDK(salt', index)
-   pk' == BL-Blind-Public-Key(pk, bf)
-
-   # 8. Unit computes:
-   sk' = BL-Blind-Private-Key(sk, bf)
-
-   After step 7, the unit can use the value of salt'' to derive next-
-   level HDKeys.
-
-   Step 4 MAY be postponed to be combined with step 6.  Steps 5 to 8 MAY
-   be combined in concurrent execution for multiple indices.
-
-2.6.  Combining blinding factors
-
-   A unit MUST not persist a blinded private key.  Instead, if
+   A unit MUST NOT persist a blinded private key.  Instead, if
    persistence is needed, a unit can persist either the blinding factor
    of each HDK, or a path consisting of the seed salt, indices and key
-   handles.  In both cases, the unit needs to combine parent blinding
-   factor bf1 with child blinding factor bf2 before blinding the parent
-   private key sk:
-
-   bf = BL-Combine-Blinding-Factors(bf1, bf2)
-
-   Subsequently, the unit can apply the Authenticate function to the
-   parent blinding key.  The unit can combine multiple blinding factors
-   in the HDK path.
+   handles.  In both cases, the application of BL-Combine in the HDK
+   function enables reconstruction of the blinding factor with respect
+   to the original private key, enabling application of for example BL-
+   Blind-Private-Key.
 
    If the unit uses the blinded private key directly, the unit MUST use
    it within the secure cryptographic device protecting the device
@@ -490,6 +460,79 @@ Table of Contents
    [bf2/bf1]B1 with respect to generator B1.  The unit can apply BL-
    Combine-Blinding-Factors to obtain values to compute this
    association.
+
+2.6.  The local HDK procedure
+
+   This is a procedure executed locally by a unit.
+
+   To begin, the unit securely generates a seed salt of Ns bytes and a
+   device key pair:
+
+   seed = random(Ns) # specification of random out of scope
+   (sk_device, pk_device) = D-Generate-Key-Pair()
+
+   The unit MUST generate sk_device within a secure cryptographic
+   device.
+
+   Whenever the unit requires the HDK with some index at level 0, the
+   unit computes:
+
+   (pk, salt, bf) = HDK(index, pk_device, seed)
+
+   sk = BL-Blind-Private-Key(sk_device, bf) # optional
+
+   Now the unit can use the blinded key pair (sk, pk) or derive child
+   HDKeys.
+
+   Whenever the unit requires the HDK with some index at level n > 0
+   based on a parent HDK hdk = (pk, salt, bf) with blinded key pair (sk,
+   pk) at level n, the unit computes:
+
+   (pk', salt', bf') = HDK(index, pk, salt)
+
+   sk' = BL-Blind-Private-Key(sk, bf') # optional
+
+   Now the unit can use the blinded key pair (sk', pk') or derive child
+   HDKeys.
+
+2.7.  The remote HDK protocol
+
+   This is a protocol between a local unit and a remote issuer.
+
+   As a prerequisite, the unit possesses a salt of Ns bytes associated
+   with a parent key pair (sk, pk) generated using the local HDK
+   procedure.
+
+   # 1. Unit computes:
+   (sk_kem, pk_kem) = KEM-Derive-Key-Pair(salt)
+
+   # 2. Unit shares with issuer: (pk, pk_kem)
+
+   # 3. Issuer computes:
+   (salt_kem, kh) = KEM-Encap(pk_kem)
+
+   # 4. Issuer shares with unit: kh
+
+   # Subsequently, for any index known to both parties:
+
+   # 5. Issuer computes:
+   (pk', salt', bf') = HDK(index, pk, salt_kem)
+
+   # 6. Issuer shares with unit: pk'
+
+   # 7. Unit verifies integrity:
+   salt_kem = KEM-Decap(kh, sk_kem)
+   (pk_expected', salt', bf') = HDK(index, pk, salt_kem)
+   pk' == pk_expected'
+
+   # 8. Unit computes:
+   sk' = BL-Blind-Private-Key(sk, bf) # optional
+
+   After step 7, the unit can use the value of salt' to derive next-
+   level HDKeys.
+
+   Step 4 MAY be postponed to be combined with step 6.  Steps 5 to 8 MAY
+   be combined in concurrent execution for multiple indices.
 
 3.  Generic HDK instantiations
 
@@ -523,12 +566,12 @@ Table of Contents
          the result of cryptographically hashing msg (see [RFC9380],
          Section 5.2).
 
-   def BL-Generate-Blinding-Key-Pair():
+   def D-Generate-Blinding-Key-Pair():
        sk = EC-Random()
        pk = EC-Scalar-Base-Mult(sk)
-       return (pk, sk)
+       return (sk, pk)
 
-   def BL-Derive-Blinding-Factor(msg, ctx):
+   def BL-Derive-Blind-Key(ikm, ctx):
        bf = hash_to_field(msg, count) with the parameters:
            DST: ID || ctx
            F: GF(EC-Order()), the scalar field
@@ -952,11 +995,6 @@ Table of Contents
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
 
-   [RFC7800]  Jones, M., Bradley, J., and H. Tschofenig, "Proof-of-
-              Possession Key Semantics for JSON Web Tokens (JWTs)",
-              RFC 7800, DOI 10.17487/RFC7800, April 2016,
-              <https://www.rfc-editor.org/rfc/rfc7800>.
-
    [RFC8017]  Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch,
               "PKCS #1: RSA Cryptography Specifications Version 2.2",
               RFC 8017, DOI 10.17487/RFC8017, November 2016,
@@ -965,10 +1003,6 @@ Table of Contents
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
-
-   [RFC8235]  Hao, F., Ed., "Schnorr Non-interactive Zero-Knowledge
-              Proof", RFC 8235, DOI 10.17487/RFC8235, September 2017,
-              <https://www.rfc-editor.org/rfc/rfc8235>.
 
    [RFC9180]  Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
               Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
@@ -1023,6 +1057,22 @@ Table of Contents
               Draft, draft-bradleylundberg-cfrg-arkg-02, 27 May 2024,
               <https://datatracker.ietf.org/doc/html/draft-
               bradleylundberg-cfrg-arkg-02>.
+
+   [I-D.draft-irtf-cfrg-signature-key-blinding-07]
+              Denis, F., Eaton, E., Lepoint, T., and C. A. Wood, "Key
+              Blinding for Signature Schemes", Work in Progress,
+              Internet-Draft, draft-irtf-cfrg-signature-key-blinding-07,
+              23 September 2024, <https://datatracker.ietf.org/doc/html/
+              draft-irtf-cfrg-signature-key-blinding-07>.
+
+   [RFC7800]  Jones, M., Bradley, J., and H. Tschofenig, "Proof-of-
+              Possession Key Semantics for JSON Web Tokens (JWTs)",
+              RFC 7800, DOI 10.17487/RFC7800, April 2016,
+              <https://www.rfc-editor.org/rfc/rfc7800>.
+
+   [RFC8235]  Hao, F., Ed., "Schnorr Non-interactive Zero-Knowledge
+              Proof", RFC 8235, DOI 10.17487/RFC8235, September 2017,
+              <https://www.rfc-editor.org/rfc/rfc8235>.
 
    [Verheul2024]
               Verheul, E., "Attestation Proof of Association –
