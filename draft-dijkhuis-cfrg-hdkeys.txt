@@ -4,8 +4,8 @@
 
 Crypto Forum                                         S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                            4 January 2025
-Expires: 8 July 2025
+Intended status: Informational                           19 January 2025
+Expires: 23 July 2025
 
 
                     Hierarchical Deterministic Keys
@@ -16,7 +16,10 @@ Abstract
    Hierarchical Deterministic Keys enables managing large sets of keys
    bound to a secure cryptographic device that protects a single key.
    This enables the development of secure digital identity wallets
-   providing many one-time-use public keys.
+   providing many one-time-use public keys.  Some instantiations can be
+   implemented in such a way that the secure cryptographic device does
+   not need to support key blinding, enabling the use of devices that
+   already are widely deployed.
 
 About This Document
 
@@ -43,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 July 2025.
+   This Internet-Draft will expire on 23 July 2025.
 
 Copyright Notice
 
@@ -66,18 +69,19 @@ Table of Contents
        2.1.2.  Remote deterministic key derivation
        2.1.3.  Blinded proof of possession
      2.2.  Instantiation parameters
-     2.3.  The HDK function
-     2.4.  The local HDK procedure
-     2.5.  The remote HDK protocol
-     2.6.  Combining blinding factors
+     2.3.  The HDK context
+     2.4.  The HDK salt
+     2.5.  The HDK function
+     2.6.  The local HDK procedure
+     2.7.  The remote HDK protocol
    3.  Generic HDK instantiations
-     3.1.  Using elliptic curves
-     3.2.  Using EC multiplicative blinding
-     3.3.  Using EC additive blinding
-     3.4.  Using ECDH shared secrets
-     3.5.  Using EC digital signatures
+     3.1.  Using digital signatures
+     3.2.  Using prime-order groups
+     3.3.  Using multiplicative blinding
+     3.4.  Using additive blinding
+     3.5.  Using ECDH shared secrets
      3.6.  Using EC-SDSA signatures
-     3.7.  Using ECDSA signatures
+     3.7.  Using P-256
    4.  Concrete HDK instantiations
      4.1.  HDK-ECDH-P256
      4.2.  HDK-ECDSA-P256
@@ -111,17 +115,24 @@ Table of Contents
    and towards common interaction patterns for document issuance and
    authentication.
 
-   To store many HDKeys, only a seed string needs to be confidentially
-   stored, associated with a device private key.  Each HDK is then
-   deterministically defined by a path of indices, optionally alternated
-   by key handles provided by another party.  Such a path can
+   To store many HDKeys, only a seed string needs to be stored
+   confidentially, associated with a device private key.  Each HDK is
+   then deterministically defined by a path of indices, optionally
+   alternated by key handles provided by another party.  Such a path can
    efficiently be stored and requires less confidentiality than the
    seed.
 
    To prove possession of many HDKeys, the secure cryptographic device
    only needs to perform common cryptographic operations on a single
-   key.  The HDK acts as a blinding factor that enables blinding the
-   device public key.
+   private key.  The HDK acts as a blinding factor that enables blinding
+   the device public key.  In several instantiations, such as those
+   using ECDH shared secrets (Section 3.5) and those using EC-SDSA
+   signatures (Section 3.6), the secure cryptographic device does not
+   need to support key blinding natively, and the application can pre-
+   process the input or post-process the output from the device to
+   compute the blinded device authentication data.  This enables the
+   application of HDK on devices that are already deployed without
+   native support for HDK.
 
    This document provides a specification of the generic HDK function,
    generic HDK instantiations, and fully specified concrete HDK
@@ -173,9 +184,9 @@ Table of Contents
    containing sufficient entropy.  Now tree nodes are constructed as
    follows.
 
-                             +----+
-   Confidential static data: |seed|
-                             +-+--+
+                             +----+ +--+
+   Confidential static data: |seed| |pk|
+                             +-+--+ +--+
                                v
                              +----+ +----+
    Level 0 HDKeys:           |hdk0| |hdk1|
@@ -190,17 +201,18 @@ Table of Contents
                                 +------+ +------+
 
    The unit computes a Level 0 HDK at the root node using a
-   deterministic function: (bf0, salt0) = hdk0 = HDK(seed, 0).  The HDK
-   consists of a first blinding factor bf0 and a first byte string salt0
-   to derive next-level keys.  Using bf0 and the device key pair, the
-   unit can compute blinded public and private keys and proofs of
-   possession.
+   deterministic function, taking the device public key pk and the seed
+   as input: (pk0, salt0, bf0) = hdk0 = HDK(0, pk, seed).  The HDK
+   consists of a first blinded public key pk0, a first byte string salt0
+   to derive next-level keys, and a first blinding factor bf0.  Using
+   bf0 and the device key pair, the unit can compute blinded private
+   keys and proofs of possession.
 
-   The unit computes any Level n > 0 HDK from any other HDK (bf, salt)
-   using the same deterministic function: (bf', salt') = hdk' =
-   HDK(salt, index).  The function takes the previous-level salt as
-   input, and an index starting at 0.  The function returns a new HDK as
-   output, which can be used in the same way as the root HDK.
+   The unit computes any Level n > 0 HDK from any other HDK (pk, salt,
+   bf) using the same deterministic function: (pk', salt', bf') = hdk' =
+   HDK(index, pk, salt, bf).  The function takes as input the index
+   starting at 0, an the previous-level HDK.  The function returns a new
+   HDK as output, which can be used in the same way as the root HDK.
 
 2.1.2.  Remote deterministic key derivation
 
@@ -211,13 +223,15 @@ Table of Contents
    these to derive associated private keys for proof of possession.
 
    This approach is similar to Asynchronous Remote Key Generation (ARKG)
-   [I-D.draft-bradleylundberg-cfrg-arkg-02], but not the same since ARKG
-   does not enable distributed proof of possession with deterministic
-   hierarchies.  This makes it difficult to implement with cryptographic
-   devices that lack specific firmware support.
+   [I-D.draft-bradleylundberg-cfrg-arkg-02] when considered at a single
+   level.  However, ARKG does not enable distributed proof of possession
+   with deterministic hierarchies.  Such hierarchies can be used for
+   example to enable remote parties to derive keys from previously
+   derived keys.  Secure cryptographic devices that support ARKG may
+   therefore not support all features of HDK.
 
    To enable remote derivation of child HDKeys, the unit uses the parent
-   HDKey to derive the parent public key and a second public key for key
+   HDK to derive the parent public key and a second public key for key
    encapsulation.  The issuer returns a key handle, using which both
    parties can derive a sequence of child HDKeys.  Key encapsulation
    prevents other parties from discovering a link between the public
@@ -237,8 +251,8 @@ Table of Contents
 
    In this example, a document is issued with binding to a public key
    pk', which is a blinding public key pk blinded with the blinding
-   factor bf in some HDK hdk = (bf, salt).  The unit can present the
-   document with a proof of possession of the corresponding blinded
+   factor bf in some HDK hdk = (pk', salt, bf).  The unit can present
+   the document with a proof of possession of the corresponding blinded
    private key, which is the blinding private key sk blinded with bf.
    The unit applies some authentication function device_data =
    authenticate(sk, reader_data, bf) to the blinding private key,
@@ -299,177 +313,141 @@ Table of Contents
 
    The parameters of an HDK instantiation are:
 
-   *  ID: A domain separation tag, represented as a string of ASCII
-      bytes.
-
    *  Ns: The amount of bytes of a salt value with sufficient entropy.
 
    *  H: A cryptographic hash function.
 
-      -  H1(msg): Outputs Ns bytes.
+      -  H(msg): Outputs Ns bytes.
 
-   *  BL: An asymmetric key blinding scheme with opaque blinding factors
-      and algebraic properties, consisting of the functions:
+   *  BL: A key blinding scheme [Wilson2023] with opaque blinding
+      factors and algebraic properties, consisting of the functions:
 
-      -  BL-Generate-Blinding-Key-Pair(): Outputs a blinding key pair
-         (pk, sk).
+      -  DeriveBlindKey(ikm): Outputs a blind key bk based on input
+         keying material ikm.
 
-      -  BL-Derive-Blinding-Factor(msg, ctx): Outputs a blinding factor
-         bf based on two byte string inputs, message msg and domain
-         separation parameter ctx.
+      -  DeriveBlindingFactor(bk, ctx): Outputs a blinding factor bf
+         based on a blind key bk and an application context byte string
+         ctx.
 
-      -  BL-Blind-Public-Key(pk, bf): Outputs the result pk' of blinding
-         pk with bf.  This again is a blinding public key.
+      -  BlindPublicKey(pk, bk, ctx): Outputs the result public key pk'
+         of blinding public key pk with blind key bk and application
+         context byte string ctx.
 
-      -  BL-Blind-Private-Key(sk, bf): Outputs the result sk' of
-         blinding sk with bf.  This again is a blinding private key.
+      -  BlindPrivateKey(sk, bf): Outputs the result private key sk' of
+         blinding private key sk with blinding factor bf.  This result
+         sk' is such that if bf = DeriveBlindingFactor(bk, ctx) for some
+         bk and ctx, (sk', pk') forms a key pair for pk' =
+         BlindPublicKey(pk, bk, ctx).
 
-      -  BL-Combine-Blinding-Factors(bf1, bf2): Outputs a blinding
-         factor bf such that for all blinding key pairs (pk, sk):
+      -  Combine(bf1, bf2): Outputs a blinding factor bf such that for
+         all key pairs (sk, pk):
 
-         o  BL-Blind-Public-Key(pk, bf) == BL-Blind-Public-Key(BL-Blind-
-            Public-Key(pk, bf1), bf2)
-
-         o  BL-Blind-Private-Key(pk, bf) == BL-Blind-Private-Key(BL-
-            Blind-Private-Key(pk, bf1), bf2)
+         BlindPrivateKey(sk, bf) ==
+             BlindPrivateKey(BlindPrivateKey(sk, bf1), bf2)
 
    *  KEM: A key encapsulation mechanism [RFC9180], consisting of the
       functions:
 
-      -  KEM-Derive-Key-Pair(ikm): Outputs a key encapsulation key pair
-         (sk, pk).
+      -  DeriveKeyPair(ikm): Outputs a key encapsulation key pair (sk,
+         pk).
 
-      -  KEM-Encap(pk): Outputs (k, c) consisting of a shared secret k
-         and a ciphertext c, taking key encapsulation public key pk.
+      -  Encap(pk): Outputs (k, c) consisting of a shared secret k and a
+         ciphertext c, taking key encapsulation public key pk.
 
-      -  KEM-Decap(c, sk): Outputs shared secret k, taking ciphertext c
-         and key encapsulation private key sk.
-
-   *  Authenticate(sk_device, reader_data, bf): Outputs device_data for
-      use in a protocol for proof of possession, taking a BL blinding
-      private key sk_device, remotely received reader_data, and a BL
-      blinding factor bf.
+      -  Decap(c, sk): Outputs shared secret k, taking ciphertext c and
+         key encapsulation private key sk.
 
    An HDK instantiation MUST specify the instantiation of each of the
    above functions and values.
 
-   An HDK instantiation MUST define Authenticate such that the
-   device_data can be verified using the blinded public key pk = BL-
-   Blind-Public-Key(sk, bf).  The reader does not need to know that HDK
-   was applied: the public key will look like any other public key used
-   for proofs of possession.
+   Note that by design of BL, when a document is issued using HDK, the
+   reader does not need to know that HDK was applied: the public key
+   will look like any other public key used for proofs of possession.
 
-2.3.  The HDK function
+   An HDK implementation MAY leave BlindPrivateKey implicit in cases
+   where the blinding method is constructed in a distributed way.  In
+   those cases, the secure cryptographic device holding the private key
+   does not need to support key blinding, and the value of the blinded
+   private key is never available during computation.
 
-   A local unit or a remote party deterministically computes an HDK from
-   a salt and an index.  The salt can be an initial seed value of Ns
-   bytes or it can be taken from another parent HDK.  The secure
-   generation of the seed is out of scope for this specification.
+2.3.  The HDK context
+
+   A local unit or remote party creates an HDK context from an index.
 
    Inputs:
-   - salt, a string of Ns bytes.
    - index, an integer between 0 and 2^32-1 (inclusive).
 
    Outputs:
-   - bf, the blinding factor at the provided index.
+   - ctx, an application context byte string.
+
+   def CreateContext(index):
+       ctx = ID || I2OSP(index, 4)
+       return ctx
+
+   This context byte string is used as input for DeriveBlindingFactor,
+   BlindPublicKey, and DeriveSalt (Section 2.4).
+
+2.4.  The HDK salt
+
+   A local unit or remote party derives a next-level HDK salt from
+   within an HDK context.
+
+   Inputs:
+   - salt, a string of Ns bytes.
+   - ctx, an HDK context byte string.
+
+   Outputs:
+   - salt', the next salt for HDK derivation.
+
+   def DeriveSalt(salt, ctx):
+       salt' = H(salt || ctx)
+       return salt'
+
+   Salt values are used as input for DeriveBlindKey, DeriveKeyPair, and
+   DeriveSalt.
+
+   Salt values, including the original seed value, MUST NOT be reused
+   outside of HDK.
+
+2.5.  The HDK function
+
+   A local unit or a remote party deterministically computes an HDK from
+   an index, a parent public key, a salt, and an optional parent
+   blinding factor.  The salt can be an initial seed value of Ns bytes
+   or it can be taken from another parent HDK.  The secure generation of
+   the seed is out of scope for this specification.
+
+   Inputs:
+   - index, an integer between 0 and 2^32-1 (inclusive).
+   - pk, a public key to be blinded.
+   - salt, a string of Ns bytes.
+   - bf, a blinding factor to combine with, Nil otherwise.
+
+   Outputs:
+   - pk', the blinded public key at the provided index.
    - salt', the salt for HDK derivation at the provided index.
+   - bf', the blinding factor at the provided index.
 
-   def HDK(salt, index):
-       msg = salt || I2OSP(index, 4)
-       bf = BL-Derive-Blinding-Factor(msg, ID)
-       salt' = H1(msg)
-       return (bf, salt')
+   def HDK(index, pk, salt, bf = Nil):
+       ctx   = CreateContext(index)
+       salt' = DeriveSalt(salt, ctx)
 
-2.4.  The local HDK procedure
+       bk  = DeriveBlindKey(salt)
+       pk' = BlindPublicKey(bk, ctx)
+       bf' = if bf == Nil:
+           DeriveBlindingFactor(bk, ctx)
+       else:
+           Combine(bf, DeriveBlindingFactor(bk, ctx))
 
-   This is a procedure executed locally by a unit.
+       return (pk', salt', bf')
 
-   To begin, the unit securely generates a seed salt of Ns bytes and a
-   device key pair:
-
-   seed = random(Ns) # specification of random out of scope
-   (pk_device, sk_device) = BL-Generate-Blinding-Key-Pair()
-
-   The unit MUST generate sk_device within a secure cryptographic
-   device.
-
-   Whenever the unit requires the HDK with some index at level 0, the
-   unit computes:
-
-   (bf, salt) = HDK(seed, index)
-
-   pk = BL-Blind-Public-Key( pk_device, bf) # optional
-   sk = BL-Blind-Private-Key(sk_device, bf) # optional
-
-   Now the unit can use the blinded key pair (pk, sk) or derive child
-   HDKeys.
-
-   Whenever the unit requires the HDK with some index at level n > 0
-   based on a parent HDK hdk = (bf, salt) with blinded key pair (pk, sk)
-   at level n, the unit computes:
-
-   (bf', salt') = HDK(salt, index)
-
-   pk' = BL-Blind-Public-Key( pk, bf') # optional
-   sk' = BL-Blind-Private-Key(sk, bf') # optional
-
-   Now the unit can use the blinded key pair (pk', sk') or derive child
-   HDKeys.
-
-2.5.  The remote HDK protocol
-
-   This is a protocol between a local unit and a remote issuer.
-
-   As a prerequisite, the unit possesses a salt of Ns bytes associated
-   with a parent blinding key pair (pk, sk) generated using the local
-   HDK procedure.
-
-   # 1. Unit computes:
-   (sk_kem, pk_kem) = KEM-Derive-Key-Pair(salt)
-
-   # 2. Unit shares with issuer: (pk, pk_kem)
-
-   # 3. Issuer computes:
-   (salt, kh) = KEM-Encap(pk_kem)
-
-   # 4. Issuer shares with unit: kh
-
-   # Subsequently, for any index known to both parties:
-
-   # 5. Issuer computes:
-   (bf, salt') = HDK(salt, index)
-   pk' = BL-Blind-Public-Key(pk, bf)
-
-   # 6. Issuer shares with unit: pk'
-
-   # 7. Unit verifies integrity:
-   salt' = KEM-Decap(kh, sk_kem)
-   (bf, salt'') = HDK(salt', index)
-   pk' == BL-Blind-Public-Key(pk, bf)
-
-   # 8. Unit computes:
-   sk' = BL-Blind-Private-Key(sk, bf)
-
-   After step 7, the unit can use the value of salt'' to derive next-
-   level HDKeys.
-
-   Step 4 MAY be postponed to be combined with step 6.  Steps 5 to 8 MAY
-   be combined in concurrent execution for multiple indices.
-
-2.6.  Combining blinding factors
-
-   A unit MUST not persist a blinded private key.  Instead, if
+   A unit MUST NOT persist a blinded private key.  Instead, if
    persistence is needed, a unit can persist either the blinding factor
    of each HDK, or a path consisting of the seed salt, indices and key
-   handles.  In both cases, the unit needs to combine parent blinding
-   factor bf1 with child blinding factor bf2 before blinding the parent
-   private key sk:
-
-   bf = BL-Combine-Blinding-Factors(bf1, bf2)
-
-   Subsequently, the unit can apply the Authenticate function to the
-   parent blinding key.  The unit can combine multiple blinding factors
-   in the HDK path.
+   handles.  In both cases, the application of Combine in the HDK
+   function enables reconstruction of the blinding factor with respect
+   to the original private key, enabling application of for example
+   BlindPrivateKey.
 
    If the unit uses the blinded private key directly, the unit MUST use
    it within the secure cryptographic device protecting the device
@@ -487,185 +465,343 @@ Table of Contents
    B1 = [bf1]D and B2 = [bf2]D, where bf1 and bf2 are multiplicative
    blinding factors for a common blinding public key D.  In this
    protocol, the association is known by the discrete logarithm of B2 =
-   [bf2/bf1]B1 with respect to generator B1.  The unit can apply BL-
-   Combine-Blinding-Factors to obtain values to compute this
-   association.
+   [bf2/bf1]B1 with respect to generator B1.  The unit can apply Combine
+   to obtain values to compute this association.
+
+2.6.  The local HDK procedure
+
+   This is a procedure executed locally by a unit.
+
+   To begin, the unit securely generates a seed salt of Ns bytes and a
+   device key pair:
+
+   seed = random(Ns) # specification of random out of scope
+   (skD, pkD) = GenerateKeyPair()
+
+   The unit MUST generate skD within a secure cryptographic device.
+
+   Whenever the unit requires the HDK with some index at level 0, the
+   unit computes:
+
+   (pk, salt, bf) = HDK(index, pkD, seed)
+
+   sk = BlindPrivateKey(skD, bf) # optional
+
+   Now the unit can use the blinded key pair (sk, pk) or derive child
+   HDKeys.
+
+   Whenever the unit requires the HDK with some index at level n > 0
+   based on a parent HDK hdk = (pk, salt, bf) with blinded key pair (sk,
+   pk) at level n, the unit computes:
+
+   (pk', salt', bf') = HDK(index, pk, salt)
+
+   sk' = BlindPrivateKey(sk, bf') # optional
+
+   Now the unit can use the blinded key pair (sk', pk') or derive child
+   HDKeys.
+
+2.7.  The remote HDK protocol
+
+   This is a protocol between a local unit and a remote issuer.
+
+   As a prerequisite, the unit possesses a salt of Ns bytes associated
+   with a parent key pair (sk, pk) generated using the local HDK
+   procedure.
+
+   # 1. Unit computes:
+   (skR, pkR) = DeriveKeyPair(salt)
+
+   # 2. Unit shares with issuer: (pk, pkR)
+
+   # 3. Issuer computes:
+   (salt_kem, kh) = Encap(pkR)
+
+   # 4. Issuer shares with unit: kh
+
+   # Subsequently, for any index known to both parties:
+
+   # 5. Issuer computes:
+   (pk', salt', bf') = HDK(index, pk, salt_kem)
+
+   # 6. Issuer shares with unit: pk'
+
+   # 7. Unit verifies integrity:
+   salt_kem = Decap(kh, skR)
+   (pk_expected', salt', bf') = HDK(index, pk, salt_kem)
+   pk' == pk_expected'
+
+   # 8. Unit computes:
+   sk' = BlindPrivateKey(sk, bf) # optional
+
+   After step 7, the unit can use the value of salt' to derive next-
+   level HDKeys.
+
+   Step 4 MAY be postponed to be combined with step 6.  Steps 5 to 8 MAY
+   be combined in concurrent execution for multiple indices.
 
 3.  Generic HDK instantiations
 
-3.1.  Using elliptic curves
+3.1.  Using digital signatures
 
-   Instantiations of HDK using elliptic curves require the following
+   Instantiations of HDK using digital signatures require the following
    cryptographic constructs:
 
-   *  EC: An elliptic curve with elements of type Element and scalars of
-      type Scalar, consisting of the functions:
+   *  DSA: A digital signature algorithm, consisting of the functions:
 
-      -  EC-Random(): Outputs a random Scalar k.
+      -  GenerateKeyPair(): Outputs a new key pair (sk, pk) consisting
+         of private key sk and public key pk.
 
-      -  EC-Add(A, B): Outputs the sum between Elements A and B.
+      -  Sign(sk, msg): Outputs the signature created using private
+         signing key sk over byte string msg.
 
-      -  EC-Scalar-Mult(A, k): Outputs the scalar multiplication between
+      -  Verify(signature, pk, msg): Outputs whether signature is a
+         signature over msg using public verification key pk.
+
+   Using these constructs, an example proof of possession protocol is:
+
+   # 1. Unit shares with reader: pk
+
+   # 2. Reader computes:
+   nonce = generate_random_nonce() # out of scope for this spec
+
+   # 3. Reader shares with unit: nonce
+
+   # 4. Unit computes:
+   msg = create_message(pk, nonce) # out of scope for this spec
+   signature = Sign(sk, msg)
+
+   # 5. Reader computes:
+   msg = create_message(pk, nonce) # out of scope for this spec
+   Verify(signature, pk, msg)
+
+   Instantiations of HDK using digital signatures instantiat the
+   following:
+
+   *  BL: A cryptographic construct that extends DSA as specified in
+      [I-D.draft-irtf-cfrg-signature-key-blinding-07], implementing the
+      interface from Instantiation parameters (Section 2.2).
+
+   While [I-D.draft-irtf-cfrg-signature-key-blinding-07] does not expose
+   blinding factors, it provides public algorithms to compute these.  In
+   HDK, the computed blinding factors are applied in BL as follows:
+
+   def BlindSign(sk, bf, msg):
+       sk' = BlindPrivateKey(sk, bf)
+       signature = Sign(sk', msg)
+       return signature
+
+   By design of BL, the same proof of possession protocol can be used
+   with blinded key pairs and BlindSign, in such a way that the reader
+   does not recognise that key blinding was used.
+
+   In the default implementation, BlindSign requires support from the
+   secure cryptographic device protecting sk.  In some cases, BlindSign
+   can be implemented in an alternative, distributed way.  An example
+   will be provided below.
+
+   Applications MUST bind the message to be signed to the blinded public
+   key.  This mitigates attacks based on signature malleability.
+   Several proof of possession protocols require including document data
+   in the message, which includes the blinded public key indeed.
+
+3.2.  Using prime-order groups
+
+   Instantiations of HDK using prime-order groups require the following
+   cryptographic constructs:
+
+   *  G: A prime-order group as defined in [RFC9497] with elements of
+      type Element and scalars of type Scalar, consisting of the
+      functions:
+
+      -  RandomScalar(): Outputs a random Scalar k.
+
+      -  Add(A, B): Outputs the sum between Elements A and B.
+
+      -  ScalarMult(A, k): Outputs the scalar multiplication between
          Element A and Scalar k.
 
-      -  EC-Scalar-Base-Mult(k): Outputs the scalar multiplication
-         between the base Element and Scalar k.
+      -  ScalarBaseMult(k): Outputs the scalar multiplication between
+         the base Element and Scalar k.
 
-      -  EC-Order(): Outputs the order of the base Element.
+      -  Order(): Outputs the order of the base Element.
 
-      -  EC-Serialize-Element(A): Outputs a byte string representing
-         Element A.
+      -  SerializeElement(A): Outputs a byte string representing Element
+         A.
 
-   *  H2C: A hash-to-curve suite [RFC9380] for EC, providing the
-      function:
+      -  SerializeScalar(k): Outputs a byte string representing Scalar
+         k.`
 
-      -  hash_to_field(msg, count): Outputs count EC Elements based on
-         the result of cryptographically hashing msg (see [RFC9380],
-         Section 5.2).
+      -  HashToScalar(msg): Outputs the result of deterministically
+         mapping a byte string msg to an element in the scalar field of
+         the prime order subgroup of G, using the hash_to_field function
+         from a hash-to-curve suite [RFC9380].
 
-   def BL-Generate-Blinding-Key-Pair():
-       sk = EC-Random()
-       pk = EC-Scalar-Base-Mult(sk)
-       return (pk, sk)
+   def GenerateKeyPair():
+       sk = GenerateRandomScalar()
+       pk = ScalarBaseMult(sk)
+       return (sk, pk)
 
-   def BL-Derive-Blinding-Factor(msg, ctx):
-       bf = hash_to_field(msg, count) with the parameters:
-           DST: ID || ctx
-           F: GF(EC-Order()), the scalar field
-               of the prime order subgroup of EC
-           p: EC-Order()
-           m: 1
-           L: as defined in H2C
-           expand_message: as defined in H2C
+   def DeriveBlindKey(ikm):
+       bk_scalar = HashToScalar(ikm)
+       bk = SerializeScalar(bk_scalar)
+       return bk
+
+   def DeriveBlindingFactor(bk, ctx):
+       msg = bk || 0x00 || ctx
+       bf = HashToScalar(msg)
        return bf
 
-3.2.  Using EC multiplicative blinding
+   Note that DeriveBlindingFactor is compatible with the definitions in
+   [I-D.draft-irtf-cfrg-signature-key-blinding-07].
 
-   Such instantations of HDK use elliptic curves (see Using elliptic
-   curves (Section 3.1)) and instantiate the following:
+3.3.  Using multiplicative blinding
 
-   def BL-Blind-Public-Key(pk, bf):
-       pk' = EC-Scalar-Mult(pk, bf)
+   Such instantations of HDK use prime-order groups (Section 3.2) and
+   instantiate the following:
+
+   def BlindPublicKey(pk, bk, ctx):
+       bf = DeriveBlindingFactor(bk, ctx)
+       pk' = ScalarMult(pk, bf)
        return pk
 
-   def BL-Blind-Private-Key(sk, bf):
-       sk' = sk * bf mod EC-Order()
+   def BlindPrivateKey(sk, bf):
+       sk' = sk * bf mod Order()
        return sk
 
-   def BL-Combine-Blinding-Factors(bf1, bf2):
-       bf = bf1 * bf2 mod EC-Order()
+   def Combine(bf1, bf2):
+       bf = bf1 * bf2 mod Order()
        return bf
 
-3.3.  Using EC additive blinding
+3.4.  Using additive blinding
 
-   Such instantations of HDK use elliptic curves (see Using elliptic
-   curves (Section 3.1)) and instantiate the following:
+   Such instantations of HDK use use prime-order groups (Section 3.2)
+   and instantiate the following:
 
-   def BL-Blind-Public-Key(pk, bf):
-       pk' = EC-Add(pk, EC-Scalar-Base-Mult(bf))
+   def BlindPublicKey(pk, bk, ctx):
+       bf = DeriveBlindingFactor(bk, ctx)
+       pk' = Add(pk, ScalarBaseMult(bf))
        return pk
 
-   def BL-Blind-Private-Key(sk, bf):
-       sk' = sk + bf mod EC-Order()
+   def BlindPrivateKey(sk, bf):
+       sk' = sk + bf mod Order()
        return sk
 
-   def BL-Combine-Blinding-Factors(bf1, bf2):
-       bf = bf1 + bf2 mod EC-Order()
+   def Combine(bf1, bf2):
+       bf = bf1 + bf2 mod Order()
        return bf
 
-3.4.  Using ECDH shared secrets
+3.5.  Using ECDH shared secrets
 
-   Such instantiations of HDK use EC multiplicative blinding (see Using
-   EC multiplicative blinding (Section 3.2)) and require the following
-   cryptographic construct:
+   Such instantiations of HDK use multiplicative blinding (Section 3.3)
+   and require the following cryptographic construct:
 
-   *  ECDH: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman
+   *  DH: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman
       (ECKA-DH) [TR03111] with elliptic curve EC, consisting of the
       functions:
 
-      -  ECDH-Create-Shared-Secret(sk_self, pk_other): Outputs a shared
-         secret byte string representing an Element.
+      -  CreateSharedSecret(skX, pkY): Outputs a shared secret byte
+         string Z_AB representing the x-coordinate of the Element
+         ScalarMult(pkY, skX).
 
-   In such instantiations, the reader provides an ephemeral public key
-   reader_data.  The Authenticate function returns shared secret
-   device_data consisting of a binary encoded x-coordinate Z_AB of an
-   ECDH operation with the blinded private key.  Subsequently, the unit
-   creates a message authentication code (MAC), such as in ECDH-MAC
-   authentication defined in [ISO18013-5].  The reader verifies this MAC
-   by performing an ECDH operation with its ephemeral private key and
-   the blinded public key.
+   Note that DH enables an alternative way of authenticating a key pair
+   (sk, pk) without creation or verification of a signature:
 
-   These instantiations instantiate the following:
+   # 1. Unit shares with reader: pk
 
-   def Authenticate(sk_device, reader_data, bf):
-       P' = EC-Scalar-Mult(reader_data, bf)
+   # 2. Reader computes:
+   (skR, pkR) = GenerateKeyPair()
 
-       # Compute Z_AB within the secure cryptographic device.
-       Z_AB = ECDH-Create-Shared-Secret(sk_device, P')
+   # 3. Reader shares with unit: pkR
 
-       return Z_AB
+   # 4. Unit computes:
+   Z_AB = CreateSharedSecret(sk, pkR)
 
-3.5.  Using EC digital signatures
+   # 5. Reader computes:
+   Z_AB = CreateSharedSecret(skR, pk)
 
-   Such instantiations of HDK use EC additive blinding (see Using EC
-   additive blinding (Section 3.3)) and require the following
-   cryptographic construct:
+   Now with the shared secret Z_AB, the unit and the reader can compute
+   a secret shared key.  The unit can convince the reader that it
+   possesses sk for example by sharing a message authentication code
+   created using this key.  The reader can verify this by recomputing
+   the code using its value of Z_AB.  This is for example used in ECDH-
+   MAC authentication defined in [ISO18013-5].
 
-   *  DSA: An EC digital signature algorithm , consisting of the
-      functions:
+   In this example, step 1 can be postponed in the interactions between
+   the unit and the reader if a trustworthy earlier commitment to pk is
+   available, for example in a sealed document.
 
-      -  DSA-Sign(sk, msg): Outputs the signature (c, r) created using
-         private signing key sk over byte string msg.
+   Similarly, ECDH enables authentication of key pair (sk', pk') blinded
+   from an original key pair (sk, pk) using a blinding factor bf such
+   that:
 
-      -  DSA-Verify(signature, pk, msg): Outputs whether signature is a
-         signature over msg using public verification key pk.
+   sk' = BlindPrivateKey(sk, bf)
+       = sk * bf mod Order()
+   pk' = ScalarMult(pk, bf)
 
-      -  DSA-Serialize(c, r): Outputs the byte array serialization of
-         the signature (c, r).
+   In this case, the computation in step 4 can be performed as such:
 
-      -  DSA-Deserialize(bytes): Outputs the signature (c, r)
-         represented by byte string bytes.
+   # 4. Unit computes:
+   Z_AB = CreateSharedSecret(sk', pkR)
+        = CreateSharedSecret(sk * bf mod Order(), pkR)
+        = CreateSharedSecret(sk, ScalarMult(pkR, bf))
 
-   The reader is expected to create an input byte string reader_data
-   with sufficient entropy for each challenge.
-
-   The reader is expected to verify the proof device_data using DSA-
-   Verify with the blinded public key.
+   Note that the value of ScalarMult(pkR, bf) does not need to be
+   computed within the secure cryptographic device that protects sk.
 
 3.6.  Using EC-SDSA signatures
 
-   Such instantiations of HDK use EC digital signatures (see Using EC
-   digital signatures (Section 3.5)) and EC digital and instantiate the
-   following:
+   Such instantiations of HDK use digital signatures (Section 3.1) and
+   use additive blinding (Section 3.4) and instantiate the following:
 
-   *  DSA: An EC-SDSA (Schnorr) digital signature algorithm [TR03111].
+   *  DSA: An EC-SDSA (Schnorr) digital signature algorithm [TR03111],
+      representing signatures as pairs (c, s).
 
-   def Authenticate(sk_device, reader_data, bf):
+   Note that in this case, the following definition is equivalent to the
+   original definition of BlindSign:
+
+   def BlindSign(sk, bf, msg):
        # Compute signature within the secure cryptographic device.
-       signature = DSA-Sign(sk_device, reader_data)
+       (c, s) = Sign(sk, msg)
 
-       (c, s) = DSA-Deserialize(proof)
-       s' = s + c * bf mod EC-Order()
-       device_data = DSA-Serialize(c, s')
-       return device_data
+       # Post-process the signature outside of this device.
+       s' = s + c * bf mod Order()
 
-3.7.  Using ECDSA signatures
+       signature = (c, s')
+       return signature
 
-   Such instantiations of HDK use EC digital signatures (see Using EC
-   digital signatures (Section 3.5)) and instantiate the following:
+3.7.  Using P-256
 
-   *  DSA: An ECDSA digital signature algorithm [TR03111].
+   Such instantiations of HDK use prime-order groups (Section 3.2) and
+   require the following parameter:
 
-   def Authenticate(sk_device, reader_data, bf):
-       # Blind private key and create signature
-       # within the secure cryptographic device.
-       sk' = BL-Blind-Private-Key(sk_device, bf)
-       device_data = DSA-Sign(sk', reader_data)
-       return device_data
+   *  DST: A domain separation tag for use with HashToScalar.
 
-   Due to potential patent claims, this document does not specify an
-   instantiation with multi-party ECDSA signing, even though this would
-   be theoretically possible using EC multiplicative blinding.
+   Such instantiations instantiate the following:
+
+   *  Ns: 32
+
+   *  H: SHA-256 [FIPS180-4].
+
+   *  G: The NIST curve secp256r1 (P-256) [SEC2] with:
+
+      -  HashToScalar(msg): Implemented by computing hash_to_field(msg,
+         1) with the parameters:
+
+         o  DST: DST
+
+         o  F: GF(EC-Order()), the scalar field of the prime order
+            subgroup of G
+
+         o  p: EC-Order()
+
+         o  m: 1
+
+         o  L: 48
+
+         o  expand_message: expand_message_xmd with H
+
+   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180].
 
 4.  Concrete HDK instantiations
 
@@ -677,68 +813,39 @@ Table of Contents
 
 4.1.  HDK-ECDH-P256
 
-   This instantiation uses ECDH for proof of possession (see Using ECDH
-   shared secrets (Section 3.4)) and for KEM.
+   This instantiation uses P-256 (Section 3.7) and uses ECDH shared
+   secrets (Section 3.5).
 
-   *  ID: "HDK-ECDH-P256-v1"
+   *  DST: "ECDH Key Blind"
 
-   *  Ns: 32
-
-   *  H: SHA-256 [FIPS180-4] with:
-
-      -  H1(msg): Implemented by computing H(ID || msg).
-
-   *  EC: The NIST curve secp256r1 (P-256) [SEC2]
-
-   *  ECDH: ECKA-DH with curve EC
-
-   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180]
+   *  DH: ECKA-DH with curve EC.
 
 4.2.  HDK-ECDSA-P256
 
-   This instantiation uses ECDSA for proof of possession (see Using
-   ECDSA signatures (Section 3.7)) and ECDH for KEM.
+   This instantiation uses P-256 (Section 3.7) and uses digital
+   signatures (Section 3.1).
 
-   *  ID: "HDK-ECSDSA-P256-v1"
+   *  DST: "ECDSA Key Blind" as specified in
+      [I-D.draft-irtf-cfrg-signature-key-blinding-07].
 
-   *  Ns: 32
-
-   *  H: SHA-256 [FIPS180-4] with:
-
-      -  H1(msg): Implemented by computing H(ID || msg).
-
-   *  EC: The NIST curve secp256r1 (P-256) [SEC2]
-
-   *  DSA: ECDSA with curve EC.
-
-   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180]
+   *  DSA: ECDSA [TR03111] with curve G.
 
 4.3.  HDK-ECSDSA-P256
 
-   This instantiation uses EC-SDSA for proof of possession (see Using
-   EC-SDSA signatures (Section 3.6)) and ECDH for KEM.
+   This instantiation uses P-256 (Section 3.7) and uses EC-SDSA
+   signatures (Section 3.6).
 
-   *  ID: "HDK-ECSDSA-P256-v1"
+   *  DST: "EC-SDSA Key Blind"
 
-   *  Ns: 32
-
-   *  H: SHA-256 [FIPS180-4] with:
-
-      -  H1(msg): Implemented by computing H(ID || msg).
-
-   *  EC: The NIST curve secp256r1 (P-256) [SEC2]
-
-   *  DSA: EC-SDSA-opt (the optimised EC-SDSA) with curve EC.
-
-   *  KEM: DHKEM(P-256, HKDF-SHA256) [RFC9180]
+   *  DSA: EC-SDSA-opt (the optimised EC-SDSA) with curve G.
 
 5.  Application considerations
 
 5.1.  Secure cryptographic device
 
    The HDK approach assumes that the holder controls a secure
-   cryptographic device that protects the device key pair (pk_device,
-   sk_device).  The device key is under sole control of the holder.
+   cryptographic device that protects the device key pair (sk_device,
+   pk_device).  The device key is under sole control of the holder.
 
    In the context of [EU2024-1183], this device is typically called a
    Wallet Secure Cryptographic Device (WSCD), running a personalised
@@ -952,11 +1059,6 @@ Table of Contents
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
 
-   [RFC7800]  Jones, M., Bradley, J., and H. Tschofenig, "Proof-of-
-              Possession Key Semantics for JSON Web Tokens (JWTs)",
-              RFC 7800, DOI 10.17487/RFC7800, April 2016,
-              <https://www.rfc-editor.org/rfc/rfc7800>.
-
    [RFC8017]  Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch,
               "PKCS #1: RSA Cryptography Specifications Version 2.2",
               RFC 8017, DOI 10.17487/RFC8017, November 2016,
@@ -966,10 +1068,6 @@ Table of Contents
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
-   [RFC8235]  Hao, F., Ed., "Schnorr Non-interactive Zero-Knowledge
-              Proof", RFC 8235, DOI 10.17487/RFC8235, September 2017,
-              <https://www.rfc-editor.org/rfc/rfc8235>.
-
    [RFC9180]  Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
               Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
               February 2022, <https://www.rfc-editor.org/rfc/rfc9180>.
@@ -978,6 +1076,11 @@ Table of Contents
               and C. A. Wood, "Hashing to Elliptic Curves", RFC 9380,
               DOI 10.17487/RFC9380, August 2023,
               <https://www.rfc-editor.org/rfc/rfc9380>.
+
+   [RFC9497]  Davidson, A., Faz-Hernandez, A., Sullivan, N., and C. A.
+              Wood, "Oblivious Pseudorandom Functions (OPRFs) Using
+              Prime-Order Groups", RFC 9497, DOI 10.17487/RFC9497,
+              December 2023, <https://www.rfc-editor.org/rfc/rfc9497>.
 
    [SEC2]     Certicom Research, "SEC 2: Recommended Elliptic Curve
               Domain Parameters, Version 2.0", SEC 2 Version 2.0,
@@ -1024,11 +1127,32 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-
               bradleylundberg-cfrg-arkg-02>.
 
+   [I-D.draft-irtf-cfrg-signature-key-blinding-07]
+              Denis, F., Eaton, E., Lepoint, T., and C. A. Wood, "Key
+              Blinding for Signature Schemes", Work in Progress,
+              Internet-Draft, draft-irtf-cfrg-signature-key-blinding-07,
+              23 September 2024, <https://datatracker.ietf.org/doc/html/
+              draft-irtf-cfrg-signature-key-blinding-07>.
+
+   [RFC7800]  Jones, M., Bradley, J., and H. Tschofenig, "Proof-of-
+              Possession Key Semantics for JSON Web Tokens (JWTs)",
+              RFC 7800, DOI 10.17487/RFC7800, April 2016,
+              <https://www.rfc-editor.org/rfc/rfc7800>.
+
+   [RFC8235]  Hao, F., Ed., "Schnorr Non-interactive Zero-Knowledge
+              Proof", RFC 8235, DOI 10.17487/RFC8235, September 2017,
+              <https://www.rfc-editor.org/rfc/rfc8235>.
+
    [Verheul2024]
               Verheul, E., "Attestation Proof of Association –
               provability that attestation keys are bound to the same
               hardware and person", 18 September 2024,
               <https://eprint.iacr.org/2024/1444>.
+
+   [Wilson2023]
+              Wilson, S. M., "Post-Quantum Account Recovery for
+              Passwordless Authentication. Master’s thesis", 24 April
+              2023, <https://hdl.handle.net/10012/19316>.
 
 Acknowledgements
 
