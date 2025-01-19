@@ -407,7 +407,7 @@ Step 4 MAY be postponed to be combined with step 6. Steps 5 to 8 MAY be combined
 
 ## Using digital signatures
 
-Instantiations of HDK using digital signatures require the following cryptographic constructs:
+Instantiations of HDK using digital signatures require:
 
 - `DSA`: A digital signature algorithm, consisting of the functions:
   - GenerateKeyPair(): Outputs a new key pair `(sk, pk)` consisting of private key `sk` and public key `pk`.
@@ -433,7 +433,7 @@ msg = create_message(pk, nonce) # out of scope for this spec
 Verify(signature, pk, msg)
 ~~~
 
-Instantiations of HDK using digital signatures instantiat the following:
+Instantiations of HDK using digital signatures provide:
 
 - `BL`: A cryptographic construct that extends `DSA` as specified in [I-D.draft-irtf-cfrg-signature-key-blinding-07], implementing the interface from [Instantiation parameters](#instantiation-parameters).
 
@@ -454,7 +454,7 @@ Applications MUST bind the message to be signed to the blinded public key. This 
 
 ## Using prime-order groups
 
-Instantiations of HDK using prime-order groups require the following cryptographic constructs:
+Instantiations of HDK using prime-order groups require:
 
 - `G`: A prime-order group as defined in [RFC9497] with elements of type Element and scalars of type Scalar, consisting of the functions:
   - RandomScalar(): Outputs a random Scalar `k`.
@@ -465,6 +465,8 @@ Instantiations of HDK using prime-order groups require the following cryptograph
   - SerializeElement(A): Outputs a byte string representing Element `A`.
   - SerializeScalar(k): Outputs a byte string representing Scalar `k`.`
   - HashToScalar(msg): Outputs the result of deterministically mapping a byte string `msg` to an element in the scalar field of the prime order subgroup of `G`, using the `hash_to_field` function from a hash-to-curve suite [RFC9380].
+
+Instantiations of HDK using prime-order groups provide:
 
 ~~~
 def GenerateKeyPair():
@@ -483,30 +485,15 @@ def DeriveBlindingFactor(bk, ctx):
     return bf
 ~~~
 
-Note that DeriveBlindingFactor is compatible with the definitions in [I-D.draft-irtf-cfrg-signature-key-blinding-07].
+Note that DeriveBlindingFactor is compatible with the definitions in [I-D.draft-irtf-cfrg-signature-key-blinding-07]. The function is almost compatible with the definitions in [I-D.draft-bradleylundberg-cfrg-arkg-02]: only in AKRG, the context string needs to be prefixed with `0x00`.
 
-## Using multiplicative blinding
+### Using additive blinding
 
-Such instantations of HDK [use prime-order groups](#using-prime-order-groups) and instantiate the following:
+Instantiations of HDK using additive blinding use:
 
-~~~
-def BlindPublicKey(pk, bk, ctx):
-    bf = DeriveBlindingFactor(bk, ctx)
-    pk' = ScalarMult(pk, bf)
-    return pk
+- [prime-order groups](#using-prime-order-groups)
 
-def BlindPrivateKey(sk, bf):
-    sk' = sk * bf mod Order()
-    return sk
-
-def Combine(bf1, bf2):
-    bf = bf1 * bf2 mod Order()
-    return bf
-~~~
-
-## Using additive blinding
-
-Such instantations of HDK use [use prime-order groups](#using-prime-order-groups) and instantiate the following:
+Instantiations of HDK using additive blinding provide:
 
 ~~~
 def BlindPublicKey(pk, bk, ctx):
@@ -523,11 +510,72 @@ def Combine(bf1, bf2):
     return bf
 ~~~
 
-## Using ECDH shared secrets
+Note that all algorithms in [I-D.draft-bradleylundberg-cfrg-arkg-02] use additive blinding.
 
-Such instantiations of HDK [use multiplicative blinding](#using-multiplicative-blinding) and require the following cryptographic construct:
+### Using multiplicative blinding
 
-- `DH`: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [TR03111] with elliptic curve `EC`, consisting of the functions:
+Instantiations of HDK using multiplicative blinding use:
+
+- [prime-order groups](#using-prime-order-groups)
+
+Instantiations of HDK using multiplicative blinding provide:
+
+~~~
+def BlindPublicKey(pk, bk, ctx):
+    bf = DeriveBlindingFactor(bk, ctx)
+    pk' = ScalarMult(pk, bf)
+    return pk
+
+def BlindPrivateKey(sk, bf):
+    sk' = sk * bf mod Order()
+    return sk
+
+def Combine(bf1, bf2):
+    bf = bf1 * bf2 mod Order()
+    return bf
+~~~
+
+Note that all algorithms in [I-D.draft-irtf-cfrg-signature-key-blinding-07] use multiplicative blinding.
+
+## Using elliptic curves
+
+Instantiations of HDK using elliptic curves use:
+
+- [prime-order groups](#using-prime-order-groups)
+
+Instantiations of HDK using elliptic curves require:
+
+- `DST`: A domain separation tag for use with HashToScalar.
+- `H2C`: A hash-to-curve suite [RFC9380].
+
+Instantiations of HDK using elliptic curves provide:
+
+- `H`: `H` from `H2C`.
+- `Ns`: The output size of `H`.
+
+~~~
+def HashToScalar(msg):
+    scalar = hash_to_field(msg, 1) with the parameters:
+        DST: DST
+        F: GF(Order()), the scalar field
+            of the prime order subgroup of EC
+        p: Order()
+        m: 1
+        L: as defined in H2C
+        expand_message: as defined in H2C
+    return scalar
+~~~
+
+### Using ECDH shared secrets
+
+Instantiations of HDK using ECDH shared secrets use:
+
+- [elliptic curves](#using-elliptic-curves)
+- [multiplicative blinding](#using-multiplicative-blinding)
+
+Instantiations of HDK using ECDH shared secrets provide:
+
+- `DH`: The Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) [TR03111] with elliptic curve `G`, consisting of the functions:
   - CreateSharedSecret(skX, pkY): Outputs a shared secret byte string `Z_AB` representing the x-coordinate of the Element `ScalarMult(pkY, skX)`.
 
 Note that DH enables an alternative way of authenticating a key pair `(sk, pk)` without creation or verification of a signature:
@@ -570,11 +618,17 @@ Z_AB = CreateSharedSecret(sk', pkR)
 
 Note that the value of `ScalarMult(pkR, bf)` does not need to be computed within the secure cryptographic device that protects `sk`.
 
-## Using EC-SDSA signatures
+### Using EC-SDSA signatures
 
-Such instantiations of HDK [use digital signatures](#using-digital-signatures) and [use additive blinding](#using-additive-blinding) and instantiate the following:
+Instantiations of HDK using EC-SDSA (Schnorr) signatures use:
 
-- `DSA`: An EC-SDSA (Schnorr) digital signature algorithm [TR03111], representing signatures as pairs `(c, s)`.
+- [additive blinding](#using-additive-blinding)
+- [digital signatures](#using-digital-signatures)
+- [elliptic curves](#using-elliptic-curves)
+
+Instantiations of HDK using EC-SDSA signatures provide:
+
+- `DSA`: An EC-SDSA digital signature algorithm [TR03111], representing signatures as pairs `(c, s)`.
 
 Note that in this case, the following definition is equivalent to the original definition of BlindSign:
 
@@ -590,24 +644,16 @@ def BlindSign(sk, bf, msg):
     return signature
 ~~~
 
-## Using P-256
+### Using P-256
 
-Such instantiations of HDK [use prime-order groups](#using-prime-order-groups) and require the following parameter:
+Instantiations of HDK using P-256 use:
 
-- `DST`: A domain separation tag for use with HashToScalar.
+- [elliptic curves](#using-elliptic-curves)
 
-Such instantiations instantiate the following:
+Instantiations of HDK using P-256 provide:
 
-- `Ns`: 32
-- `H`: SHA-256 [FIPS180-4].
-- `G`: The NIST curve `secp256r1` (P-256) [SEC2] with:
-  - `HashToScalar(msg)`: Implemented by computing `hash_to_field(msg, 1)` with the parameters:
-    - `DST`: `DST`
-    - `F`: GF(EC-Order()), the scalar field of the prime order subgroup of `G`
-    - `p`: EC-Order()
-    - `m`: 1
-    - `L`: 48
-    - `expand_message`: `expand_message_xmd` with `H`
+- `G`: The NIST curve `secp256r1` (P-256) [SEC2].
+- `H2C`: P256_XMD:SHA-256_SSWU_RO_ [RFC9380], which uses SHA-256 [FIPS180-4] as `H`.
 - `KEM`: DHKEM(P-256, HKDF-SHA256) [RFC9180].
 
 # Concrete HDK instantiations
@@ -616,24 +662,51 @@ The RECOMMENDED instantiation is the HDK-ECDH-P256. This avoids the risk of havi
 
 ## HDK-ECDH-P256
 
-This instantiation [uses P-256](#using-p-256) and [uses ECDH shared secrets](#using-ecdh-shared-secrets).
+The HDK-ECDH-P256 instantiation of HDK uses:
+
+- [P-256](#using-p-256)
+- [ECDH shared secrets](#using-ecdh-shared-secrets)
+
+The HDK-ECDH-P256 instantiation defines:
 
 - `DST`: `"ECDH Key Blind"`
-- `DH`: ECKA-DH with curve `EC`.
 
-## HDK-ECDSA-P256
+## HDK-ECDSA-P256add
 
-This instantiation [uses P-256](#using-p-256) and [uses digital signatures](#using-digital-signatures).
+The HDK-ECDSA-P256add instantiation of HDK uses:
 
-- `DST`: `"ECDSA Key Blind"` as specified in [I-D.draft-irtf-cfrg-signature-key-blinding-07].
+- [digital signatures](#using-digital-signatures)
+- [P-256](#using-p-256)
+- [additive blinding](#using-additive-blinding)
+
+The HDK-ECDSA-P256add instantiation of HDK defines:
+
+- `DST`: `"ARKG-BL-EC.ARKG-P256ADD-ECDH"` for interoperability with [I-D.draft-bradleylundberg-cfrg-arkg-02].
+- `DSA`: ECDSA [TR03111] with curve `G`.
+
+## HDK-ECDSA-P256mul
+
+The HDK-ECDSA-P256mul instantiation of HDK uses:
+
+- [digital signatures](#using-digital-signatures)
+- [P-256](#using-p-256)
+- [multiplicative blinding](#using-multiplicative-blinding)
+
+The HDK-ECDSA-P256mul instantiation of HDK defines:
+
+- `DST`: `"ECDSA Key Blind"` for interoperability with [I-D.draft-irtf-cfrg-signature-key-blinding-07].
 - `DSA`: ECDSA [TR03111] with curve `G`.
 
 ## HDK-ECSDSA-P256
 
-This instantiation [uses P-256](#using-p-256) and [uses EC-SDSA signatures](#using-ec-sdsa-signatures).
+The HDK-ECSDSA-P256 instantiation of HDK uses:
+
+- [EC-SDSA signatures](#using-ec-sdsa-signatures)
+- [P-256](#using-p-256)
+
+The HDK-ECSDSA-P256 instantiation of HDK defines:
 
 - `DST`: `"EC-SDSA Key Blind"`
-- `DSA`: EC-SDSA-opt (the optimised EC-SDSA) with curve `G`.
 
 # Application considerations
 
@@ -703,7 +776,7 @@ The solution proposal discussed herein works in all any WSCD architecture that s
 - In the case of HDK-ECDH-P256 (see [HDK-ECDH-P256](#hdk-ecdh-p256)):
   - P-256 ECDH key pair generation
   - P-256 ECDH key agreement
-- In the case of HDK-ECDSA-P256 (see [HDK-ECDSA-P256](#hdk-ecdsa-p256)):
+- In the case of HDK-ECDSA-P256mul (see [HDK-ECDSA-P256mul](#hdk-ecdsa-p256mul)):
   - P-256 ECDSA blinding key pair generation
   - P-256 ECDSA blinded signature creation
 - In the case of HDK-ECSDSA-P256 (see [HDK-ECSDSA-P256](#hdk-ecsdsa-p256)):
