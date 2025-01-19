@@ -1048,7 +1048,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Dijkhuis</td>
-<td class="center">Expires 22 July 2025</td>
+<td class="center">Expires 23 July 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1061,12 +1061,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-dijkhuis-cfrg-hdkeys-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-01-18" class="published">18 January 2025</time>
+<time datetime="2025-01-19" class="published">19 January 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-07-22">22 July 2025</time></dd>
+<dd class="expires"><time datetime="2025-07-23">23 July 2025</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1111,7 +1111,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 22 July 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 23 July 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1189,25 +1189,22 @@ svg :is([fill="white"], [fill^="#fff"]) {
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-using-digital-signatures" class="internal xref">Using digital signatures</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
-                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-using-elliptic-curves" class="internal xref">Using elliptic curves</a></p>
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-using-prime-order-groups" class="internal xref">Using prime-order groups</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
-                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-using-ec-multiplicative-bli" class="internal xref">Using EC multiplicative blinding</a></p>
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-using-multiplicative-blindi" class="internal xref">Using multiplicative blinding</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
-                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-using-ec-additive-blinding" class="internal xref">Using EC additive blinding</a></p>
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-using-additive-blinding" class="internal xref">Using additive blinding</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5">
                 <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="auto internal xref">3.5</a>.  <a href="#name-using-ecdh-shared-secrets" class="internal xref">Using ECDH shared secrets</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.6">
-                <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="auto internal xref">3.6</a>.  <a href="#name-using-ec-digital-signatures" class="internal xref">Using EC digital signatures</a></p>
+                <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="auto internal xref">3.6</a>.  <a href="#name-using-ec-sdsa-signatures" class="internal xref">Using EC-SDSA signatures</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7">
-                <p id="section-toc.1-1.3.2.7.1"><a href="#section-3.7" class="auto internal xref">3.7</a>.  <a href="#name-using-ec-sdsa-signatures" class="internal xref">Using EC-SDSA signatures</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.8">
-                <p id="section-toc.1-1.3.2.8.1"><a href="#section-3.8" class="auto internal xref">3.8</a>.  <a href="#name-using-ecdsa-signatures" class="internal xref">Using ECDSA signatures</a></p>
+                <p id="section-toc.1-1.3.2.7.1"><a href="#section-3.7" class="auto internal xref">3.7</a>.  <a href="#name-using-p-256" class="internal xref">Using P-256</a></p>
 </li>
             </ul>
 </li>
@@ -1418,56 +1415,53 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
 <p id="section-2.2-1">The parameters of an HDK instantiation are:<a href="#section-2.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-2.2-2.1">
-            <p id="section-2.2-2.1.1"><code>ID</code>: A domain separation tag, represented as a string of ASCII bytes.<a href="#section-2.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.1.1"><code>Ns</code>: The amount of bytes of a salt value with sufficient entropy.<a href="#section-2.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-2.2-2.2">
-            <p id="section-2.2-2.2.1"><code>Ns</code>: The amount of bytes of a salt value with sufficient entropy.<a href="#section-2.2-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-2.2-2.3">
-            <p id="section-2.2-2.3.1"><code>H</code>: A cryptographic hash function.<a href="#section-2.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-2.2.1"><code>H</code>: A cryptographic hash function.<a href="#section-2.2-2.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.2-2.3.2.1">
-                <p id="section-2.2-2.3.2.1.1">H(msg): Outputs <code>Ns</code> bytes.<a href="#section-2.2-2.3.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.2-2.2.2.1">
+                <p id="section-2.2-2.2.2.1.1">H(msg): Outputs <code>Ns</code> bytes.<a href="#section-2.2-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="normal" id="section-2.2-2.4">
-            <p id="section-2.2-2.4.1"><code>BL</code>: A key blinding scheme with opaque blinding factors and algebraic properties, consisting of the functions:<a href="#section-2.2-2.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-2.2-2.3">
+            <p id="section-2.2-2.3.1"><code>BL</code>: A key blinding scheme <span>[<a href="#Wilson2023" class="cite xref">Wilson2023</a>]</span> with opaque blinding factors and algebraic properties, consisting of the functions:<a href="#section-2.2-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.2-2.4.2.1">
-                <p id="section-2.2-2.4.2.1.1">DeriveBlindKey(ikm): Outputs a blind key <code>bk</code> based on input keying material <code>ikm</code>.<a href="#section-2.2-2.4.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.2-2.3.2.1">
+                <p id="section-2.2-2.3.2.1.1">DeriveBlindKey(ikm): Outputs a blind key <code>bk</code> based on input keying material <code>ikm</code>.<a href="#section-2.2-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-2.2-2.4.2.2">
-                <p id="section-2.2-2.4.2.2.1">DeriveBlindingFactor(bk, ctx): Outputs a blinding factor <code>bf</code> based on a blind key <code>bk</code> and an application context byte string <code>ctx</code>.<a href="#section-2.2-2.4.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-2.2-2.3.2.2">
+                <p id="section-2.2-2.3.2.2.1">DeriveBlindingFactor(bk, ctx): Outputs a blinding factor <code>bf</code> based on a blind key <code>bk</code> and an application context byte string <code>ctx</code>.<a href="#section-2.2-2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-2.2-2.4.2.3">
-                <p id="section-2.2-2.4.2.3.1">BlindPublicKey(pk, bk, ctx): Outputs the result public key <code>pk'</code> of blinding public key <code>pk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>.<a href="#section-2.2-2.4.2.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-2.2-2.3.2.3">
+                <p id="section-2.2-2.3.2.3.1">BlindPublicKey(pk, bk, ctx): Outputs the result public key <code>pk'</code> of blinding public key <code>pk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>.<a href="#section-2.2-2.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-2.2-2.4.2.4">
-                <p id="section-2.2-2.4.2.4.1">BlindPrivateKey(sk, bf): Outputs the result private key <code>sk'</code> of blinding private key <code>sk</code> with blinding factor <code>bf</code>. This result <code>sk'</code> is such that if <code>bf = DeriveBlindingFactor(bk, ctx)</code> for some <code>bk</code> and <code>ctx</code>, <code>(sk', pk')</code> forms a key pair for <code>pk' = BlindPublicKey(pk, bk, ctx)</code>.<a href="#section-2.2-2.4.2.4.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-2.2-2.3.2.4">
+                <p id="section-2.2-2.3.2.4.1">BlindPrivateKey(sk, bf): Outputs the result private key <code>sk'</code> of blinding private key <code>sk</code> with blinding factor <code>bf</code>. This result <code>sk'</code> is such that if <code>bf = DeriveBlindingFactor(bk, ctx)</code> for some <code>bk</code> and <code>ctx</code>, <code>(sk', pk')</code> forms a key pair for <code>pk' = BlindPublicKey(pk, bk, ctx)</code>.<a href="#section-2.2-2.3.2.4.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-2.2-2.4.2.5">
-                <p id="section-2.2-2.4.2.5.1">Combine(bf1, bf2): Outputs a blinding factor <code>bf</code> such that for all key pairs <code>(sk, pk)</code>:<a href="#section-2.2-2.4.2.5.1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.2-2.4.2.5.2">
+              <li class="normal" id="section-2.2-2.3.2.5">
+                <p id="section-2.2-2.3.2.5.1">Combine(bf1, bf2): Outputs a blinding factor <code>bf</code> such that for all key pairs <code>(sk, pk)</code>:<a href="#section-2.2-2.3.2.5.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.2-2.3.2.5.2">
 <pre>
 BlindPrivateKey(sk, bf) ==
     BlindPrivateKey(BlindPrivateKey(sk, bf1), bf2)
-</pre><a href="#section-2.2-2.4.2.5.2" class="pilcrow">¶</a>
+</pre><a href="#section-2.2-2.3.2.5.2" class="pilcrow">¶</a>
 </div>
 </li>
             </ul>
 </li>
-          <li class="normal" id="section-2.2-2.5">
-            <p id="section-2.2-2.5.1"><code>KEM</code>: A key encapsulation mechanism <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>, consisting of the functions:<a href="#section-2.2-2.5.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-2.2-2.4">
+            <p id="section-2.2-2.4.1"><code>KEM</code>: A key encapsulation mechanism <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>, consisting of the functions:<a href="#section-2.2-2.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.2-2.5.2.1">
-                <p id="section-2.2-2.5.2.1.1">DeriveKeyPair(ikm): Outputs a key encapsulation key pair <code>(sk, pk)</code>.<a href="#section-2.2-2.5.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.2-2.4.2.1">
+                <p id="section-2.2-2.4.2.1.1">DeriveKeyPair(ikm): Outputs a key encapsulation key pair <code>(sk, pk)</code>.<a href="#section-2.2-2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-2.2-2.5.2.2">
-                <p id="section-2.2-2.5.2.2.1">Encap(pk): Outputs <code>(k, c)</code> consisting of a shared secret <code>k</code> and a ciphertext <code>c</code>, taking key encapsulation public key <code>pk</code>.<a href="#section-2.2-2.5.2.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-2.2-2.4.2.2">
+                <p id="section-2.2-2.4.2.2.1">Encap(pk): Outputs <code>(k, c)</code> consisting of a shared secret <code>k</code> and a ciphertext <code>c</code>, taking key encapsulation public key <code>pk</code>.<a href="#section-2.2-2.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-2.2-2.5.2.3">
-                <p id="section-2.2-2.5.2.3.1">Decap(c, sk): Outputs shared secret <code>k</code>, taking ciphertext <code>c</code> and key encapsulation private key <code>sk</code>.<a href="#section-2.2-2.5.2.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-2.2-2.4.2.3">
+                <p id="section-2.2-2.4.2.3.1">Decap(c, sk): Outputs shared secret <code>k</code>, taking ciphertext <code>c</code> and key encapsulation private key <code>sk</code>.<a href="#section-2.2-2.4.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1514,10 +1508,11 @@ Outputs:
 - salt', the next salt for HDK derivation.
 
 def DeriveSalt(salt, ctx):
-    salt' = H1(ID || salt || ctx)
+    salt' = H(salt || ctx)
     return salt'
 </pre><a href="#section-2.4-2" class="pilcrow">¶</a>
 </div>
+<p id="section-2.4-3">Salt values, including the original seed value, <span class="bcp14">MUST NOT</span> be reused outside of HDK.<a href="#section-2.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-hdk-function">
@@ -1647,13 +1642,16 @@ sk' = BlindPrivateKey(sk, bf) # optional
 <p id="section-3.1-1">Instantiations of HDK using digital signatures require the following cryptographic constructs:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-2.1">
-            <p id="section-3.1-2.1.1"><code>DSA</code>: A digital signature algorithm , consisting of the functions:<a href="#section-3.1-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.1-2.1.1"><code>DSA</code>: A digital signature algorithm, consisting of the functions:<a href="#section-3.1-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-2.1.2.1">
-                <p id="section-3.1-2.1.2.1.1">Sign(sk, msg): Outputs the signature created using private signing key <code>sk</code> over byte string <code>msg</code>.<a href="#section-3.1-2.1.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.1.1">GenerateKeyPair(): Outputs a new key pair <code>(sk, pk)</code> consisting of private key <code>sk</code> and public key <code>pk</code>.<a href="#section-3.1-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.1-2.1.2.2">
-                <p id="section-3.1-2.1.2.2.1">Verify(signature, pk, msg): Outputs whether <code>signature</code> is a signature over <code>msg</code> using public verification key <code>pk</code>.<a href="#section-3.1-2.1.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-3.1-2.1.2.2.1">Sign(sk, msg): Outputs the signature created using private signing key <code>sk</code> over byte string <code>msg</code>.<a href="#section-3.1-2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-3.1-2.1.2.3">
+                <p id="section-3.1-2.1.2.3.1">Verify(signature, pk, msg): Outputs whether <code>signature</code> is a signature over <code>msg</code> using public verification key <code>pk</code>.<a href="#section-3.1-2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1677,35 +1675,38 @@ msg = create_message(pk, nonce) # out of scope for this spec
 Verify(signature, pk, msg)
 </pre><a href="#section-3.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-3.1-5">By design of <code>BL</code>, the same proof of possession protocol can be used with blinded key pairs and BlindSign, in such a way that the reader does not recognise that key blinding was used.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
-<p id="section-3.1-6">An instantiation using <code>DSA</code> intantiates the following:<a href="#section-3.1-6" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.1-7">
+<p id="section-3.1-5">Instantiations of HDK using digital signatures instantiat the following:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-6.1">
+            <p id="section-3.1-6.1.1"><code>BL</code>: A cryptographic construct that extends <code>DSA</code> as specified in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>, implementing the interface from <span><a href="#instantiation-parameters" class="internal xref">Instantiation parameters</a> (<a href="#instantiation-parameters" class="auto internal xref">Section 2.2</a>)</span>.<a href="#section-3.1-6.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-3.1-7">While <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span> does not expose blinding factors, it provides public algorithms to compute these. In HDK, the computed blinding factors are applied in <code>BL</code> as follows:<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-8">
 <pre>
 def BlindSign(sk, bf, msg):
     sk' = BlindPrivateKey(sk, bf)
     signature = Sign(sk', msg)
     return signature
-</pre><a href="#section-3.1-7" class="pilcrow">¶</a>
+</pre><a href="#section-3.1-8" class="pilcrow">¶</a>
 </div>
-<ul class="normal">
-<li class="normal" id="section-3.1-8.1">
-            <p id="section-3.1-8.1.1"><span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span><a href="#section-3.1-8.1.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
+<p id="section-3.1-9">By design of <code>BL</code>, the same proof of possession protocol can be used with blinded key pairs and BlindSign, in such a way that the reader does not recognise that key blinding was used.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
+<p id="section-3.1-10">In the default implementation, BlindSign requires support from the secure cryptographic device protecting <code>sk</code>. In some cases, BlindSign can be implemented in an alternative, distributed way. An example will be provided below.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
+<p id="section-3.1-11">Applications <span class="bcp14">MUST</span> bind the message to be signed to the blinded public key. This mitigates attacks based on signature malleability. Several proof of possession protocols require including document data in the message, which includes the blinded public key indeed.<a href="#section-3.1-11" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="using-elliptic-curves">
+<div id="using-prime-order-groups">
 <section id="section-3.2">
-        <h3 id="name-using-elliptic-curves">
-<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-using-elliptic-curves" class="section-name selfRef">Using elliptic curves</a>
+        <h3 id="name-using-prime-order-groups">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-using-prime-order-groups" class="section-name selfRef">Using prime-order groups</a>
         </h3>
-<p id="section-3.2-1">Instantiations of HDK using elliptic curves require the following cryptographic constructs:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-1">Instantiations of HDK using prime-order groups require the following cryptographic constructs:<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.2-2.1">
-            <p id="section-3.2-2.1.1"><code>EC</code>: An elliptic curve with elements of type Element and scalars of type Scalar, consisting of the functions:<a href="#section-3.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.2-2.1.1"><code>G</code>: A prime-order group as defined in <span>[<a href="#RFC9497" class="cite xref">RFC9497</a>]</span> with elements of type Element and scalars of type Scalar, consisting of the functions:<a href="#section-3.2-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.2-2.1.2.1">
-                <p id="section-3.2-2.1.2.1.1">GenerateRandomScalar(): Outputs a random Scalar <code>k</code>.<a href="#section-3.2-2.1.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-3.2-2.1.2.1.1">RandomScalar(): Outputs a random Scalar <code>k</code>.<a href="#section-3.2-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.2-2.1.2.2">
                 <p id="section-3.2-2.1.2.2.1">Add(A, B): Outputs the sum between Elements <code>A</code> and <code>B</code>.<a href="#section-3.2-2.1.2.2.1" class="pilcrow">¶</a></p>
@@ -1725,13 +1726,8 @@ def BlindSign(sk, bf, msg):
               <li class="normal" id="section-3.2-2.1.2.7">
                 <p id="section-3.2-2.1.2.7.1">SerializeScalar(k): Outputs a byte string representing Scalar <code>k</code>.`<a href="#section-3.2-2.1.2.7.1" class="pilcrow">¶</a></p>
 </li>
-            </ul>
-</li>
-          <li class="normal" id="section-3.2-2.2">
-            <p id="section-3.2-2.2.1"><code>H2C</code>: A hash-to-curve suite <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> for EC, providing the function:<a href="#section-3.2-2.2.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3.2-2.2.2.1">
-                <p id="section-3.2-2.2.2.1.1">hash_to_field(msg, count): Outputs <code>count</code> EC Elements based on the result of cryptographically hashing <code>msg</code> (see <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>, Section 5.2).<a href="#section-3.2-2.2.2.1.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-3.2-2.1.2.8">
+                <p id="section-3.2-2.1.2.8.1">HashToScalar(msg): Outputs the result of deterministically mapping a byte string <code>msg</code> to an element in the scalar field of the prime order subgroup of <code>G</code>, using the <code>hash_to_field</code> function from a hash-to-curve suite <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>.<a href="#section-3.2-2.1.2.8.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1744,38 +1740,25 @@ def GenerateKeyPair():
     return (sk, pk)
 
 def DeriveBlindKey(ikm):
-    bk_scalar = hash_to_field(ikm, 1) with the parameters:
-        DST: ID || ctx
-        F: GF(EC-Order()), the scalar field
-            of the prime order subgroup of EC
-        p: EC-Order()
-        m: 1
-        L: as defined in H2C
-        expand_message: as defined in H2C
+    bk_scalar = HashToScalar(ikm)
     bk = SerializeScalar(bk_scalar)
     return bk
 
 def DeriveBlindingFactor(bk, ctx):
     msg = bk || 0x00 || ctx
-    bf = hash_to_field(msg, 1) with the parameters:
-        DST: ID || ctx
-        F: GF(EC-Order()), the scalar field
-            of the prime order subgroup of EC
-        p: EC-Order()
-        m: 1
-        L: as defined in H2C
-        expand_message: as defined in H2C
+    bf = HashToScalar(msg)
     return bf
 </pre><a href="#section-3.2-3" class="pilcrow">¶</a>
 </div>
+<p id="section-3.2-4">Note that DeriveBlindingFactor is compatible with the definitions in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="using-ec-multiplicative-blinding">
+<div id="using-multiplicative-blinding">
 <section id="section-3.3">
-        <h3 id="name-using-ec-multiplicative-bli">
-<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-using-ec-multiplicative-bli" class="section-name selfRef">Using EC multiplicative blinding</a>
+        <h3 id="name-using-multiplicative-blindi">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-using-multiplicative-blindi" class="section-name selfRef">Using multiplicative blinding</a>
         </h3>
-<p id="section-3.3-1">Such instantations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.2</a>)</span>) and instantiate the following:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-1">Such instantations of HDK <span><a href="#using-prime-order-groups" class="internal xref">use prime-order groups</a> (<a href="#using-prime-order-groups" class="auto internal xref">Section 3.2</a>)</span> and instantiate the following:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.3-2">
 <pre>
 def BlindPublicKey(pk, bk, ctx):
@@ -1794,12 +1777,12 @@ def Combine(bf1, bf2):
 </div>
 </section>
 </div>
-<div id="using-ec-additive-blinding">
+<div id="using-additive-blinding">
 <section id="section-3.4">
-        <h3 id="name-using-ec-additive-blinding">
-<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-using-ec-additive-blinding" class="section-name selfRef">Using EC additive blinding</a>
+        <h3 id="name-using-additive-blinding">
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-using-additive-blinding" class="section-name selfRef">Using additive blinding</a>
         </h3>
-<p id="section-3.4-1">Such instantations of HDK use elliptic curves (see <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.2</a>)</span>) and instantiate the following:<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.4-1">Such instantations of HDK use <span><a href="#using-prime-order-groups" class="internal xref">use prime-order groups</a> (<a href="#using-prime-order-groups" class="auto internal xref">Section 3.2</a>)</span> and instantiate the following:<a href="#section-3.4-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.4-2">
 <pre>
 def BlindPublicKey(pk, bk, ctx):
@@ -1823,10 +1806,10 @@ def Combine(bf1, bf2):
         <h3 id="name-using-ecdh-shared-secrets">
 <a href="#section-3.5" class="section-number selfRef">3.5. </a><a href="#name-using-ecdh-shared-secrets" class="section-name selfRef">Using ECDH shared secrets</a>
         </h3>
-<p id="section-3.5-1">Such instantiations of HDK use EC multiplicative blinding (see <span><a href="#using-ec-multiplicative-blinding" class="internal xref">Using EC multiplicative blinding</a> (<a href="#using-ec-multiplicative-blinding" class="auto internal xref">Section 3.3</a>)</span>) and require the following cryptographic construct:<a href="#section-3.5-1" class="pilcrow">¶</a></p>
+<p id="section-3.5-1">Such instantiations of HDK <span><a href="#using-multiplicative-blinding" class="internal xref">use multiplicative blinding</a> (<a href="#using-multiplicative-blinding" class="auto internal xref">Section 3.3</a>)</span> and require the following cryptographic construct:<a href="#section-3.5-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.5-2.1">
-            <p id="section-3.5-2.1.1"><code>ECDH</code>: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with elliptic curve <code>EC</code>, consisting of the functions:<a href="#section-3.5-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.5-2.1.1"><code>DH</code>: An Elliptic Curve Key Agreement Algorithm - Diffie-Hellman (ECKA-DH) <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with elliptic curve <code>EC</code>, consisting of the functions:<a href="#section-3.5-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.5-2.1.2.1">
                 <p id="section-3.5-2.1.2.1.1">CreateSharedSecret(skX, pkY): Outputs a shared secret byte string <code>Z_AB</code> representing the x-coordinate of the Element <code>ScalarMult(pkY, skX)</code>.<a href="#section-3.5-2.1.2.1.1" class="pilcrow">¶</a></p>
@@ -1834,7 +1817,7 @@ def Combine(bf1, bf2):
             </ul>
 </li>
         </ul>
-<p id="section-3.5-3">Note that ECDH enables an alternative way of authenticating a key pair <code>(sk, pk)</code> without creation or verification of a signature:<a href="#section-3.5-3" class="pilcrow">¶</a></p>
+<p id="section-3.5-3">Note that DH enables an alternative way of authenticating a key pair <code>(sk, pk)</code> without creation or verification of a signature:<a href="#section-3.5-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.5-4">
 <pre>
 # 1. Unit shares with reader: pk
@@ -1870,71 +1853,22 @@ Z_AB = CreateSharedSecret(sk', pkR)
      = CreateSharedSecret(sk, ScalarMult(pkR, bf))
 </pre><a href="#section-3.5-10" class="pilcrow">¶</a>
 </div>
-</section>
-</div>
-<div id="using-ec-digital-signatures">
-<section id="section-3.6">
-        <h3 id="name-using-ec-digital-signatures">
-<a href="#section-3.6" class="section-number selfRef">3.6. </a><a href="#name-using-ec-digital-signatures" class="section-name selfRef">Using EC digital signatures</a>
-        </h3>
-<p id="section-3.6-1">Such instantiations of HDK use EC additive blinding (see <span><a href="#using-ec-additive-blinding" class="internal xref">Using EC additive blinding</a> (<a href="#using-ec-additive-blinding" class="auto internal xref">Section 3.4</a>)</span>) and require the following cryptographic construct:<a href="#section-3.6-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3.6-2.1">
-            <p id="section-3.6-2.1.1"><code>DSA</code>: An EC digital signature algorithm , consisting of the functions:<a href="#section-3.6-2.1.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-3.6-2.1.2.1">
-                <p id="section-3.6-2.1.2.1.1">Sign(sk, msg): Outputs the signature <code>(c, r)</code> created using private signing key <code>sk</code> over byte string <code>msg</code>.<a href="#section-3.6-2.1.2.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-3.6-2.1.2.2">
-                <p id="section-3.6-2.1.2.2.1">Verify(signature, pk, msg): Outputs whether <code>signature</code> is a signature over <code>msg</code> using public verification key <code>pk</code>.<a href="#section-3.6-2.1.2.2.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-</li>
-        </ul>
-<p id="section-3.6-3">Using these constructs, an example proof of possession protocol is:<a href="#section-3.6-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.6-4">
-<pre>
-# 1. Unit shares with reader: pk
-
-# 2. Reader computes:
-nonce = generate_random_nonce() # out of scope for this spec
-
-# 3. Reader shares with unit: nonce
-
-# 4. Unit computes:
-msg = create_message(pk, nonce) # out of scope for this spec
-signature = Sign(sk, msg)
-
-# 5. Reader computes:
-msg = create_message(pk, nonce) # out of scope for this spec
-Verify(signature, pk, msg)
-</pre><a href="#section-3.6-4" class="pilcrow">¶</a>
-</div>
-<p id="section-3.6-5">By design of <code>BL</code>, the same proof of possession protocol can be used with blinded key pairs and BlindSign, in such a way that the reader does not recognise that key blinding was used.<a href="#section-3.6-5" class="pilcrow">¶</a></p>
-<p id="section-3.6-6">An instantiation using <code>DSA</code> intantiates the following:<a href="#section-3.6-6" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.6-7">
-<pre>
-def BlindSign(sk, bf, msg):
-    sk' = BlindPrivateKey(sk, bf)
-    signature = Sign(sk', msg)
-    return signature
-</pre><a href="#section-3.6-7" class="pilcrow">¶</a>
-</div>
+<p id="section-3.5-11">Note that the value of <code>ScalarMult(pkR, bf)</code> does not need to be computed within the secure cryptographic device that protects <code>sk</code>.<a href="#section-3.5-11" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="using-ec-sdsa-signatures">
-<section id="section-3.7">
+<section id="section-3.6">
         <h3 id="name-using-ec-sdsa-signatures">
-<a href="#section-3.7" class="section-number selfRef">3.7. </a><a href="#name-using-ec-sdsa-signatures" class="section-name selfRef">Using EC-SDSA signatures</a>
+<a href="#section-3.6" class="section-number selfRef">3.6. </a><a href="#name-using-ec-sdsa-signatures" class="section-name selfRef">Using EC-SDSA signatures</a>
         </h3>
-<p id="section-3.7-1">Such instantiations of HDK use EC digital signatures (see <span><a href="#using-ec-digital-signatures" class="internal xref">Using EC digital signatures</a> (<a href="#using-ec-digital-signatures" class="auto internal xref">Section 3.6</a>)</span>) and instantiate the following:<a href="#section-3.7-1" class="pilcrow">¶</a></p>
+<p id="section-3.6-1">Such instantiations of HDK <span><a href="#using-digital-signatures" class="internal xref">use digital signatures</a> (<a href="#using-digital-signatures" class="auto internal xref">Section 3.1</a>)</span> and <span><a href="#using-additive-blinding" class="internal xref">use additive blinding</a> (<a href="#using-additive-blinding" class="auto internal xref">Section 3.4</a>)</span> and instantiate the following:<a href="#section-3.6-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.7-2.1">
-            <p id="section-3.7-2.1.1"><code>DSA</code>: An EC-SDSA (Schnorr) digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>, representing signatures as pairs <code>(c, s)</code>.<a href="#section-3.7-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.6-2.1">
+            <p id="section-3.6-2.1.1"><code>DSA</code>: An EC-SDSA (Schnorr) digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>, representing signatures as pairs <code>(c, s)</code>.<a href="#section-3.6-2.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-3.7-3">Note that in this case, the following definition is equivalent to the original definition of BlindSign:<a href="#section-3.7-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.7-4">
+<p id="section-3.6-3">Note that in this case, the following definition is equivalent to the original definition of BlindSign:<a href="#section-3.6-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.6-4">
 <pre>
 def BlindSign(sk, bf, msg):
     # Compute signature within the secure cryptographic device.
@@ -1945,22 +1879,61 @@ def BlindSign(sk, bf, msg):
 
     signature = (c, s')
     return signature
-</pre><a href="#section-3.7-4" class="pilcrow">¶</a>
+</pre><a href="#section-3.6-4" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="using-ecdsa-signatures">
-<section id="section-3.8">
-        <h3 id="name-using-ecdsa-signatures">
-<a href="#section-3.8" class="section-number selfRef">3.8. </a><a href="#name-using-ecdsa-signatures" class="section-name selfRef">Using ECDSA signatures</a>
+<div id="using-p-256">
+<section id="section-3.7">
+        <h3 id="name-using-p-256">
+<a href="#section-3.7" class="section-number selfRef">3.7. </a><a href="#name-using-p-256" class="section-name selfRef">Using P-256</a>
         </h3>
-<p id="section-3.8-1">Such instantiations of HDK use EC digital signatures (see <span><a href="#using-ec-digital-signatures" class="internal xref">Using EC digital signatures</a> (<a href="#using-ec-digital-signatures" class="auto internal xref">Section 3.6</a>)</span>) and instantiate the following:<a href="#section-3.8-1" class="pilcrow">¶</a></p>
+<p id="section-3.7-1">Such instantiations of HDK <span><a href="#using-prime-order-groups" class="internal xref">use prime-order groups</a> (<a href="#using-prime-order-groups" class="auto internal xref">Section 3.2</a>)</span> and require the following parameter:<a href="#section-3.7-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.8-2.1">
-            <p id="section-3.8-2.1.1"><code>DSA</code>: An ECDSA digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>.<a href="#section-3.8-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.7-2.1">
+            <p id="section-3.7-2.1.1"><code>DST</code>: A domain separation tag for use with HashToScalar.<a href="#section-3.7-2.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-3.8-3">Due to potential patent claims, this document does not specify an instantiation with multi-party ECDSA signing, even though this would be theoretically possible using EC multiplicative blinding.<a href="#section-3.8-3" class="pilcrow">¶</a></p>
+<p id="section-3.7-3">Such instantiations instantiate the following:<a href="#section-3.7-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.7-4.1">
+            <p id="section-3.7-4.1.1"><code>Ns</code>: 32<a href="#section-3.7-4.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.7-4.2">
+            <p id="section-3.7-4.2.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span>.<a href="#section-3.7-4.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.7-4.3">
+            <p id="section-3.7-4.3.1"><code>G</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span> with:<a href="#section-3.7-4.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.7-4.3.2.1">
+                <p id="section-3.7-4.3.2.1.1"><code>HashToScalar(msg)</code>: Implemented by computing <code>hash_to_field(msg, 1)</code> with the parameters:<a href="#section-3.7-4.3.2.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.7-4.3.2.1.2.1">
+                    <p id="section-3.7-4.3.2.1.2.1.1"><code>DST</code>: <code>DST</code><a href="#section-3.7-4.3.2.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                  <li class="normal" id="section-3.7-4.3.2.1.2.2">
+                    <p id="section-3.7-4.3.2.1.2.2.1"><code>F</code>: GF(EC-Order()), the scalar field of the prime order subgroup of <code>G</code><a href="#section-3.7-4.3.2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                  <li class="normal" id="section-3.7-4.3.2.1.2.3">
+                    <p id="section-3.7-4.3.2.1.2.3.1"><code>p</code>: EC-Order()<a href="#section-3.7-4.3.2.1.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                  <li class="normal" id="section-3.7-4.3.2.1.2.4">
+                    <p id="section-3.7-4.3.2.1.2.4.1"><code>m</code>: 1<a href="#section-3.7-4.3.2.1.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                  <li class="normal" id="section-3.7-4.3.2.1.2.5">
+                    <p id="section-3.7-4.3.2.1.2.5.1"><code>L</code>: 48<a href="#section-3.7-4.3.2.1.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                  <li class="normal" id="section-3.7-4.3.2.1.2.6">
+                    <p id="section-3.7-4.3.2.1.2.6.1"><code>expand_message</code>: <code>expand_message_xmd</code> with <code>H</code><a href="#section-3.7-4.3.2.1.2.6.1" class="pilcrow">¶</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-3.7-4.4">
+            <p id="section-3.7-4.4.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>.<a href="#section-3.7-4.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
 </section>
@@ -1976,30 +1949,13 @@ def BlindSign(sk, bf, msg):
         <h3 id="name-hdk-ecdh-p256">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-hdk-ecdh-p256" class="section-name selfRef">HDK-ECDH-P256</a>
         </h3>
-<p id="section-4.1-1">This instantiation uses ECDH for proof of possession (see <span><a href="#using-ecdh-shared-secrets" class="internal xref">Using ECDH shared secrets</a> (<a href="#using-ecdh-shared-secrets" class="auto internal xref">Section 3.5</a>)</span>) and for <code>KEM</code>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">This instantiation <span><a href="#using-p-256" class="internal xref">uses P-256</a> (<a href="#using-p-256" class="auto internal xref">Section 3.7</a>)</span> and <span><a href="#using-ecdh-shared-secrets" class="internal xref">uses ECDH shared secrets</a> (<a href="#using-ecdh-shared-secrets" class="auto internal xref">Section 3.5</a>)</span>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1-2.1">
-            <p id="section-4.1-2.1.1"><code>ID</code>: <code>"HDK-ECDH-P256-v1"</code><a href="#section-4.1-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.1.1"><code>DST</code>: <code>"ECDH Key Blind"</code><a href="#section-4.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-2.2">
-            <p id="section-4.1-2.2.1"><code>Ns</code>: 32<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-2.3">
-            <p id="section-4.1-2.3.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span> with:<a href="#section-4.1-2.3.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.1-2.3.2.1">
-                <p id="section-4.1-2.3.2.1.1"><code>H(msg)</code>: Implemented by computing <code>H(ID || msg)</code>.<a href="#section-4.1-2.3.2.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-</li>
-          <li class="normal" id="section-4.1-2.4">
-            <p id="section-4.1-2.4.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span><a href="#section-4.1-2.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-2.5">
-            <p id="section-4.1-2.5.1"><code>ECDH</code>: ECKA-DH with curve <code>EC</code><a href="#section-4.1-2.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.1-2.6">
-            <p id="section-4.1-2.6.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span><a href="#section-4.1-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.2.1"><code>DH</code>: ECKA-DH with curve <code>EC</code>.<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -2009,30 +1965,13 @@ def BlindSign(sk, bf, msg):
         <h3 id="name-hdk-ecdsa-p256">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-hdk-ecdsa-p256" class="section-name selfRef">HDK-ECDSA-P256</a>
         </h3>
-<p id="section-4.2-1">This instantiation uses ECDSA for proof of possession (see <span><a href="#using-ecdsa-signatures" class="internal xref">Using ECDSA signatures</a> (<a href="#using-ecdsa-signatures" class="auto internal xref">Section 3.8</a>)</span>) and ECDH for <code>KEM</code>.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">This instantiation <span><a href="#using-p-256" class="internal xref">uses P-256</a> (<a href="#using-p-256" class="auto internal xref">Section 3.7</a>)</span> and <span><a href="#using-digital-signatures" class="internal xref">uses digital signatures</a> (<a href="#using-digital-signatures" class="auto internal xref">Section 3.1</a>)</span>.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2-2.1">
-            <p id="section-4.2-2.1.1"><code>ID</code>: <code>"HDK-ECDSA-P256-v1"</code><a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.1.1"><code>DST</code>: <code>"ECDSA Key Blind"</code><a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.2">
-            <p id="section-4.2-2.2.1"><code>Ns</code>: 32<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.2-2.3">
-            <p id="section-4.2-2.3.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span> with:<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2-2.3.2.1">
-                <p id="section-4.2-2.3.2.1.1"><code>H(msg)</code>: Implemented by computing <code>H(ID || msg)</code>.<a href="#section-4.2-2.3.2.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-</li>
-          <li class="normal" id="section-4.2-2.4">
-            <p id="section-4.2-2.4.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span><a href="#section-4.2-2.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.2-2.5">
-            <p id="section-4.2-2.5.1"><code>DSA</code>: ECDSA with curve <code>EC</code>.<a href="#section-4.2-2.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.2-2.6">
-            <p id="section-4.2-2.6.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span><a href="#section-4.2-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.2.1"><code>DSA</code>: ECDSA <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with curve <code>G</code>.<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -2042,30 +1981,13 @@ def BlindSign(sk, bf, msg):
         <h3 id="name-hdk-ecsdsa-p256">
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-hdk-ecsdsa-p256" class="section-name selfRef">HDK-ECSDSA-P256</a>
         </h3>
-<p id="section-4.3-1">This instantiation uses EC-SDSA for proof of possession (see <span><a href="#using-ec-sdsa-signatures" class="internal xref">Using EC-SDSA signatures</a> (<a href="#using-ec-sdsa-signatures" class="auto internal xref">Section 3.7</a>)</span>) and ECDH for <code>KEM</code>.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-1">This instantiation <span><a href="#using-p-256" class="internal xref">uses P-256</a> (<a href="#using-p-256" class="auto internal xref">Section 3.7</a>)</span> and <span><a href="#using-ec-sdsa-signatures" class="internal xref">uses EC-SDSA signatures</a> (<a href="#using-ec-sdsa-signatures" class="auto internal xref">Section 3.6</a>)</span>.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.3-2.1">
-            <p id="section-4.3-2.1.1"><code>ID</code>: <code>"HDK-ECSDSA-P256-v1"</code><a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.3-2.1.1"><code>DST</code>: <code>"EC-SDSA Key Blind"</code><a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.3-2.2">
-            <p id="section-4.3-2.2.1"><code>Ns</code>: 32<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.3-2.3">
-            <p id="section-4.3-2.3.1"><code>H</code>: SHA-256 <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span> with:<a href="#section-4.3-2.3.1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.3-2.3.2.1">
-                <p id="section-4.3-2.3.2.1.1"><code>H(msg)</code>: Implemented by computing <code>H(ID || msg)</code>.<a href="#section-4.3-2.3.2.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-</li>
-          <li class="normal" id="section-4.3-2.4">
-            <p id="section-4.3-2.4.1"><code>EC</code>: The NIST curve <code>secp256r1</code> (P-256) <span>[<a href="#SEC2" class="cite xref">SEC2</a>]</span><a href="#section-4.3-2.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.3-2.5">
-            <p id="section-4.3-2.5.1"><code>DSA</code>: EC-SDSA-opt (the optimised EC-SDSA) with curve <code>EC</code>.<a href="#section-4.3-2.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.3-2.6">
-            <p id="section-4.3-2.6.1"><code>KEM</code>: DHKEM(P-256, HKDF-SHA256) <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span><a href="#section-4.3-2.6.1" class="pilcrow">¶</a></p>
+            <p id="section-4.3-2.2.1"><code>DSA</code>: EC-SDSA-opt (the optimised EC-SDSA) with curve <code>G</code>.<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -2294,6 +2216,10 @@ def BlindSign(sk, bf, msg):
         <dd>
 <span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="seriesInfo">RFC 9380</span>, <span class="seriesInfo">DOI 10.17487/RFC9380</span>, <time datetime="2023-08" class="refDate">August 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9380">https://www.rfc-editor.org/rfc/rfc9380</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC9497">[RFC9497]</dt>
+        <dd>
+<span class="refAuthor">Davidson, A.</span>, <span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Oblivious Pseudorandom Functions (OPRFs) Using Prime-Order Groups"</span>, <span class="seriesInfo">RFC 9497</span>, <span class="seriesInfo">DOI 10.17487/RFC9497</span>, <time datetime="2023-12" class="refDate">December 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9497">https://www.rfc-editor.org/rfc/rfc9497</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="SEC2">[SEC2]</dt>
         <dd>
 <span class="refAuthor">Certicom Research</span>, <span class="refTitle">"SEC 2: Recommended Elliptic Curve Domain Parameters, Version 2.0"</span>, <span class="seriesInfo">SEC 2 Version 2.0</span>, <time datetime="2010-01" class="refDate">January 2010</time>, <span>&lt;<a href="https://www.secg.org/sec2-v2.pdf">https://www.secg.org/sec2-v2.pdf</a>&gt;</span>. </dd>
@@ -2344,8 +2270,12 @@ def BlindSign(sk, bf, msg):
 <span class="refAuthor">Hao, F., Ed.</span>, <span class="refTitle">"Schnorr Non-interactive Zero-Knowledge Proof"</span>, <span class="seriesInfo">RFC 8235</span>, <span class="seriesInfo">DOI 10.17487/RFC8235</span>, <time datetime="2017-09" class="refDate">September 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8235">https://www.rfc-editor.org/rfc/rfc8235</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="Verheul2024">[Verheul2024]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Verheul, E.</span>, <span class="refTitle">"Attestation Proof of Association – provability that attestation keys are bound to the same hardware and person"</span>, <time datetime="2024-09-18" class="refDate">18 September 2024</time>, <span>&lt;<a href="https://eprint.iacr.org/2024/1444">https://eprint.iacr.org/2024/1444</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Wilson2023">[Wilson2023]</dt>
+      <dd>
+<span class="refAuthor">Wilson, S. M.</span>, <span class="refTitle">"Post-Quantum Account Recovery for Passwordless Authentication. Master’s thesis"</span>, <time datetime="2023-04-24" class="refDate">24 April 2023</time>, <span>&lt;<a href="https://hdl.handle.net/10012/19316">https://hdl.handle.net/10012/19316</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
