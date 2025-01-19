@@ -7,7 +7,7 @@
 <title>Hierarchical Deterministic Keys</title>
 <meta content="Sander Dijkhuis" name="author">
 <meta content="
-       Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. 
+       Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. Some instantiations can be implemented in such a way that the secure cryptographic device does not need to support key blinding, enabling the use of devices that already are widely deployed. 
     " name="description">
 <meta content="xml2rfc 3.25.0" name="generator">
 <meta content="KDF" name="keyword">
@@ -1080,7 +1080,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">Hierarchical Deterministic Keys</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. Some instantiations can be implemented in such a way that the secure cryptographic device does not need to support key blinding, enabling the use of devices that already are widely deployed.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1283,8 +1283,8 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-1-1">This document specifies the algorithms to apply Hierarchical Deterministic Keys (HDKeys). The purpose of an HDK architecture is to manage large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">The core idea has been introduced in <span>[<a href="#BIP32" class="cite xref">BIP32</a>]</span> to create multiple cryptocurrency addresses in a manageable way. The present document extends the idea towards devices commonly used for digital wallets, and towards common interaction patterns for document issuance and authentication.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">To store many HDKeys, only a seed string needs to be confidentially stored, associated with a device private key. Each HDK is then deterministically defined by a path of indices, optionally alternated by key handles provided by another party. Such a path can efficiently be stored and requires less confidentiality than the seed.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">To prove possession of many HDKeys, the secure cryptographic device only needs to perform common cryptographic operations on a single key. The HDK acts as a blinding factor that enables blinding the device public key.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-3">To store many HDKeys, only a seed string needs to be stored confidentially, associated with a device private key. Each HDK is then deterministically defined by a path of indices, optionally alternated by key handles provided by another party. Such a path can efficiently be stored and requires less confidentiality than the seed.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">To prove possession of many HDKeys, the secure cryptographic device only needs to perform common cryptographic operations on a single private key. The HDK acts as a blinding factor that enables blinding the device public key. In several instantiations, such as those <span><a href="#using-ecdh-shared-secrets" class="internal xref">using ECDH shared secrets</a> (<a href="#using-ecdh-shared-secrets" class="auto internal xref">Section 3.5</a>)</span> and those <span><a href="#using-ec-sdsa-signatures" class="internal xref">using EC-SDSA signatures</a> (<a href="#using-ec-sdsa-signatures" class="auto internal xref">Section 3.6</a>)</span>, the secure cryptographic device does not need to support key blinding natively, and the application can pre-process the input or post-process the output from the device to compute the blinded device authentication data. This enables the application of HDK on devices that are already deployed without native support for HDK.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">This document provides a specification of the generic HDK function, generic HDK instantiations, and fully specified concrete HDK instantiations.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">An HDK instantiation is expected to be applied in a solution deployed as (wallet) units. One unit can have multiple HDK instantiations, for example to manage multiple identities or multiple cryptographic algorithms or key protection mechanisms.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">This document represents the consensus of the authors, based on working group input and feedback. It is not a standard. It does not include security or privacy proofs.<a href="#section-1-7" class="pilcrow">¶</a></p>
@@ -1357,8 +1357,8 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
 <a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-remote-deterministic-key-de" class="section-name selfRef">Remote deterministic key derivation</a>
           </h4>
 <p id="section-2.1.2-1">Instead of local derivation, an HDK salt can also be derived using a key handle that is generated remotely. Using the derived salt, the local and remote parties can derive the same new HDKeys. The remote party can use these to derive public keys. The local party can use these to derive associated private keys for proof of possession.<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-2">This approach is similar to Asynchronous Remote Key Generation (ARKG) <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span>, but not the same since ARKG does not enable distributed proof of possession with deterministic hierarchies. These hierarchies can be used for example to enable remote parties to derive keys from previously derived keys. Not supporting these makes it difficult to implement with cryptographic devices that lack specific firmware support.<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.2-3">To enable remote derivation of child HDKeys, the unit uses the parent HDKey to derive the parent public key and a second public key for key encapsulation. The issuer returns a key handle, using which both parties can derive a sequence of child HDKeys. Key encapsulation prevents other parties from discovering a link between the public keys of the parent and the children, even if the other party knows the parent HDK or can eavesdrop communications.<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-2">This approach is similar to Asynchronous Remote Key Generation (ARKG) <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> when considered at a single level. However, ARKG does not enable distributed proof of possession with deterministic hierarchies. Such hierarchies can be used for example to enable remote parties to derive keys from previously derived keys. Secure cryptographic devices that support ARKG may therefore not support all features of HDK.<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-3">To enable remote derivation of child HDKeys, the unit uses the parent HDK to derive the parent public key and a second public key for key encapsulation. The issuer returns a key handle, using which both parties can derive a sequence of child HDKeys. Key encapsulation prevents other parties from discovering a link between the public keys of the parent and the children, even if the other party knows the parent HDK or can eavesdrop communications.<a href="#section-2.1.2-3" class="pilcrow">¶</a></p>
 <p id="section-2.1.2-4">Locally derived parents can have remotely derived children. Remotely derived parents can have locally derived children.<a href="#section-2.1.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1467,7 +1467,7 @@ BlindPrivateKey(sk, bf) ==
 </li>
         </ul>
 <p id="section-2.2-3">An HDK instantiation <span class="bcp14">MUST</span> specify the instantiation of each of the above functions and values.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
-<p id="section-2.2-4">Note that by design of <code>BL</code>, when a document is issued using HDK, the reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2-4">Note that by design of BL, when a document is issued using HDK, the reader does not need to know that HDK was applied: the public key will look like any other public key used for proofs of possession.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
 <p id="section-2.2-5">An HDK implementation <span class="bcp14">MAY</span> leave BlindPrivateKey implicit in cases where the blinding method is constructed in a distributed way. In those cases, the secure cryptographic device holding the private key does not need to support key blinding, and the value of the blinded private key is never available during computation.<a href="#section-2.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1490,6 +1490,7 @@ def CreateContext(index):
     return ctx
 </pre><a href="#section-2.3-2" class="pilcrow">¶</a>
 </div>
+<p id="section-2.3-3">This context byte string is used as input for DeriveBlindingFactor, BlindPublicKey, and <span><a href="#the-hdk-salt" class="internal xref">DeriveSalt</a> (<a href="#the-hdk-salt" class="auto internal xref">Section 2.4</a>)</span>.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-hdk-salt">
@@ -1512,7 +1513,8 @@ def DeriveSalt(salt, ctx):
     return salt'
 </pre><a href="#section-2.4-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.4-3">Salt values, including the original seed value, <span class="bcp14">MUST NOT</span> be reused outside of HDK.<a href="#section-2.4-3" class="pilcrow">¶</a></p>
+<p id="section-2.4-3">Salt values are used as input for DeriveBlindKey, DeriveKeyPair, and DeriveSalt.<a href="#section-2.4-3" class="pilcrow">¶</a></p>
+<p id="section-2.4-4">Salt values, including the original seed value, <span class="bcp14">MUST NOT</span> be reused outside of HDK.<a href="#section-2.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-hdk-function">
@@ -1968,7 +1970,7 @@ def BlindSign(sk, bf, msg):
 <p id="section-4.2-1">This instantiation <span><a href="#using-p-256" class="internal xref">uses P-256</a> (<a href="#using-p-256" class="auto internal xref">Section 3.7</a>)</span> and <span><a href="#using-digital-signatures" class="internal xref">uses digital signatures</a> (<a href="#using-digital-signatures" class="auto internal xref">Section 3.1</a>)</span>.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2-2.1">
-            <p id="section-4.2-2.1.1"><code>DST</code>: <code>"ECDSA Key Blind"</code><a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.2-2.1.1"><code>DST</code>: <code>"ECDSA Key Blind"</code> as specified in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>.<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.2-2.2">
             <p id="section-4.2-2.2.1"><code>DSA</code>: ECDSA <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span> with curve <code>G</code>.<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>

@@ -16,7 +16,10 @@ Abstract
    Hierarchical Deterministic Keys enables managing large sets of keys
    bound to a secure cryptographic device that protects a single key.
    This enables the development of secure digital identity wallets
-   providing many one-time-use public keys.
+   providing many one-time-use public keys.  Some instantiations can be
+   implemented in such a way that the secure cryptographic device does
+   not need to support key blinding, enabling the use of devices that
+   already are widely deployed.
 
 About This Document
 
@@ -112,17 +115,24 @@ Table of Contents
    and towards common interaction patterns for document issuance and
    authentication.
 
-   To store many HDKeys, only a seed string needs to be confidentially
-   stored, associated with a device private key.  Each HDK is then
-   deterministically defined by a path of indices, optionally alternated
-   by key handles provided by another party.  Such a path can
+   To store many HDKeys, only a seed string needs to be stored
+   confidentially, associated with a device private key.  Each HDK is
+   then deterministically defined by a path of indices, optionally
+   alternated by key handles provided by another party.  Such a path can
    efficiently be stored and requires less confidentiality than the
    seed.
 
    To prove possession of many HDKeys, the secure cryptographic device
    only needs to perform common cryptographic operations on a single
-   key.  The HDK acts as a blinding factor that enables blinding the
-   device public key.
+   private key.  The HDK acts as a blinding factor that enables blinding
+   the device public key.  In several instantiations, such as those
+   using ECDH shared secrets (Section 3.5) and those using EC-SDSA
+   signatures (Section 3.6), the secure cryptographic device does not
+   need to support key blinding natively, and the application can pre-
+   process the input or post-process the output from the device to
+   compute the blinded device authentication data.  This enables the
+   application of HDK on devices that are already deployed without
+   native support for HDK.
 
    This document provides a specification of the generic HDK function,
    generic HDK instantiations, and fully specified concrete HDK
@@ -213,15 +223,15 @@ Table of Contents
    these to derive associated private keys for proof of possession.
 
    This approach is similar to Asynchronous Remote Key Generation (ARKG)
-   [I-D.draft-bradleylundberg-cfrg-arkg-02], but not the same since ARKG
-   does not enable distributed proof of possession with deterministic
-   hierarchies.  These hierarchies can be used for example to enable
-   remote parties to derive keys from previously derived keys.  Not
-   supporting these makes it difficult to implement with cryptographic
-   devices that lack specific firmware support.
+   [I-D.draft-bradleylundberg-cfrg-arkg-02] when considered at a single
+   level.  However, ARKG does not enable distributed proof of possession
+   with deterministic hierarchies.  Such hierarchies can be used for
+   example to enable remote parties to derive keys from previously
+   derived keys.  Secure cryptographic devices that support ARKG may
+   therefore not support all features of HDK.
 
    To enable remote derivation of child HDKeys, the unit uses the parent
-   HDKey to derive the parent public key and a second public key for key
+   HDK to derive the parent public key and a second public key for key
    encapsulation.  The issuer returns a key handle, using which both
    parties can derive a sequence of child HDKeys.  Key encapsulation
    prevents other parties from discovering a link between the public
@@ -374,6 +384,9 @@ Table of Contents
        ctx = ID || I2OSP(index, 4)
        return ctx
 
+   This context byte string is used as input for DeriveBlindingFactor,
+   BlindPublicKey, and DeriveSalt (Section 2.4).
+
 2.4.  The HDK salt
 
    A local unit or remote party derives a next-level HDK salt from
@@ -389,6 +402,9 @@ Table of Contents
    def DeriveSalt(salt, ctx):
        salt' = H(salt || ctx)
        return salt'
+
+   Salt values are used as input for DeriveBlindKey, DeriveKeyPair, and
+   DeriveSalt.
 
    Salt values, including the original seed value, MUST NOT be reused
    outside of HDK.
@@ -809,7 +825,8 @@ Table of Contents
    This instantiation uses P-256 (Section 3.7) and uses digital
    signatures (Section 3.1).
 
-   *  DST: "ECDSA Key Blind"
+   *  DST: "ECDSA Key Blind" as specified in
+      [I-D.draft-irtf-cfrg-signature-key-blinding-07].
 
    *  DSA: ECDSA [TR03111] with curve G.
 
