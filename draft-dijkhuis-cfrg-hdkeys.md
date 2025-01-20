@@ -39,6 +39,8 @@ normative:
         author:
             - organization: ISO/IEC
         date: 2019-09
+    RFC4648:
+    RFC5234:
     RFC8017:
     RFC9180:
     RFC9380:
@@ -402,6 +404,62 @@ sk' = BlindPrivateKey(sk, bf) # optional
 After step 7, the unit can use the value of `salt'` to derive next-level HDKeys.
 
 Step 4 MAY be postponed to be combined with step 6. Steps 5 to 8 MAY be combined in concurrent execution for multiple indices.
+
+## The HDK key alias format
+
+An HDK can be represented canonically using the following string format, in augmented Backus-Naur form (ABNF) [RFC5234] and applying non-padded base64url encoding [RFC4648] for key handles:
+
+~~~
+hdk-key-alias  = origin-alias "/" path
+
+; The origin-alias is an opaque identifier for a device
+; key pair, the associated HDK instantiation, and the seed.
+origin-alias   = 1*255no-slash
+
+; The hdk-path identifies the indices and key handles to
+; apply from left to right.
+hdk-path       = hdk-index *("/" hdk-sub-path)
+
+hdk-sub-path   = *(hdk-edge "/") hdk-index
+hdk-edge       = ("#" hdk-key-handle) / hdk-index
+
+; The index is to be parsed to an integer between 0 and
+; 2^32-1 (inclusive) and used as input to CreateContext.
+hdk-index      = non-zero-digit 0*9DIGIT
+
+; The key handle is to be decoded from
+hdk-key-handle = 1*base64url-char
+
+no-slash       = %x21-%x2E / %x30-%x7E ; ASCII printable, no "/"
+non-zero-digit = %31-39
+base64url-char = ALPHA / DIGIT / "-" / "_"
+~~~
+
+A unit MAY use the HDK key alias format to represent keys internally.
+
+A unit MUST NOT directly include the device private key in the `origin-alias`.
+
+A unit MUST NOT directly include the seed in the `origin-alias`.
+
+When taking input in the HDK key alias format:
+
+- a unit MAY pose further limitations on the value of `origin-alias`;
+- a unit MUST limit either the amount of `hdk-edge` instances or the total length of the `hdk-key-alias`;
+- a unit MUST verify that the byte strings represented by `hdk-key-handle` has the size of ciphertext in `KEM`.
+
+Example key handles:
+
+~~~
+my_pid_key/0
+
+my_pid_key/12345
+
+my_pid_key/0/iS2ipkvGCDI0-Lps25Ex2KdjTfGRmIBjGEHkjBCPoQg/3
+
+; newline for printing purposes not in the actual hdk-path
+second_key/123/45/itnCVhZ-DYZDaUqofDNhHEbNc9XOrdnLL9B-9dVZ
+tTg/6789/3JVRsML8NvUnCx1CvzpZrHSn4TkSUpGgn8r-X_RiQ1Y/3
+~~~
 
 # Generic HDK instantiations
 
