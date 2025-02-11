@@ -237,16 +237,19 @@ The parameters of an HDK instantiation are:
   - H(msg): Outputs `Ns` bytes.
 - `BL`: A key blinding scheme [Wilson2023] with opaque blinding factors and algebraic properties, consisting of the functions:
   - DeriveBlindKey(ikm): Outputs a blind key `bk` based on input keying material `ikm`.
-  - DeriveBlindingFactor(bk, ctx): Outputs a blinding factor `bf` based on a blind key `bk` and an application context byte string `ctx`.
   - BlindPublicKey(pk, bk, ctx): Outputs the result public key `pk'` of blinding public key `pk` with blind key `bk` and application context byte string `ctx`.
-  - BlindPrivateKey(sk, bf): Outputs the result private key `sk'` of blinding private key `sk` with blinding factor `bf`. This result `sk'` is such that if `bf = DeriveBlindingFactor(bk, ctx)` for some `bk` and `ctx`, `(sk', pk')` forms a key pair for `pk' = BlindPublicKey(pk, bk, ctx)`.
-  - Combine(bf1, bf2): Outputs a blinding factor `bf` such that for all key pairs `(sk, pk)`:
+  - BlindPrivateKey(sk, bk, ctx): Outputs the result private key `sk'` of blinding private key `sk` with blind key `bk` and application context byte string `ctx`. The result `sk'` is such that if `pk` is the public key for `sk`, then `(sk', pk')` forms a key pair for `pk' = BlindPublicKey(pk, bk, ctx)`.
+  - Combine(k1, k2): Outputs a blinding factor `bf` given input keys `k1` and `k2` which are either private keys or blinding factors, with the following associative property. For all input keys `k1`, `k2`, `k3`:
 
     ~~~
-    BlindPrivateKey(sk, bf) ==
-        BlindPrivateKey(BlindPrivateKey(sk, bf1), bf2)
+    Combine(Combine(k1, k2), k3) == Combine(k1, Combine(k2, k3))
     ~~~
+  - DeriveBlindingFactor(bk, ctx): Outputs a blinding factor `bf` based on a blind key `bk` and an application context byte string `ctx`, such that for all private keys `sk`:
 
+    ~~~
+    BlindPrivateKey(sk, bk, ctx) == Combine(sk, bf)
+    ~~~
+  - SerializePublicKey(pk): Outputs a canonical byte string serialisation of public key `pk`.
 - `KEM`: A key encapsulation mechanism [RFC9180], consisting of the functions:
     - DeriveKeyPair(ikm): Outputs a key encapsulation key pair `(sk, pk)`.
     - Encap(pk): Outputs `(k, c)` consisting of a shared secret `k` and a ciphertext `c`, taking key encapsulation public key `pk`.
@@ -264,17 +267,18 @@ A local unit or remote party creates an HDK context from an index.
 
 ~~~
 Inputs:
+- pk, a public key to be blinded.
 - index, an integer between 0 and 2^32-1 (inclusive).
 
 Outputs:
 - ctx, an application context byte string.
 
-def CreateContext(index):
-    ctx = ID || I2OSP(index, 4)
+def CreateContext(pk, index):
+    ctx = SerializePublicKey(pk) || I2OSP(index, 4)
     return ctx
 ~~~
 
-This context byte string is used as input for DeriveBlindingFactor, BlindPublicKey, and [DeriveSalt](#the-hdk-salt).
+This context byte string is used as input for DeriveBlindingFactor, BlindPrivateKey, BlindPublicKey, and [DeriveSalt](#the-hdk-salt).
 
 ## The HDK salt
 
@@ -306,25 +310,30 @@ Inputs:
 - index, an integer between 0 and 2^32-1 (inclusive).
 - pk, a public key to be blinded.
 - salt, a string of Ns bytes.
-- bf, a blinding factor to combine with, Nil otherwise.
+- bf, a blinding factor to combine with, if any, Nil otherwise.
+- skD, a private key to be blinded, if known, Nil otherwise.
 
 Outputs:
 - pk', the blinded public key at the provided index.
 - salt', the salt for HDK derivation at the provided index.
 - bf', the blinding factor at the provided index.
+- bk, the current blind key.
+- ctx, the current key blinding application context byte string.
+- sk', the blinded private key.
 
-def HDK(index, pk, salt, bf = Nil):
-    ctx   = CreateContext(index)
+def HDK(index, pk, salt, bf = Nil, skD = Nil):
+    ctx   = CreateContext(pk, index)
     salt' = DeriveSalt(salt, ctx)
 
     bk  = DeriveBlindKey(salt)
-    pk' = BlindPublicKey(bk, ctx)
-    bf' = if bf == Nil:
-        DeriveBlindingFactor(bk, ctx)
-    else:
-        Combine(bf, DeriveBlindingFactor(bk, ctx))
+    pk' = BlindPublicKey(pk, bk, ctx)
+    sk' = if   skD == Nil: Nil
+          elif bf  == Nil: BlindPrivateKey(skD, bk, ctx)
+          else           : BlindPrivateKey(Combine(skD, bf), bk, ctx)
+    bf' = if   bf  == Nil: DeriveBlindingFactor(bk, ctx)
+          else           : Combine(bf, DeriveBlindingFactor(bk, ctx))
 
-    return (pk', salt', bf')
+    return ((pk', salt', bf'), (bk, ctx), sk')
 ~~~
 
 A unit MUST NOT persist a blinded private key. Instead, if persistence is needed, a unit can persist either the blinding factor of each HDK, or a path consisting of the seed salt, indices and key handles. In both cases, the application of Combine in the HDK function enables reconstruction of the blinding factor with respect to the original private key, enabling application of for example BlindPrivateKey.
@@ -351,28 +360,30 @@ The unit MUST generate `skD` within a secure cryptographic device.
 Whenever the unit requires the HDK with some `index` at level 0, the unit computes:
 
 ~~~
-(pk, salt, bf) = HDK(index, pkD, seed)
-
-sk = BlindPrivateKey(skD, bf) # optional
+((pk, salt, bf), (bk, ctx), sk) = HDK(index, pkD, seed, Nil, sk)
 ~~~
 
 Now the unit can use the blinded key pair `(sk, pk)` or derive child HDKeys.
 
-Whenever the unit requires the HDK with some `index` at level `n > 0` based on a parent HDK `hdk = (pk, salt, bf)` with blinded key pair `(sk, pk)` at level `n`, the unit computes:
+Whenever the unit requires the HDK with some `index` at level `n > 0` based on a parent HDK `(pk, salt, bf)` with blinded key pair `(sk, pk)` at level `n`, the unit computes:
 
 ~~~
-(pk', salt', bf') = HDK(index, pk, salt)
-
-sk' = BlindPrivateKey(sk, bf') # optional
+((pk', salt', bf'), (bk, ctx), sk') = HDK(index, pk, salt, bf, sk)
 ~~~
 
 Now the unit can use the blinded key pair `(sk', pk')` or derive child HDKeys.
+
+Note that providing `sk` is optional. Alternatively, the unit can use the returned `bk` and `ctx` with the parent `bf` separately in a key blinding scheme, for example using:
+
+~~~
+sk' = BlindPrivateKey(Combine(sk, bf), bk, ctx)
+~~~
 
 ## The remote HDK protocol
 
 This is a protocol between a local unit and a remote issuer.
 
-As a prerequisite, the unit possesses a `salt` of `Ns` bytes associated with a parent key pair `(sk, pk)` generated using the local HDK procedure.
+As a prerequisite, the unit possesses a `salt` of `Ns` bytes associated with a parent key pair `(sk, pk)` with blinding factor `bf` (potentially `Nil`) generated using the local HDK procedure.
 
 ~~~
 # 1. Unit computes:
@@ -388,17 +399,17 @@ As a prerequisite, the unit possesses a `salt` of `Ns` bytes associated with a p
 # Subsequently, for any index known to both parties:
 
 # 5. Issuer computes:
-(pk', salt', bf') = HDK(index, pk, salt_kem)
+((pk', salt', bf'), _, _) = HDK(index, pk, salt_kem)
 
-# 6. Issuer shares with unit: pk'
+# 6. Issuer shares with unit: pkA = pk'
 
 # 7. Unit verifies integrity:
 salt_kem = Decap(kh, skR)
-(pk_expected', salt', bf') = HDK(index, pk, salt_kem)
-pk' == pk_expected'
+((pk', salt', bf'), (bk, ctx), _) = HDK(index, pk, salt_kem, bf)
+pk' == pkA
 
 # 8. Unit computes:
-sk' = BlindPrivateKey(sk, bf) # optional
+sk' = BlindPrivateKey(Combine(sk, bf), bk, ctx) # optional
 ~~~
 
 After step 7, the unit can use the value of `salt'` to derive next-level HDKeys.
@@ -493,20 +504,26 @@ Verify(signature, pk, msg)
 
 Instantiations of HDK using digital signatures provide:
 
-- `BL`: A cryptographic construct that extends `DSA` as specified in [I-D.draft-irtf-cfrg-signature-key-blinding-07], implementing the interface from [Instantiation parameters](#instantiation-parameters).
+- `BL`: A cryptographic construct that extends `DSA` as specified in [I-D.draft-irtf-cfrg-signature-key-blinding-07], implementing the interface from [Instantiation parameters](#instantiation-parameters), as well as:
+  - BlindKeySign(sk, bk, ctx, msg): Outputs the result of signing a message `msg` using the private key `sk` with the private blind key `bk` and application context byte string `ctx` such that for key pair `(sk, pk)`:
 
-While [I-D.draft-irtf-cfrg-signature-key-blinding-07] does not expose blinding factors, it provides public algorithms to compute these. In HDK, the computed blinding factors are applied in `BL` as follows:
+    ~~~
+    Verify(  BlindKeySign(sk, bk, ctx, msg),
+           BlindPublicKey(pk, bk, ctx))      == 1
+    ~~~
+
+By design of `BL`, the same proof of possession protocol can be used with blinded key pairs and BlindKeySign, in such a way that the reader does not recognise that key blinding was used.
+
+In the default implementation, BlindKeySign requires support from the secure cryptographic device protecting `sk`:
 
 ~~~
-def BlindSign(sk, bf, msg):
-    sk' = BlindPrivateKey(sk, bf)
+def BlindKeySign(sk, bk, ctx, msg):
+    sk' = BlindPrivateKey(sk, bk, ctx)
     signature = Sign(sk', msg)
     return signature
 ~~~
 
-By design of `BL`, the same proof of possession protocol can be used with blinded key pairs and BlindSign, in such a way that the reader does not recognise that key blinding was used.
-
-In the default implementation, BlindSign requires support from the secure cryptographic device protecting `sk`. In some cases, BlindSign can be implemented in an alternative, distributed way. An example will be provided below.
+In some cases, BlindKeySign can be implemented in an alternative, distributed way. An example will be provided for [using EC-SDSA signatures](#using-ec-sdsa-signatures).
 
 Applications MUST bind the message to be signed to the blinded public key. This mitigates attacks based on signature malleability. Several proof of possession protocols require including document data in the message, which includes the blinded public key indeed.
 
@@ -520,7 +537,6 @@ Instantiations of HDK using prime-order groups require:
   - ScalarMult(A, k): Outputs the scalar multiplication between Element `A` and Scalar `k`.
   - ScalarBaseMult(k): Outputs the scalar multiplication between the base Element and Scalar `k`.
   - Order(): Outputs the order of the base Element.
-  - SerializeElement(A): Outputs a byte string representing Element `A`.
   - SerializeScalar(k): Outputs a byte string representing Scalar `k`.`
   - HashToScalar(msg): Outputs the result of deterministically mapping a byte string `msg` to an element in the scalar field of the prime order subgroup of `G`, using the `hash_to_field` function from a hash-to-curve suite [RFC9380].
 
@@ -543,7 +559,16 @@ def DeriveBlindingFactor(bk, ctx):
     return bf
 ~~~
 
-Note that DeriveBlindingFactor is compatible with the definitions in [I-D.draft-irtf-cfrg-signature-key-blinding-07]. The function is almost compatible with the definitions in [I-D.draft-bradleylundberg-cfrg-arkg-02]: only in AKRG, the context string needs to be prefixed with `0x00`.
+Note that DeriveBlindKey and DeriveBlindingFactor are compatible with the definitions in [I-D.draft-irtf-cfrg-signature-key-blinding-07]. We illustrate also what would be needed instead for full compatibility with [I-D.draft-bradleylundberg-cfrg-arkg-02] below and when [Using elliptic curves](#using-elliptic-curves):
+
+~~~
+def DeriveBlindKey_ARKG(ikm):
+    # There is no need for additional processing,
+    # since bk is in ARKG as intermediate input
+    # for a pseudo-random function only.
+    bk = ikm
+    return bk
+~~~
 
 ### Using additive blinding
 
@@ -559,8 +584,10 @@ def BlindPublicKey(pk, bk, ctx):
     pk' = Add(pk, ScalarBaseMult(bf))
     return pk
 
-def BlindPrivateKey(sk, bf):
+def BlindPrivateKey(sk, bk, ctx):
+    bf = DeriveBlindingFactor(bk, ctx)
     sk' = sk + bf mod Order()
+    if sk' == 0: abort with an error
     return sk
 
 def Combine(bf1, bf2):
@@ -584,8 +611,10 @@ def BlindPublicKey(pk, bk, ctx):
     pk' = ScalarMult(pk, bf)
     return pk
 
-def BlindPrivateKey(sk, bf):
+def BlindPrivateKey(sk, bk, ctx):
+    bf = DeriveBlindingFactor(bk, ctx)
     sk' = sk * bf mod Order()
+    if sk' == 1: abort with an error
     return sk
 
 def Combine(bf1, bf2):
@@ -615,6 +644,25 @@ Instantiations of HDK using elliptic curves provide:
 def HashToScalar(msg):
     scalar = hash_to_field(msg, 1) with the parameters:
         DST: DST
+        F: GF(Order()), the scalar field
+            of the prime order subgroup of EC
+        p: Order()
+        m: 1
+        L: as defined in H2C
+        expand_message: as defined in H2C
+    return scalar
+~~~
+
+We illustrate also what would be needed instead for full compatibility with [I-D.draft-bradleylundberg-cfrg-arkg-02] below:
+
+~~~
+def DeriveBlindingFactor_ARKG(bk, ctx):
+    bf = HashToScalar_ARKG(msg, ctx)
+    return bf
+
+def HashToScalar_ARKG(msg, info):
+    scalar = hash_to_field(msg, 1) with the parameters:
+        DST: DST || info
         F: GF(Order()), the scalar field
             of the prime order subgroup of EC
         p: Order()
@@ -657,10 +705,11 @@ Now with the shared secret `Z_AB`, the unit and the reader can compute a secret 
 
 In this example, step 1 can be postponed in the interactions between the unit and the reader if a trustworthy earlier commitment to `pk` is available, for example in a sealed document.
 
-Similarly, ECDH enables authentication of key pair `(sk', pk')` blinded from an original key pair `(sk, pk)` using a blinding factor `bf` such that:
+Similarly, ECDH enables authentication of key pair `(sk', pk')` blinded from an original key pair `(sk, pk)` using a blind key `ctx` and application context byte string `ctx` such that:
 
 ~~~
-sk' = BlindPrivateKey(sk, bf)
+bf = DeriveBlindingFactor(bk, ctx)
+sk' = BlindPrivateKey(sk, bk, ctx)
     = sk * bf mod Order()
 pk' = ScalarMult(pk, bf)
 ~~~
@@ -688,14 +737,15 @@ Instantiations of HDK using EC-SDSA signatures provide:
 
 - `DSA`: An EC-SDSA digital signature algorithm [TR03111], representing signatures as pairs `(c, s)`.
 
-Note that in this case, the following definition is equivalent to the original definition of BlindSign:
+Note that in this case, the following definition is equivalent to the [original definition of BlindKeySign](#using-digital-signatures):
 
 ~~~
-def BlindSign(sk, bf, msg):
+def BlindKeySign(sk, bk, ctx, msg):
     # Compute signature within the secure cryptographic device.
     (c, s) = Sign(sk, msg)
 
     # Post-process the signature outside of this device.
+    bf = DeriveBlindingFactor(bk, ctx)
     s' = s + c * bf mod Order()
 
     signature = (c, s')
@@ -871,6 +921,60 @@ In [draft-OpenID4VCI], the following terminology applies:
 HDK enables unit and issuers cooperatively to establish the cryptographic key material that issued documents will be bound to.
 
 For the remote HDK protocol, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in [openid/OpenID4VCI#359](https://github.com/openid/OpenID4VCI/issues/359). In the update, the unit shares a key encapsulation public key with the issuer, and the issuer returns a key handle. Then documents can be re-issued, potentially in batches, using synchronised indices. Alternatively, re-issued documents can have their own key handles.
+
+## Applying HDK with ARKG
+
+This section illustrates how an Asynchronous Remote Key Generation (ARKG) instance can be constructed using the interfaces from the current document. It is not fully compatible with [I-D.draft-bradleylundberg-cfrg-arkg-02] due to subtle differences, such as those in [Using prime-order groups](#using-prime-order-groups) and [Using elliptic curves](#using-elliptic-curves).
+
+~~~
+def DeriveSeed(ikm, (skD, bf), pk):
+    (skR, pkR) = DeriveKeyPair(ikm)
+    skA = (skR, (skD, bf, pk))
+    pkA = (pkR, pk)
+    return (skA, pkA)
+
+def DerivePublicKey((pkR, pk), index):
+    (salt_kem, kh) = Encap(pkR)
+
+    bk  = DeriveBlindKey(salt_kem)
+    ctx = CreateContext(pk, index)
+    pk' = BlindPublicKey(pk, bk, ctx)
+
+    return (pk', kh)
+
+def DerivePrivateKey((skR, (skD, bf, pk)), (pk', kh), index):
+    salt_kem = Decap(kh, skR)
+
+    bk  = DeriveBlindKey(salt_kem)
+    ctx = CreateContext(pk, index)
+    pkE = BlindPublicKey(pk, bk, ctx)
+
+    if pk' != pkE: abort with an error
+
+    sk  = Combine(skD, bf)
+    sk' = BlindPrivateKey(sk, bk, ctx)
+
+    return sk'
+~~~
+
+This enables the [remote HDK protocol](#the-remote-hdk-protocol) to be performed as such, given an `index` known to both parties:
+
+~~~
+# 1. Unit computes:
+(skA, pkA) = DeriveSeed(salt, (skD, bf), pk)
+
+# 2. Unit shares with issuer: pkA
+
+# 3. Issuer computes:
+(pk', kh) = DerivePublicKey(pkA, index)
+
+# 4. Issuer shares with unit: (pk', kh)
+
+# 5. Unit verifies integrity and computes the private key:
+sk' = DerivePrivateKey(skA, (pk', kh), index)
+~~~
+
+For using a single `kh` with multiple values of `index`, the DerivePublicKey needs to be refactored to be able to reuse the Encap output.
 
 # Security considerations
 
