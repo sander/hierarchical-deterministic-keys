@@ -137,10 +137,39 @@ This document represents the consensus of the authors, based on working group in
 
 {::boilerplate bcp14-tagged}
 
+## Notation and Terminology
+
 The following notation is used throughout the document.
 
-- byte: A sequence of eight bits.
+General terms:
+
 - `I2OSP(n, w)`: Convert non-negative integer `n` to a `w`-length, big-endian byte string, as described in [RFC8017].
+
+Terms specific to HDK:
+
+- HDK Context `ctx`: A byte string derived from a public key and an index, used to enforce domain separation in HDK-based key derivation.
+- Key Encapsulation mechanism (KEM): A cryptographic scheme used in remote HDK derivation to securely exchange a shared secret.
+- HDK Salt: A `Ns`-byte value used to introduce entropy into the HDK derivation. Without knowledge of the salt, the derived keys appear unrelated.
+- Blinding Key `bk`: A scalar that propagates the entropy from the salt to the deterministic key derivation.
+- Blinding factor `bf`: A scalar applied to a private-public key pair to produce a blinded version.
+- Blinded Private Key `sk_b`: A private key transformed using a blinding factor.
+- Blinded Public Key `pk_b`: A public key derived from another public key with a blinding factor to ensure that the derived key appears unrelated to any other key.
+- HDK Key Alias Format: A structured identifier representing HDK-derived keys.
+
+Algorithmic and cryptographic notation:
+
+- `DeriveBlindKey(ikm)`: Generates a blinding key from the input key material `ikm` and ensures randomness in key blinding assuming the `ikm` has sufficient entropy.
+- `DeriveBlindingFactor(bk, ctx)`: Derives a blinding factor from a blinding key for a given context and ensures key unlinkability.
+- `BlindPrivateKey(sk, bf)`: Blinds a private key `sk` with the blinding factor `bf` to generate the private key `sk_b`.
+- `BlindPublicKey(pk, bf)`: Blinds a public key `pk` with the blinding factor `bf` to generate the public key `pk_b`.
+- `Combine(s1, s2)`: Computes a new blinding factor by combining two scalar values s1 and s2. Supports multi-stage derivations and key composability in HDK.
+- `SerializePublicKey(pk)`: Encodes the public key `pk` into a canonical byte string representation.
+
+Security and implementation specific notation:
+
+- Secure Cryptographic Device (WSCD): A module that securely stores and processes cryptographic keys and provides the hardware root of trust for HDK-based key derivation.
+- Trust Evidence: Information providing ownership or authenticity of a derived key.
+- Wallet Secure Cryptographic Application (WSCA): A secure application within a WSCD that exposes cryptographic functions used in key derivation.
 
 # The Hierarchical Deterministic Key function
 
