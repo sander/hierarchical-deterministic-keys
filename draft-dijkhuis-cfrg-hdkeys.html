@@ -9,12 +9,12 @@
 <meta content="
        Hierarchical Deterministic Keys enables managing large sets of keys bound to a secure cryptographic device that protects a single key. This enables the development of secure digital identity wallets providing many one-time-use public keys. Some instantiations can be implemented in such a way that the secure cryptographic device does not need to support key blinding, enabling the use of devices that already are widely deployed. 
     " name="description">
-<meta content="xml2rfc 3.25.0" name="generator">
+<meta content="xml2rfc 3.28.0" name="generator">
 <meta content="KDF" name="keyword">
 <meta content="draft-dijkhuis-cfrg-hdkeys-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.25.0
-    Python 3.12.8
+  xml2rfc 3.28.0
+    Python 3.12.9
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
@@ -435,7 +435,7 @@ dl {
     margin-bottom: 0;
   }
 }
-dl > dt {
+dl:not(.dlNewline) > dt {
   float: left;
   margin-right: 2ch;
   min-width: 8ch;
@@ -1044,11 +1044,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">HDK</td>
-<td class="right">January 2025</td>
+<td class="right">March 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Dijkhuis</td>
-<td class="center">Expires 24 July 2025</td>
+<td class="center">Expires 6 September 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1061,12 +1061,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-dijkhuis-cfrg-hdkeys-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-01-20" class="published">20 January 2025</time>
+<time datetime="2025-03-05" class="published">5 March 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-07-24">24 July 2025</time></dd>
+<dd class="expires"><time datetime="2025-09-06">6 September 2025</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1111,7 +1111,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 July 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 6 September 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1254,6 +1254,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
                 <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-applying-hdk-in-openid-for-" class="internal xref">Applying HDK in OpenID for Verifiable Credential Issuance</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4">
+                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-applying-hdk-with-arkg" class="internal xref">Applying HDK with ARKG</a></p>
 </li>
             </ul>
 </li>
@@ -1445,22 +1448,29 @@ Level 2 HDKeys at hdk01:     |hdk000| |hdk001| ...
                 <p id="section-2.2-2.3.2.1.1">DeriveBlindKey(ikm): Outputs a blind key <code>bk</code> based on input keying material <code>ikm</code>.<a href="#section-2.2-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.3.2.2">
-                <p id="section-2.2-2.3.2.2.1">DeriveBlindingFactor(bk, ctx): Outputs a blinding factor <code>bf</code> based on a blind key <code>bk</code> and an application context byte string <code>ctx</code>.<a href="#section-2.2-2.3.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.3.2.2.1">BlindPublicKey(pk, bk, ctx): Outputs the result public key <code>pk'</code> of blinding public key <code>pk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>.<a href="#section-2.2-2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.3.2.3">
-                <p id="section-2.2-2.3.2.3.1">BlindPublicKey(pk, bk, ctx): Outputs the result public key <code>pk'</code> of blinding public key <code>pk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>.<a href="#section-2.2-2.3.2.3.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.3.2.3.1">BlindPrivateKey(sk, bk, ctx): Outputs the result private key <code>sk'</code> of blinding private key <code>sk</code> with blind key <code>bk</code> and application context byte string <code>ctx</code>. The result <code>sk'</code> is such that if <code>pk</code> is the public key for <code>sk</code>, then <code>(sk', pk')</code> forms a key pair for <code>pk' = BlindPublicKey(pk, bk, ctx)</code>.<a href="#section-2.2-2.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-2.2-2.3.2.4">
-                <p id="section-2.2-2.3.2.4.1">BlindPrivateKey(sk, bf): Outputs the result private key <code>sk'</code> of blinding private key <code>sk</code> with blinding factor <code>bf</code>. This result <code>sk'</code> is such that if <code>bf = DeriveBlindingFactor(bk, ctx)</code> for some <code>bk</code> and <code>ctx</code>, <code>(sk', pk')</code> forms a key pair for <code>pk' = BlindPublicKey(pk, bk, ctx)</code>.<a href="#section-2.2-2.3.2.4.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.3.2.4.1">Combine(k1, k2): Outputs a blinding factor <code>bf</code> given input keys <code>k1</code> and <code>k2</code> which are either private keys or blinding factors, with the following associative property. For all input keys <code>k1</code>, <code>k2</code>, <code>k3</code>:<a href="#section-2.2-2.3.2.4.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.2-2.3.2.4.2">
+<pre>
+Combine(Combine(k1, k2), k3) == Combine(k1, Combine(k2, k3))
+</pre><a href="#section-2.2-2.3.2.4.2" class="pilcrow">¶</a>
+</div>
 </li>
               <li class="normal" id="section-2.2-2.3.2.5">
-                <p id="section-2.2-2.3.2.5.1">Combine(bf1, bf2): Outputs a blinding factor <code>bf</code> such that for all key pairs <code>(sk, pk)</code>:<a href="#section-2.2-2.3.2.5.1" class="pilcrow">¶</a></p>
+                <p id="section-2.2-2.3.2.5.1">DeriveBlindingFactor(bk, ctx): Outputs a blinding factor <code>bf</code> based on a blind key <code>bk</code> and an application context byte string <code>ctx</code>, such that for all private keys <code>sk</code>:<a href="#section-2.2-2.3.2.5.1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.2-2.3.2.5.2">
 <pre>
-BlindPrivateKey(sk, bf) ==
-    BlindPrivateKey(BlindPrivateKey(sk, bf1), bf2)
+BlindPrivateKey(sk, bk, ctx) == Combine(sk, bf)
 </pre><a href="#section-2.2-2.3.2.5.2" class="pilcrow">¶</a>
 </div>
+</li>
+              <li class="normal" id="section-2.2-2.3.2.6">
+                <p id="section-2.2-2.3.2.6.1">SerializePublicKey(pk): Outputs a canonical byte string serialisation of public key <code>pk</code>.<a href="#section-2.2-2.3.2.6.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1493,17 +1503,18 @@ BlindPrivateKey(sk, bf) ==
 <div class="alignLeft art-text artwork" id="section-2.3-2">
 <pre>
 Inputs:
+- pk, a public key to be blinded.
 - index, an integer between 0 and 2^32-1 (inclusive).
 
 Outputs:
 - ctx, an application context byte string.
 
-def CreateContext(index):
-    ctx = ID || I2OSP(index, 4)
+def CreateContext(pk, index):
+    ctx = SerializePublicKey(pk) || I2OSP(index, 4)
     return ctx
 </pre><a href="#section-2.3-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.3-3">This context byte string is used as input for DeriveBlindingFactor, BlindPublicKey, and <span><a href="#the-hdk-salt" class="internal xref">DeriveSalt</a> (<a href="#the-hdk-salt" class="auto internal xref">Section 2.4</a>)</span>.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.3-3">This context byte string is used as input for DeriveBlindingFactor, BlindPrivateKey, BlindPublicKey, and <span><a href="#the-hdk-salt" class="internal xref">DeriveSalt</a> (<a href="#the-hdk-salt" class="auto internal xref">Section 2.4</a>)</span>.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-hdk-salt">
@@ -1542,25 +1553,30 @@ Inputs:
 - index, an integer between 0 and 2^32-1 (inclusive).
 - pk, a public key to be blinded.
 - salt, a string of Ns bytes.
-- bf, a blinding factor to combine with, Nil otherwise.
+- bf, a blinding factor to combine with, if any, Nil otherwise.
+- skD, a private key to be blinded, if known, Nil otherwise.
 
 Outputs:
 - pk', the blinded public key at the provided index.
 - salt', the salt for HDK derivation at the provided index.
 - bf', the blinding factor at the provided index.
+- bk, the current blind key.
+- ctx, the current key blinding application context byte string.
+- sk', the blinded private key.
 
-def HDK(index, pk, salt, bf = Nil):
-    ctx   = CreateContext(index)
+def HDK(index, pk, salt, bf = Nil, skD = Nil):
+    ctx   = CreateContext(pk, index)
     salt' = DeriveSalt(salt, ctx)
 
     bk  = DeriveBlindKey(salt)
-    pk' = BlindPublicKey(bk, ctx)
-    bf' = if bf == Nil:
-        DeriveBlindingFactor(bk, ctx)
-    else:
-        Combine(bf, DeriveBlindingFactor(bk, ctx))
+    pk' = BlindPublicKey(pk, bk, ctx)
+    sk' = if   skD == Nil: Nil
+          elif bf  == Nil: BlindPrivateKey(skD, bk, ctx)
+          else           : BlindPrivateKey(Combine(skD, bf), bk, ctx)
+    bf' = if   bf  == Nil: DeriveBlindingFactor(bk, ctx)
+          else           : Combine(bf, DeriveBlindingFactor(bk, ctx))
 
-    return (pk', salt', bf')
+    return ((pk', salt', bf'), (bk, ctx), sk')
 </pre><a href="#section-2.5-2" class="pilcrow">¶</a>
 </div>
 <p id="section-2.5-3">A unit <span class="bcp14">MUST NOT</span> persist a blinded private key. Instead, if persistence is needed, a unit can persist either the blinding factor of each HDK, or a path consisting of the seed salt, indices and key handles. In both cases, the application of Combine in the HDK function enables reconstruction of the blinding factor with respect to the original private key, enabling application of for example BlindPrivateKey.<a href="#section-2.5-3" class="pilcrow">¶</a></p>
@@ -1586,21 +1602,23 @@ seed = random(Ns) # specification of random out of scope
 <p id="section-2.6-5">Whenever the unit requires the HDK with some <code>index</code> at level 0, the unit computes:<a href="#section-2.6-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.6-6">
 <pre>
-(pk, salt, bf) = HDK(index, pkD, seed)
-
-sk = BlindPrivateKey(skD, bf) # optional
+((pk, salt, bf), (bk, ctx), sk) = HDK(index, pkD, seed, Nil, sk)
 </pre><a href="#section-2.6-6" class="pilcrow">¶</a>
 </div>
 <p id="section-2.6-7">Now the unit can use the blinded key pair <code>(sk, pk)</code> or derive child HDKeys.<a href="#section-2.6-7" class="pilcrow">¶</a></p>
-<p id="section-2.6-8">Whenever the unit requires the HDK with some <code>index</code> at level <code>n &gt; 0</code> based on a parent HDK <code>hdk = (pk, salt, bf)</code> with blinded key pair <code>(sk, pk)</code> at level <code>n</code>, the unit computes:<a href="#section-2.6-8" class="pilcrow">¶</a></p>
+<p id="section-2.6-8">Whenever the unit requires the HDK with some <code>index</code> at level <code>n &gt; 0</code> based on a parent HDK <code>(pk, salt, bf)</code> with blinded key pair <code>(sk, pk)</code> at level <code>n</code>, the unit computes:<a href="#section-2.6-8" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.6-9">
 <pre>
-(pk', salt', bf') = HDK(index, pk, salt)
-
-sk' = BlindPrivateKey(sk, bf') # optional
+((pk', salt', bf'), (bk, ctx), sk') = HDK(index, pk, salt, bf, sk)
 </pre><a href="#section-2.6-9" class="pilcrow">¶</a>
 </div>
 <p id="section-2.6-10">Now the unit can use the blinded key pair <code>(sk', pk')</code> or derive child HDKeys.<a href="#section-2.6-10" class="pilcrow">¶</a></p>
+<p id="section-2.6-11">Note that providing <code>sk</code> is optional. Alternatively, the unit can use the returned <code>bk</code> and <code>ctx</code> with the parent <code>bf</code> separately in a key blinding scheme, for example using:<a href="#section-2.6-11" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.6-12">
+<pre>
+sk' = BlindPrivateKey(Combine(sk, bf), bk, ctx)
+</pre><a href="#section-2.6-12" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="the-remote-hdk-protocol">
@@ -1609,7 +1627,7 @@ sk' = BlindPrivateKey(sk, bf') # optional
 <a href="#section-2.7" class="section-number selfRef">2.7. </a><a href="#name-the-remote-hdk-protocol" class="section-name selfRef">The remote HDK protocol</a>
         </h3>
 <p id="section-2.7-1">This is a protocol between a local unit and a remote issuer.<a href="#section-2.7-1" class="pilcrow">¶</a></p>
-<p id="section-2.7-2">As a prerequisite, the unit possesses a <code>salt</code> of <code>Ns</code> bytes associated with a parent key pair <code>(sk, pk)</code> generated using the local HDK procedure.<a href="#section-2.7-2" class="pilcrow">¶</a></p>
+<p id="section-2.7-2">As a prerequisite, the unit possesses a <code>salt</code> of <code>Ns</code> bytes associated with a parent key pair <code>(sk, pk)</code> with blinding factor <code>bf</code> (potentially <code>Nil</code>) generated using the local HDK procedure.<a href="#section-2.7-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2.7-3">
 <pre>
 # 1. Unit computes:
@@ -1625,17 +1643,17 @@ sk' = BlindPrivateKey(sk, bf') # optional
 # Subsequently, for any index known to both parties:
 
 # 5. Issuer computes:
-(pk', salt', bf') = HDK(index, pk, salt_kem)
+((pk', salt', bf'), _, _) = HDK(index, pk, salt_kem)
 
-# 6. Issuer shares with unit: pk'
+# 6. Issuer shares with unit: pkA = pk'
 
 # 7. Unit verifies integrity:
 salt_kem = Decap(kh, skR)
-(pk_expected', salt', bf') = HDK(index, pk, salt_kem)
-pk' == pk_expected'
+((pk', salt', bf'), (bk, ctx), _) = HDK(index, pk, salt_kem, bf)
+pk' == pkA
 
 # 8. Unit computes:
-sk' = BlindPrivateKey(sk, bf) # optional
+sk' = BlindPrivateKey(Combine(sk, bf), bk, ctx) # optional
 </pre><a href="#section-2.7-3" class="pilcrow">¶</a>
 </div>
 <p id="section-2.7-4">After step 7, the unit can use the value of <code>salt'</code> to derive next-level HDKeys.<a href="#section-2.7-4" class="pilcrow">¶</a></p>
@@ -1757,20 +1775,31 @@ Verify(signature, pk, msg)
 <p id="section-3.1-5">Instantiations of HDK using digital signatures provide:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-6.1">
-            <p id="section-3.1-6.1.1"><code>BL</code>: A cryptographic construct that extends <code>DSA</code> as specified in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>, implementing the interface from <span><a href="#instantiation-parameters" class="internal xref">Instantiation parameters</a> (<a href="#instantiation-parameters" class="auto internal xref">Section 2.2</a>)</span>.<a href="#section-3.1-6.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.1-6.1.1"><code>BL</code>: A cryptographic construct that extends <code>DSA</code> as specified in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>, implementing the interface from <span><a href="#instantiation-parameters" class="internal xref">Instantiation parameters</a> (<a href="#instantiation-parameters" class="auto internal xref">Section 2.2</a>)</span>, as well as:<a href="#section-3.1-6.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-6.1.2.1">
+                <p id="section-3.1-6.1.2.1.1">BlindKeySign(sk, bk, ctx, msg): Outputs the result of signing a message <code>msg</code> using the private key <code>sk</code> with the private blind key <code>bk</code> and application context byte string <code>ctx</code> such that for key pair <code>(sk, pk)</code>:<a href="#section-3.1-6.1.2.1.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-6.1.2.1.2">
+<pre>
+Verify(  BlindKeySign(sk, bk, ctx, msg),
+       BlindPublicKey(pk, bk, ctx))      == 1
+</pre><a href="#section-3.1-6.1.2.1.2" class="pilcrow">¶</a>
+</div>
+</li>
+            </ul>
 </li>
         </ul>
-<p id="section-3.1-7">While <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span> does not expose blinding factors, it provides public algorithms to compute these. In HDK, the computed blinding factors are applied in <code>BL</code> as follows:<a href="#section-3.1-7" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.1-8">
+<p id="section-3.1-7">By design of <code>BL</code>, the same proof of possession protocol can be used with blinded key pairs and BlindKeySign, in such a way that the reader does not recognise that key blinding was used.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+<p id="section-3.1-8">In the default implementation, BlindKeySign requires support from the secure cryptographic device protecting <code>sk</code>:<a href="#section-3.1-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-9">
 <pre>
-def BlindSign(sk, bf, msg):
-    sk' = BlindPrivateKey(sk, bf)
+def BlindKeySign(sk, bk, ctx, msg):
+    sk' = BlindPrivateKey(sk, bk, ctx)
     signature = Sign(sk', msg)
     return signature
-</pre><a href="#section-3.1-8" class="pilcrow">¶</a>
+</pre><a href="#section-3.1-9" class="pilcrow">¶</a>
 </div>
-<p id="section-3.1-9">By design of <code>BL</code>, the same proof of possession protocol can be used with blinded key pairs and BlindSign, in such a way that the reader does not recognise that key blinding was used.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
-<p id="section-3.1-10">In the default implementation, BlindSign requires support from the secure cryptographic device protecting <code>sk</code>. In some cases, BlindSign can be implemented in an alternative, distributed way. An example will be provided below.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
+<p id="section-3.1-10">In some cases, BlindKeySign can be implemented in an alternative, distributed way. An example will be provided for <span><a href="#using-ec-sdsa-signatures" class="internal xref">using EC-SDSA signatures</a> (<a href="#using-ec-sdsa-signatures" class="auto internal xref">Section 3.3.2</a>)</span>.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
 <p id="section-3.1-11">Applications <span class="bcp14">MUST</span> bind the message to be signed to the blinded public key. This mitigates attacks based on signature malleability. Several proof of possession protocols require including document data in the message, which includes the blinded public key indeed.<a href="#section-3.1-11" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1800,13 +1829,10 @@ def BlindSign(sk, bf, msg):
                 <p id="section-3.2-2.1.2.5.1">Order(): Outputs the order of the base Element.<a href="#section-3.2-2.1.2.5.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.2-2.1.2.6">
-                <p id="section-3.2-2.1.2.6.1">SerializeElement(A): Outputs a byte string representing Element <code>A</code>.<a href="#section-3.2-2.1.2.6.1" class="pilcrow">¶</a></p>
+                <p id="section-3.2-2.1.2.6.1">SerializeScalar(k): Outputs a byte string representing Scalar <code>k</code>.`<a href="#section-3.2-2.1.2.6.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-3.2-2.1.2.7">
-                <p id="section-3.2-2.1.2.7.1">SerializeScalar(k): Outputs a byte string representing Scalar <code>k</code>.`<a href="#section-3.2-2.1.2.7.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-3.2-2.1.2.8">
-                <p id="section-3.2-2.1.2.8.1">HashToScalar(msg): Outputs the result of deterministically mapping a byte string <code>msg</code> to an element in the scalar field of the prime order subgroup of <code>G</code>, using the <code>hash_to_field</code> function from a hash-to-curve suite <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>.<a href="#section-3.2-2.1.2.8.1" class="pilcrow">¶</a></p>
+                <p id="section-3.2-2.1.2.7.1">HashToScalar(msg): Outputs the result of deterministically mapping a byte string <code>msg</code> to an element in the scalar field of the prime order subgroup of <code>G</code>, using the <code>hash_to_field</code> function from a hash-to-curve suite <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>.<a href="#section-3.2-2.1.2.7.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1830,7 +1856,17 @@ def DeriveBlindingFactor(bk, ctx):
     return bf
 </pre><a href="#section-3.2-4" class="pilcrow">¶</a>
 </div>
-<p id="section-3.2-5">Note that DeriveBlindingFactor is compatible with the definitions in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>. The function is almost compatible with the definitions in <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span>: only in AKRG, the context string needs to be prefixed with <code>0x00</code>.<a href="#section-3.2-5" class="pilcrow">¶</a></p>
+<p id="section-3.2-5">Note that DeriveBlindKey and DeriveBlindingFactor are compatible with the definitions in <span>[<a href="#I-D.draft-irtf-cfrg-signature-key-blinding-07" class="cite xref">I-D.draft-irtf-cfrg-signature-key-blinding-07</a>]</span>. We illustrate also what would be needed instead for full compatibility with <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> below and when <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.3</a>)</span>:<a href="#section-3.2-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.2-6">
+<pre>
+def DeriveBlindKey_ARKG(ikm):
+    # There is no need for additional processing,
+    # since bk is in ARKG as intermediate input
+    # for a pseudo-random function only.
+    bk = ikm
+    return bk
+</pre><a href="#section-3.2-6" class="pilcrow">¶</a>
+</div>
 <div id="using-additive-blinding">
 <section id="section-3.2.1">
           <h4 id="name-using-additive-blinding">
@@ -1850,8 +1886,10 @@ def BlindPublicKey(pk, bk, ctx):
     pk' = Add(pk, ScalarBaseMult(bf))
     return pk
 
-def BlindPrivateKey(sk, bf):
+def BlindPrivateKey(sk, bk, ctx):
+    bf = DeriveBlindingFactor(bk, ctx)
     sk' = sk + bf mod Order()
+    if sk' == 0: abort with an error
     return sk
 
 def Combine(bf1, bf2):
@@ -1881,8 +1919,10 @@ def BlindPublicKey(pk, bk, ctx):
     pk' = ScalarMult(pk, bf)
     return pk
 
-def BlindPrivateKey(sk, bf):
+def BlindPrivateKey(sk, bk, ctx):
+    bf = DeriveBlindingFactor(bk, ctx)
     sk' = sk * bf mod Order()
+    if sk' == 1: abort with an error
     return sk
 
 def Combine(bf1, bf2):
@@ -1938,6 +1978,25 @@ def HashToScalar(msg):
     return scalar
 </pre><a href="#section-3.3-7" class="pilcrow">¶</a>
 </div>
+<p id="section-3.3-8">We illustrate also what would be needed instead for full compatibility with <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> below:<a href="#section-3.3-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3-9">
+<pre>
+def DeriveBlindingFactor_ARKG(bk, ctx):
+    bf = HashToScalar_ARKG(msg, ctx)
+    return bf
+
+def HashToScalar_ARKG(msg, info):
+    scalar = hash_to_field(msg, 1) with the parameters:
+        DST: DST || info
+        F: GF(Order()), the scalar field
+            of the prime order subgroup of EC
+        p: Order()
+        m: 1
+        L: as defined in H2C
+        expand_message: as defined in H2C
+    return scalar
+</pre><a href="#section-3.3-9" class="pilcrow">¶</a>
+</div>
 <div id="using-ecdh-shared-secrets">
 <section id="section-3.3.1">
           <h4 id="name-using-ecdh-shared-secrets">
@@ -1982,10 +2041,11 @@ Z_AB = CreateSharedSecret(skR, pk)
 </div>
 <p id="section-3.3.1-7">Now with the shared secret <code>Z_AB</code>, the unit and the reader can compute a secret shared key. The unit can convince the reader that it possesses <code>sk</code> for example by sharing a message authentication code created using this key. The reader can verify this by recomputing the code using its value of <code>Z_AB</code>. This is for example used in ECDH-MAC authentication defined in <span>[<a href="#ISO18013-5" class="cite xref">ISO18013-5</a>]</span>.<a href="#section-3.3.1-7" class="pilcrow">¶</a></p>
 <p id="section-3.3.1-8">In this example, step 1 can be postponed in the interactions between the unit and the reader if a trustworthy earlier commitment to <code>pk</code> is available, for example in a sealed document.<a href="#section-3.3.1-8" class="pilcrow">¶</a></p>
-<p id="section-3.3.1-9">Similarly, ECDH enables authentication of key pair <code>(sk', pk')</code> blinded from an original key pair <code>(sk, pk)</code> using a blinding factor <code>bf</code> such that:<a href="#section-3.3.1-9" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-9">Similarly, ECDH enables authentication of key pair <code>(sk', pk')</code> blinded from an original key pair <code>(sk, pk)</code> using a blind key <code>ctx</code> and application context byte string <code>ctx</code> such that:<a href="#section-3.3.1-9" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.3.1-10">
 <pre>
-sk' = BlindPrivateKey(sk, bf)
+bf = DeriveBlindingFactor(bk, ctx)
+sk' = BlindPrivateKey(sk, bk, ctx)
     = sk * bf mod Order()
 pk' = ScalarMult(pk, bf)
 </pre><a href="#section-3.3.1-10" class="pilcrow">¶</a>
@@ -2025,14 +2085,15 @@ Z_AB = CreateSharedSecret(sk', pkR)
               <p id="section-3.3.2-4.1.1"><code>DSA</code>: An EC-SDSA digital signature algorithm <span>[<a href="#TR03111" class="cite xref">TR03111</a>]</span>, representing signatures as pairs <code>(c, s)</code>.<a href="#section-3.3.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-3.3.2-5">Note that in this case, the following definition is equivalent to the original definition of BlindSign:<a href="#section-3.3.2-5" class="pilcrow">¶</a></p>
+<p id="section-3.3.2-5">Note that in this case, the following definition is equivalent to the <span><a href="#using-digital-signatures" class="internal xref">original definition of BlindKeySign</a> (<a href="#using-digital-signatures" class="auto internal xref">Section 3.1</a>)</span>:<a href="#section-3.3.2-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.3.2-6">
 <pre>
-def BlindSign(sk, bf, msg):
+def BlindKeySign(sk, bk, ctx, msg):
     # Compute signature within the secure cryptographic device.
     (c, s) = Sign(sk, msg)
 
     # Post-process the signature outside of this device.
+    bf = DeriveBlindingFactor(bk, ctx)
     s' = s + c * bf mod Order()
 
     signature = (c, s')
@@ -2341,6 +2402,64 @@ def BlindSign(sk, bf, msg):
         </table>
 <p id="section-5.3-3">HDK enables unit and issuers cooperatively to establish the cryptographic key material that issued documents will be bound to.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
 <p id="section-5.3-4">For the remote HDK protocol, HDK proposes an update to the OpenID4VCI endpoints. This proposal is under discussion in <a href="https://github.com/openid/OpenID4VCI/issues/359">openid/OpenID4VCI#359</a>. In the update, the unit shares a key encapsulation public key with the issuer, and the issuer returns a key handle. Then documents can be re-issued, potentially in batches, using synchronised indices. Alternatively, re-issued documents can have their own key handles.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="applying-hdk-with-arkg">
+<section id="section-5.4">
+        <h3 id="name-applying-hdk-with-arkg">
+<a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-applying-hdk-with-arkg" class="section-name selfRef">Applying HDK with ARKG</a>
+        </h3>
+<p id="section-5.4-1">This section illustrates how an Asynchronous Remote Key Generation (ARKG) instance can be constructed using the interfaces from the current document. It is not fully compatible with <span>[<a href="#I-D.draft-bradleylundberg-cfrg-arkg-02" class="cite xref">I-D.draft-bradleylundberg-cfrg-arkg-02</a>]</span> due to subtle differences, such as those in <span><a href="#using-prime-order-groups" class="internal xref">Using prime-order groups</a> (<a href="#using-prime-order-groups" class="auto internal xref">Section 3.2</a>)</span> and <span><a href="#using-elliptic-curves" class="internal xref">Using elliptic curves</a> (<a href="#using-elliptic-curves" class="auto internal xref">Section 3.3</a>)</span>.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.4-2">
+<pre>
+def DeriveSeed(ikm, (skD, bf), pk):
+    (skR, pkR) = DeriveKeyPair(ikm)
+    skA = (skR, (skD, bf, pk))
+    pkA = (pkR, pk)
+    return (skA, pkA)
+
+def DerivePublicKey((pkR, pk), index):
+    (salt_kem, kh) = Encap(pkR)
+
+    bk  = DeriveBlindKey(salt_kem)
+    ctx = CreateContext(pk, index)
+    pk' = BlindPublicKey(pk, bk, ctx)
+
+    return (pk', kh)
+
+def DerivePrivateKey((skR, (skD, bf, pk)), (pk', kh), index):
+    salt_kem = Decap(kh, skR)
+
+    bk  = DeriveBlindKey(salt_kem)
+    ctx = CreateContext(pk, index)
+    pkE = BlindPublicKey(pk, bk, ctx)
+
+    if pk' != pkE: abort with an error
+
+    sk  = Combine(skD, bf)
+    sk' = BlindPrivateKey(sk, bk, ctx)
+
+    return sk'
+</pre><a href="#section-5.4-2" class="pilcrow">¶</a>
+</div>
+<p id="section-5.4-3">This enables the <span><a href="#the-remote-hdk-protocol" class="internal xref">remote HDK protocol</a> (<a href="#the-remote-hdk-protocol" class="auto internal xref">Section 2.7</a>)</span> to be performed as such, given an <code>index</code> known to both parties:<a href="#section-5.4-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.4-4">
+<pre>
+# 1. Unit computes:
+(skA, pkA) = DeriveSeed(salt, (skD, bf), pk)
+
+# 2. Unit shares with issuer: pkA
+
+# 3. Issuer computes:
+(pk', kh) = DerivePublicKey(pkA, index)
+
+# 4. Issuer shares with unit: (pk', kh)
+
+# 5. Unit verifies integrity and computes the private key:
+sk' = DerivePrivateKey(skA, (pk', kh), index)
+</pre><a href="#section-5.4-4" class="pilcrow">¶</a>
+</div>
+<p id="section-5.4-5">For using a single <code>kh</code> with multiple values of <code>index</code>, the DerivePublicKey needs to be refactored to be able to reuse the Encap output.<a href="#section-5.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
