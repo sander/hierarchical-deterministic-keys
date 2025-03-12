@@ -137,7 +137,7 @@ This document represents the consensus of the authors, based on working group in
 
 {::boilerplate bcp14-tagged}
 
-## Notation and Terminology
+## Notation and terminology
 
 The following notation is used throughout the document.
 
