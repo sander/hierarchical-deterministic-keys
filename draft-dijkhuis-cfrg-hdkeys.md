@@ -151,7 +151,7 @@ Terms specific to HDK:
 - Key encapsulation mechanism (KEM): A cryptographic scheme used in remote HDK derivation to securely exchange a shared secret.
 - HDK Salt: A `Ns`-byte value used to introduce entropy into the HDK derivation. Without knowledge of the salt, the derived keys appear unrelated.
 - Blind Key `bk`: A scalar that propagates the entropy from the salt to the deterministic key derivation.
-- Blinding factor `bf`: A scalar applied to a private-public key pair to produce a blinded version.
+- Blinding factor `bf`: A scalar applied to a private-public key pair to produce a blinded version. Obtained by (repeatedly) applying a blind key with application (HDK) context.
 - Blinded Private Key `sk_b`: A private key transformed using a blinding factor.
 - Blinded Public Key `pk_b`: A public key derived from another public key with a blinding factor to ensure that the derived key appears unrelated to any other key.
 - HDK Key Alias Format: A structured identifier representing HDK-derived keys.
