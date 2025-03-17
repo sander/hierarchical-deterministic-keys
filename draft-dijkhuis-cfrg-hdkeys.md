@@ -159,7 +159,7 @@ Terms specific to HDK:
 Algorithmic and cryptographic notation:
 
 - `DeriveBlindKey(ikm)`: Generates a blind key from the input key material `ikm`. Ensures uniform distribution of outputs, and propagates any entropy from `ikm`.
-- `DeriveBlindingFactor(bk, ctx)`: Derives a blinding factor from a blinding key for a given context and ensures key unlinkability.
+- `DeriveBlindingFactor(bk, ctx)`: Derives a blinding factor from a blind key for a given context. Blinding factors are unlinkable if either the blind key or the context is unknown.
 - `BlindPrivateKey(sk, bf)`: Blinds a private key `sk` with the blinding factor `bf` to generate the private key `sk_b`.
 - `BlindPublicKey(pk, bf)`: Blinds a public key `pk` with the blinding factor `bf` to generate the public key `pk_b`.
 - `Combine(s1, s2)`: Computes a new blinding factor by combining two scalar values s1 and s2. Supports multi-stage derivations and key composability in HDK.
