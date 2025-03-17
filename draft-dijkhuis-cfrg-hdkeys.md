@@ -147,8 +147,8 @@ General terms:
 
 Terms specific to HDK:
 
-- HDK Context `ctx`: A byte string derived from a public key and an index, used to enforce domain separation in HDK-based key derivation.
-- Key Encapsulation mechanism (KEM): A cryptographic scheme used in remote HDK derivation to securely exchange a shared secret.
+- HDK context `ctx`: A byte string derived from a public key and an index, used to enforce domain separation in HDK-based key derivation.
+- Key encapsulation mechanism (KEM): A cryptographic scheme used in remote HDK derivation to securely exchange a shared secret.
 - HDK Salt: A `Ns`-byte value used to introduce entropy into the HDK derivation. Without knowledge of the salt, the derived keys appear unrelated.
 - Blinding Key `bk`: A scalar that propagates the entropy from the salt to the deterministic key derivation.
 - Blinding factor `bf`: A scalar applied to a private-public key pair to produce a blinded version.
