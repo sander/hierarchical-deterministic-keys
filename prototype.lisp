@@ -175,7 +175,7 @@
 (defconstant +ecdh-p256+
   (make-instance 'ec-dh :n-dh 32 :ec +p256+))
 (defconstant +bl-ecdh-p256+
-  (make-instance 'ec-bl-mul-dh :id (ascii "ECDH Multiplicative Key Blind")
+  (make-instance 'ec-bl-mul-dh :id (ascii "QUUX-V01-CS02-with-P256_XMD:SHA-256_SSWU_RO_")
                                :ec +p256+
                                :ec-dh +ecdh-p256+
                                :h +sha256+))
@@ -386,3 +386,28 @@
             (assert (verify reader doc device-data))))))))
 
 (format t "Tests ran successfully~%")
+
+(let* ((hdk +hdk-ecdh-p256+)
+       (ec (ec (bl hdk)))
+       (ikm-e (i2osp #x4270e54ffd08d79d5928020af4686d8f6b7d35dbe470265f1f5aa22816ce860e 32))
+       (pk-em-b (i2osp #x04a92719c6195d5085104f469a8b9814d5838ff72b60501e2c4466e5e67b325ac98536d7b61a1af4b78e5b7f951c0900be863c403ce65c9bfcb9382657222d18c4 64))
+       (pk-em (deserialize-public-key ec pk-em-b)))
+  (flet ((render (desc pk) (format t "~a compressed: ~a~%" desc (crypto:byte-array-to-hex-string (serialize-public-key-compressed ec pk)))))
+    (render "loc mul index=0 pk=pkEm salt=ikmE" (hdk-apply hdk 0 pk-em ikm-e))
+    (render "loc mul index=1 pk=pkEm salt=ikmE" (hdk-apply hdk 1 pk-em ikm-e))))
+(defconstant +ikm-e+ (i2osp #x4270e54ffd08d79d5928020af4686d8f6b7d35dbe470265f1f5aa22816ce860e 32))
+
+(let* ((x (i2osp #x010203 3)))
+  (setf (elt x 0) 4)
+  x)
+(defmethod serialize-public-key-compressed ((ec ec-kg) pk)
+  (let* ((pk (crypto:ec-destructure-point pk))
+         (res (i2osp (getf pk :x) 32)))
+    (setf (elt res 0) (if (evenp (getf pk :y)) #x02 #x03))
+    res))
+            
+(let* ((pk (deserialize-public-key +p256+ (i2osp #xb7aaadbe51ec7857da59df38e10574f45e2282623b3457749b31762e3605f8c00db6cf3370b2f3d53612accd8864208e91896184499feb602b69837079592e00 64))))
+  (serialize-public-key-compressed +p256+ pk))
+  ;;(pk (crypto:ec-destructure-point pk)))
+  ;;(crypto:byte-array-to-hex-string (serialize-public-key +p256+ pk))
+;;  (evenp (getf pk :y)))
