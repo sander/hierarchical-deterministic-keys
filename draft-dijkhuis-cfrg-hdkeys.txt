@@ -4,8 +4,8 @@
 
 Crypto Forum                                         S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                              5 March 2025
-Expires: 6 September 2025
+Intended status: Informational                             18 March 2025
+Expires: 19 September 2025
 
 
                     Hierarchical Deterministic Keys
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 September 2025.
+   This Internet-Draft will expire on 19 September 2025.
 
 Copyright Notice
 
@@ -63,6 +63,7 @@ Table of Contents
 
    1.  Introduction
      1.1.  Conventions and definitions
+     1.2.  Notation and terminology
    2.  The Hierarchical Deterministic Key function
      2.1.  Introductory examples
        2.1.1.  Local deterministic key derivation
@@ -159,12 +160,80 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
+1.2.  Notation and terminology
+
    The following notation is used throughout the document.
 
-   *  byte: A sequence of eight bits.
+   General terms:
 
    *  I2OSP(n, w): Convert non-negative integer n to a w-length, big-
       endian byte string, as described in [RFC8017].
+
+   Terms specific to HDK:
+
+   *  HDK context ctx: A byte string derived from a public key and an
+      index, used to enforce domain separation in HDK-based key
+      derivation.
+
+   *  Key encapsulation mechanism (KEM): A cryptographic scheme used in
+      remote HDK derivation to securely exchange a shared secret.
+
+   *  HDK Salt: A Ns-byte value used to introduce entropy into the HDK
+      derivation.  Without knowledge of the salt, the derived keys
+      appear unrelated.
+
+   *  Blind Key bk: A scalar that propagates the entropy from the salt
+      to the deterministic key derivation.
+
+   *  Blinding factor bf: A scalar applied to a private-public key pair
+      to produce a blinded version.  Obtained by (repeatedly) applying a
+      blind key with application (HDK) context.
+
+   *  Blinded Private Key sk_b: A private key transformed using a
+      blinding factor.
+
+   *  Blinded Public Key pk_b: A public key derived from another public
+      key with a blinding factor to ensure that the derived key appears
+      unrelated to any other key.
+
+   *  HDK Key Alias Format: A structured identifier representing HDK-
+      derived keys.
+
+   Algorithmic and cryptographic notation:
+
+   *  DeriveBlindKey(ikm): Generates a blind key from the input key
+      material ikm.  Ensures uniform distribution of outputs, and
+      propagates any entropy from ikm.
+
+   *  DeriveBlindingFactor(bk, ctx): Derives a blinding factor from a
+      blind key for a given context.  Blinding factors are unlinkable if
+      either the blind key or the context is unknown.
+
+   *  BlindPrivateKey(sk, bf): Blinds a private key sk with the blinding
+      factor bf to generate the private key sk_b.
+
+   *  BlindPublicKey(pk, bf): Blinds a public key pk with the blinding
+      factor bf to generate the public key pk_b.
+
+   *  Combine(s1, s2): Computes a new blinding factor by combining two
+      scalar values s1 and s2.  Supports multi-stage derivations and key
+      composability in HDK.
+
+   *  SerializePublicKey(pk): Encodes the public key pk into a canonical
+      byte string representation.
+
+   Security and implementation specific notation:
+
+   *  Secure Cryptographic Device (WSCD): A module that securely stores
+      and processes cryptographic keys and provides the hardware root of
+      trust for HDK-based key derivation.
+
+   *  Trust Evidence: Information providing ownership or authenticity of
+      a derived key.
+
+   *  Wallet Secure Cryptographic Application (WSCA): A secure
+      application within a WSCD that exposes cryptographic functions
+      used in key derivation.
 
 2.  The Hierarchical Deterministic Key function
 
