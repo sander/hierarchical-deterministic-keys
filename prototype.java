@@ -29,7 +29,11 @@ static KeyAgreement exchange(KeyAgreement ka, PrivateKey sk, PublicKey pk) throw
 }
 
 /**
- * Hierarchical deterministic keys, assuming the input key is on the P-256 curve.
+ * Hierarchical deterministic keys.
+ *
+ * Assumes the input key is on the P-256 curve.
+ *
+ * Returns (x, y) or (x, p-y). This is OK for wallet applications.
  */
 ECPublicKey hdk(PublicKey key, byte[] salt, int index, byte[] info) throws NoSuchAlgorithmException {
     final var TAG = "HDK-v1.";
