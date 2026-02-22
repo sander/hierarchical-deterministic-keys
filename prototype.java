@@ -38,9 +38,9 @@ ECPublicKey hdk(PublicKey key, byte[] salt, int index, byte[] info) throws NoSuc
     if (salt.length != SALT_SIZE) throw new IllegalArgumentException();
     if (!(key instanceof ECPublicKey)) throw new IllegalArgumentException();
 
-    final var digest = MessageDigest.getInstance("SHA-256");
-    final var factory = KeyFactory.getInstance("EC");
-    final var agreement = KeyAgreement.getInstance("ECDH");
+    var digest = MessageDigest.getInstance("SHA-256");
+    var factory = KeyFactory.getInstance("EC");
+    var agreement = KeyAgreement.getInstance("ECDH");
 
     var p256 = ((ECPublicKey) key).getParams();
     var prime = ((ECFieldFp) p256.getCurve().getField()).getP();
