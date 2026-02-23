@@ -11,18 +11,18 @@ void main() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException,
 
     var ka = KeyAgreement.getInstance("ECDH");
     var params = new HierarchicalDeterministicKeys(new byte[32], 1, new byte[0]);
-    var secretA = exchange(ka, provider.getPrivate(), params.derive(wallet.getPublic())).generateSecret();
-    var secretB = exchange(ka, wallet.getPrivate(), params.derive(provider.getPublic())).generateSecret();
+    var secretA = shareSecret(ka, provider.getPrivate(), params.derive(wallet.getPublic()));
+    var secretB = shareSecret(ka, wallet.getPrivate(), params.derive(provider.getPublic()));
 
     if (!MessageDigest.isEqual(secretA, secretB)) throw new AssertionError();
 
     IO.println(HexFormat.of().formatHex(secretA));
 }
 
-static KeyAgreement exchange(KeyAgreement ka, PrivateKey sk, PublicKey pk) throws KeyException {
+static byte[] shareSecret(KeyAgreement ka, PrivateKey sk, PublicKey pk) throws KeyException {
     ka.init(sk);
     ka.doPhase(pk, true);
-    return ka;
+    return ka.generateSecret();
 }
 
 record HierarchicalDeterministicKeys(byte[] salt, int index, byte[] info) {
@@ -30,28 +30,28 @@ record HierarchicalDeterministicKeys(byte[] salt, int index, byte[] info) {
     private static final String TAG = "HDK-v1.";
 
     /**
-     * Assumes the input key is on the P-256 curve.
+     * Assumes the input public key is on the P-256 curve.
      *
      * Returns (x, y) or (x, p-y). This is OK for wallet applications.
      */
-    ECPublicKey derive(PublicKey key) throws NoSuchAlgorithmException {
+    ECPublicKey derive(PublicKey pk) throws NoSuchAlgorithmException {
         if (salt.length != SALT_SIZE) throw new IllegalArgumentException();
-        if (!(key instanceof ECPublicKey)) throw new IllegalArgumentException();
+        if (!(pk instanceof ECPublicKey)) throw new IllegalArgumentException();
 
         var digest = MessageDigest.getInstance("SHA-256");
         var factory = KeyFactory.getInstance("EC");
         var agreement = KeyAgreement.getInstance("ECDH");
 
-        var p256 = ((ECPublicKey) key).getParams();
-        var factor = factor(digest, p256);
+        var p256 = ((ECPublicKey) pk).getParams();
+        var bf = factor(digest, p256);
         try {
-            exchange(agreement, factory.generatePrivate(new ECPrivateKeySpec(factor, p256)), key);
+            agreement.init(factory.generatePrivate(new ECPrivateKeySpec(bf, p256)));
+            agreement.doPhase(pk, true);
         } catch (KeyException | InvalidKeySpecException e) {
             throw new RuntimeException(e);
         }
 
-        var sharedSecret = agreement.generateSecret();
-        return recover(factory, p256, sharedSecret);
+        return recover(factory, p256, agreement.generateSecret());
     }
 
     private BigInteger factor(MessageDigest digest, ECParameterSpec p256) {
@@ -64,15 +64,15 @@ record HierarchicalDeterministicKeys(byte[] salt, int index, byte[] info) {
                 .add(BigInteger.ONE);
     }
 
-    private ECPublicKey recover(KeyFactory factory, ECParameterSpec p256, byte[] sharedSecret) {
-        var prime = ((ECFieldFp) p256.getCurve().getField()).getP();
-        var x = new BigInteger(1, sharedSecret).mod(prime);
-        var y = x.modPow(BigInteger.valueOf(3), prime)
+    private ECPublicKey recover(KeyFactory factory, ECParameterSpec p256, byte[] secret) {
+        var p = ((ECFieldFp) p256.getCurve().getField()).getP();
+        var x = new BigInteger(1, secret).mod(p);
+        var y = x.modPow(BigInteger.valueOf(3), p)
                 .add(p256.getCurve().getA().multiply(x))
                 .add(p256.getCurve().getB())
-                .mod(prime)
-                .modPow(prime.add(BigInteger.ONE).shiftRight(2), prime);
-        var point = new ECPoint(x, (y.testBit(0)) ? prime.subtract(y) : y);
+                .mod(p)
+                .modPow(p.add(BigInteger.ONE).shiftRight(2), p);
+        var point = new ECPoint(x, (y.testBit(0)) ? p.subtract(y) : y);
         try {
             return (ECPublicKey) factory.generatePublic(new ECPublicKeySpec(point, p256));
         } catch (InvalidKeySpecException e) {
