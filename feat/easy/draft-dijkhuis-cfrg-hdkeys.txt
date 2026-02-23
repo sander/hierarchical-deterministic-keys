@@ -4,8 +4,8 @@
 
 Crypto Forum                                         S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                          22 February 2026
-Expires: 26 August 2026
+Intended status: Informational                          23 February 2026
+Expires: 27 August 2026
 
 
                     Hierarchical Deterministic Keys
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 August 2026.
+   This Internet-Draft will expire on 27 August 2026.
 
 Copyright Notice
 
