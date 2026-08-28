@@ -92,8 +92,16 @@ Table of Contents
    performed.  Creating and storing a separate secure-area key pair for
    every Credential can, however, be expensive or impossible.
 
-   This document defines Hierarchical Deterministic Keys (HDK) for this
-   use case.  HDK enables many child key pairs to be derived from a
+   A Credential Issuer can also want a newly issued Credential to
+   inherit the holder binding of a key that it has already accepted.
+   For example, after a Wallet presents a PID bound to pk_parent, an
+   Issuer can use HDK when issuing an mDL so that the mDL is bound to a
+   child of that same accepted parent key.  The Issuer can thereby bind
+   the new Credential to the same Credential Holder without requiring an
+   unrelated new key to be established and assessed.
+
+   This document defines Hierarchical Deterministic Keys (HDK) for these
+   use cases.  HDK enables many child key pairs to be derived from a
    P-256 parent key pair protected by the secure area.  The guarantee
    intended for a Credential Issuer is that use of a child private key
    has protections equivalent to use of its parent private key,
