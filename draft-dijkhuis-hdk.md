@@ -52,6 +52,12 @@ informative:
     author:
       - name: E. Lundberg
       - name: J. Bradley
+  EUCC-ACM-v3:
+    title: Agreed Cryptographic Mechanisms, Version 3, Draft for Public Review
+    target: https://certification.enisa.europa.eu/publications/eucc-guidelines-cryptography_en
+    author:
+      - organization: European Cybersecurity Certification Group, Sub-group on Cryptography
+    date: 2026-04
   ETSI-TR-119-476-1:
     title: "ETSI TR 119 476-1 V1.3.1: Selective disclosure and zero-knowledge proofs applied to Electronic Attestation of Attributes; Part 1: Feasibility study"
     target: https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/01.03.01_60/tr_11947601v010301p.pdf
@@ -303,6 +309,8 @@ The `hdk` object in `proof_types_supported` is empty in this version of the spec
 The derivation in this document is not interoperable with either `ARKG-P256` [ARKG] or the ECDSA construction in [KeyBlinding].
 
 `ARKG-P256` uses additive blinding, P-256 ECDH, and ARKG-specific seed and key-handle structures. This document uses multiplicative blinding and an ephemeral X25519 exchange directly in OpenID4VCI. The simpler construction avoids introducing ARKG key representations and key handles, and the multiplicative relation also permits the ECDH and ECDSA child-key equivalences above while the secure area continues to operate with the parent key.
+
+X25519 was selected for the exchange because it requires little protocol and encoding boilerplate for this application: each party contributes one fixed-size public value and [RFC7748] directly defines the shared-secret computation. It is also listed as an agreed key-establishment mechanism in the draft Version 3 of the EUCC Agreed Cryptographic Mechanisms [EUCC-ACM-v3].
 
 The ECDSA construction in [KeyBlinding] uses the same multiplicative relation between parent and blinded keys, but derives the blinding scalar differently. It uses a separately generated private blinding key, domain separation, and `hash_to_field`; this document uses the X25519 `shared_secret` as `bk`, the parent public key and Credential index as `ctx`, and the compact `H` function above. Consequently, implementations of the two constructions will not derive the same keys from nominally corresponding inputs.
 
