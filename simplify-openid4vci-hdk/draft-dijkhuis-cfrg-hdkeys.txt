@@ -136,8 +136,9 @@ Table of Contents
 
    base64(x) is unpadded base64url as defined in Section 5 of [RFC4648].
 
-   SerializePublicKey(pk) is the 65-byte uncompressed SEC 1 encoding
-   0x04 || x || y of a P-256 public key [SEC1].
+   When a P-256 public key pk is used as a byte string in the algorithms
+   below, it is encoded as the 65-byte uncompressed SEC 1 representation
+   0x04 || x || y [SEC1].
 
 3.  Cryptographic Dependencies
 
@@ -262,7 +263,7 @@ Table of Contents
    For Credential i, where 0 <= i <= 0xffffffff:
 
    index = int2bytes(i, 4)
-   ctx = concat(SerializePublicKey(pk_parent), index)
+   ctx = concat(pk_parent, index)
    b = HashToScalar(concat(shared_secret, ctx))
 
    sk_child = sk_parent * b mod n
@@ -272,9 +273,6 @@ Table of Contents
 
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    pk_child = BlindPK(pk_parent, shared_secret, ctx)
-
-   The exact encodings above MUST be used.  In particular, pk_parent in
-   ctx is its 65-byte uncompressed SEC 1 encoding, not its JWK encoding.
 
    Because b and sk_parent are non-zero modulo the prime n, sk_child is
    non-zero.

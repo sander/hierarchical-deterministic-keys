@@ -1230,7 +1230,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-2-3"><code>bytes2int(x)</code> interprets <code>x</code> as an unsigned big-endian integer, equivalent to OS2IP in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>.<a href="#section-2-3" class="pilcrow">¶</a></p>
 <p id="section-2-4"><code>int2bytes(x, len)</code> encodes <code>x</code> as exactly <code>len</code> unsigned big-endian bytes, equivalent to I2OSP in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>, and fails if <code>x &gt;= 256^len</code>.<a href="#section-2-4" class="pilcrow">¶</a></p>
 <p id="section-2-5"><code>base64(x)</code> is unpadded base64url as defined in Section 5 of <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
-<p id="section-2-6"><code>SerializePublicKey(pk)</code> is the 65-byte uncompressed SEC 1 encoding <code>0x04 || x || y</code> of a P-256 public key <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>.<a href="#section-2-6" class="pilcrow">¶</a></p>
+<p id="section-2-6">When a P-256 public key <code>pk</code> is used as a byte string in the algorithms below, it is encoded as the 65-byte uncompressed SEC 1 representation <code>0x04 || x || y</code> <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>.<a href="#section-2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cryptographic-dependencies">
@@ -1362,7 +1362,7 @@ BlindSK(sk, bk, ctx) =
 <div class="alignLeft art-text artwork" id="section-6-5">
 <pre>
 index = int2bytes(i, 4)
-ctx = concat(SerializePublicKey(pk_parent), index)
+ctx = concat(pk_parent, index)
 b = HashToScalar(concat(shared_secret, ctx))
 
 sk_child = sk_parent * b mod n
@@ -1376,8 +1376,7 @@ sk_child = BlindSK(sk_parent, shared_secret, ctx)
 pk_child = BlindPK(pk_parent, shared_secret, ctx)
 </pre><a href="#section-6-7" class="pilcrow">¶</a>
 </div>
-<p id="section-6-8">The exact encodings above <span class="bcp14">MUST</span> be used. In particular, <code>pk_parent</code> in <code>ctx</code> is its 65-byte uncompressed SEC 1 encoding, not its JWK encoding.<a href="#section-6-8" class="pilcrow">¶</a></p>
-<p id="section-6-9">Because <code>b</code> and <code>sk_parent</code> are non-zero modulo the prime <code>n</code>, <code>sk_child</code> is non-zero.<a href="#section-6-9" class="pilcrow">¶</a></p>
+<p id="section-6-8">Because <code>b</code> and <code>sk_parent</code> are non-zero modulo the prime <code>n</code>, <code>sk_child</code> is non-zero.<a href="#section-6-8" class="pilcrow">¶</a></p>
 <div id="hierarchical-derivation">
 <section id="section-6.1">
         <h3 id="name-hierarchical-derivation">
