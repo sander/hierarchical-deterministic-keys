@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>Hierarchical Deterministic Keys for OpenID4VCI</title>
+<title>Hierarchical Deterministic Keys</title>
 <meta content="Sander Dijkhuis" name="author">
 <meta content="
        Using a distinct holder-binding key for each Credential improves unlinkability, but generating and storing many keys in a Wallet secure area can be expensive or impossible. This document defines a way to derive unlinkable P-256 Credential keys from one protected parent key while retaining the parent's key-protection properties. It specifies this mechanism as an extension to OpenID for Verifiable Credential Issuance (OpenID4VCI), allowing the Issuer to derive each child public key while only the Wallet can use the corresponding child private key. 
@@ -1042,7 +1042,7 @@ svg {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">HDK for OpenID4VCI</td>
+<td class="center">HDK</td>
 <td class="right">August 2026</td>
 </tr></thead>
 <tfoot><tr>
@@ -1076,7 +1076,7 @@ svg {
 </dd>
 </dl>
 </div>
-<h1 id="title">Hierarchical Deterministic Keys for OpenID4VCI</h1>
+<h1 id="title">Hierarchical Deterministic Keys</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">Using a distinct holder-binding key for each Credential improves unlinkability, but generating and storing many keys in a Wallet secure area can be expensive or impossible. This document defines a way to derive unlinkable P-256 Credential keys from one protected parent key while retaining the parent's key-protection properties. It specifies this mechanism as an extension to OpenID for Verifiable Credential Issuance (OpenID4VCI), allowing the Issuer to derive each child public key while only the Wallet can use the corresponding child private key.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
@@ -1177,7 +1177,7 @@ svg {
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-openid4vci-metadata" class="internal xref">OpenID4VCI Metadata</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-design-considerations" class="internal xref">Design Considerations</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-interoperability-considerat" class="internal xref">Interoperability Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
             <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
@@ -1200,10 +1200,7 @@ svg {
             <p id="section-toc.1-1.14.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
-            <p id="section-toc.1-1.15.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-contributors" class="internal xref">Contributors</a></p>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
-            <p id="section-toc.1-1.16.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.15.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1219,7 +1216,7 @@ svg {
 <p id="section-1-3">Generating and storing a separate secure area key pair for every Credential can also be expensive or impossible. HDK instead derives many P-256 child keys from one protected parent. Child-key operations can retain the parent's protections, including user authentication.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This specification is limited to P-256 because it targets high-assurance Wallet ecosystems in which P-256 is widely supported by secure hardware and Credential formats. Other curves or key types require separate specification.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">During issuance, the Wallet and Issuer establish a shared secret using ephemeral X25519 keys. Together with the parent public key and Credential index, this determines each child key. The Issuer can derive the child public keys but not the corresponding private keys. Verifiers see ordinary P-256 keys and need no HDK support.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6"><span>[<a href="#ETSI-TR-119-476-1" class="cite xref">ETSI-TR-119-476-1</a>]</span> identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span>, including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span> independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Design Considerations.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-6"><span>[<a href="#ETSI-TR-119-476-1" class="cite xref">ETSI-TR-119-476-1</a>]</span> identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span>, including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span> independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">A child key can itself be a parent, allowing hierarchical derivation.<a href="#section-1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1242,16 +1239,30 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-cryptographic-dependencies">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-cryptographic-dependencies" class="section-name selfRef">Cryptographic Dependencies</a>
       </h2>
-<p id="section-3-1">From <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>, this specification uses the P-256 elliptic curve, its scalar and point representations, scalar multiplication, and public-key validation rules. The P-256 group order is:<a href="#section-3-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3-2">
+<p id="section-3-1">This specification imports the following values and functions:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-2.1">
+          <p id="section-3-2.1.1">From <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>, the P-256 elliptic curve, its scalar and point representations, and its public-key validation rules. The P-256 group order is:<a href="#section-3-2.1.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-2.1.2">
 <pre>
 n = 0xffffffff00000000ffffffffffffffff
     bce6faada7179e84f3b9cac2fc632551
-</pre><a href="#section-3-2" class="pilcrow">¶</a>
+</pre><a href="#section-3-2.1.2" class="pilcrow">¶</a>
 </div>
-<p id="section-3-3"><code>ScalarMult(pk, k)</code> denotes the P-256 scalar multiplication defined by <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>. Received P-256 public keys <span class="bcp14">MUST</span> be validated as required by <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>. When a P-256 public key <code>pk</code> is used as a byte string, it is encoded as the 65-byte uncompressed SEC 1 representation <code>0x04 || x || y</code>.<a href="#section-3-3" class="pilcrow">¶</a></p>
-<p id="section-3-4">From <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span>, this specification uses SHA-256.<a href="#section-3-4" class="pilcrow">¶</a></p>
-<p id="section-3-5">From <span>[<a href="#RFC7748" class="cite xref">RFC7748</a>]</span>, this specification uses X25519. <code>GenerateX25519KeyPair()</code> denotes generation of a fresh X25519 private key and its corresponding 32-byte public key. <code>X25519(sk, pk)</code> is the X25519 function defined in <span>[<a href="#RFC7748" class="cite xref">RFC7748</a>]</span>; its 32-byte output is used directly as <code>shared_secret</code>. An all-zero output <span class="bcp14">MUST</span> be rejected.<a href="#section-3-5" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.2">
+          <p id="section-3-2.2.1"><code>ScalarMult(pk, k)</code> is P-256 scalar multiplication as defined by <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>. Received P-256 public keys <span class="bcp14">MUST</span> be validated as required by <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>. When a P-256 public key <code>pk</code> is used as a byte string, it is encoded as the 65-byte uncompressed SEC 1 representation <code>0x04 || x || y</code>.<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.3">
+          <p id="section-3-2.3.1"><code>SHA-256(msg)</code> is SHA-256 as defined by <span>[<a href="#FIPS180-4" class="cite xref">FIPS180-4</a>]</span>.<a href="#section-3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.4">
+          <p id="section-3-2.4.1"><code>GenerateX25519KeyPair()</code> generates a fresh X25519 private key and its corresponding 32-byte public key, using X25519 as defined by <span>[<a href="#RFC7748" class="cite xref">RFC7748</a>]</span>.<a href="#section-3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.5">
+          <p id="section-3-2.5.1"><code>X25519(sk, pk)</code> is the X25519 function defined by <span>[<a href="#RFC7748" class="cite xref">RFC7748</a>]</span>. Its 32-byte output is used directly as <code>shared_secret</code>. An all-zero output <span class="bcp14">MUST</span> be rejected.<a href="#section-3-2.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
 </section>
 </div>
 <div id="parent-key-assurance">
@@ -1334,9 +1345,9 @@ Content-Type: application/json
     "pk_issuer": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
   },
   "credentials": [
-    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4x" },
-    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4xAQ" },
-    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4xAg" }
+    { "credential": "&lt;Credential 0&gt;" },
+    { "credential": "&lt;Credential 1&gt;" },
+    { "credential": "&lt;Credential 2&gt;" }
   ]
 }
 </pre><a href="#section-6-5" class="pilcrow">¶</a>
@@ -1367,7 +1378,7 @@ BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 </div>
 <p id="section-7-3">This is multiplicative key blinding, as used for ECDSA in <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span>. Its use here for remote child-key derivation serves a role related to ARKG <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span>, whose <code>ARKG-P256</code> instance instead uses additive blinding.<a href="#section-7-3" class="pilcrow">¶</a></p>
 <p id="section-7-4"><code>H</code> returns an integer in <code>1..n-1</code>. The small statistical bias from reduction modulo <code>n - 1</code> is accepted for simplicity.<a href="#section-7-4" class="pilcrow">¶</a></p>
-<p id="section-7-5">For Credential <code>i</code>, where <code>0 &lt;= i &lt;= 0xffffffff</code>:<a href="#section-7-5" class="pilcrow">¶</a></p>
+<p id="section-7-5">For Credential <code>i</code>, where <code>0x00000000 &lt;= i &lt;= 0xffffffff</code>:<a href="#section-7-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7-6">
 <pre>
 index = I2OSP(i, 4)
@@ -1420,30 +1431,24 @@ ECDH(sk_child, pk) = ECDH(sk_parent, ScalarMult(pk, b))
         <h3 id="name-ecdsa">
 <a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-ecdsa" class="section-name selfRef">ECDSA</a>
         </h3>
-<p id="section-8.2-1">A secure area can derive the child and sign directly:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-8.2-2">
-<pre>
-sk_child = BlindSK(sk_parent, shared_secret, ctx)
-signature = SHA256withECDSA(sk_child, msg)
-</pre><a href="#section-8.2-2" class="pilcrow">¶</a>
-</div>
-<p id="section-8.2-3">Alternatively, for the blinding factor <code>b</code> of the child, let:<a href="#section-8.2-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-8.2-4">
+<p id="section-8.2-1">A secure area that supports multiplicative key blinding can derive and use the child key directly as described in <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span>. The remainder of this subsection describes an alternative that keeps the protected ECDSA operation on <code>sk_parent</code>.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<p id="section-8.2-2">For the blinding factor <code>b</code> of the child, let:<a href="#section-8.2-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-8.2-3">
 <pre>
 z = OS2IP(SHA-256(msg))
-</pre><a href="#section-8.2-4" class="pilcrow">¶</a>
+</pre><a href="#section-8.2-3" class="pilcrow">¶</a>
 </div>
-<p id="section-8.2-5">Then <code>SHA256withECDSA(sk_child, msg)</code> is equivalent to <code>(r, s * b mod n)</code>, where:<a href="#section-8.2-5" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-8.2-6">
+<p id="section-8.2-4">Then <code>SHA256withECDSA(sk_child, msg)</code> is equivalent to <code>(r, s * b mod n)</code>, where:<a href="#section-8.2-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-8.2-5">
 <pre>
 (r, s) = NONEwithECDSA(
     sk_parent,
     I2OSP(z * b^-1 mod n, 32))
-</pre><a href="#section-8.2-6" class="pilcrow">¶</a>
+</pre><a href="#section-8.2-5" class="pilcrow">¶</a>
 </div>
-<p id="section-8.2-7"><code>b^-1</code> is the inverse of <code>b</code> modulo <code>n</code>. <code>NONEwithECDSA</code> means ECDSA over the supplied 32-byte representative without hashing it again. Implementations <span class="bcp14">MUST</span> verify that their API has exactly this behavior.<a href="#section-8.2-7" class="pilcrow">¶</a></p>
-<p id="section-8.2-8">The resulting <code>(r, s * b mod n)</code> is an ordinary ECDSA signature under <code>pk_child</code> for <code>msg</code>.<a href="#section-8.2-8" class="pilcrow">¶</a></p>
-<p id="section-8.2-9">This ECDSA construction may be covered by patent claims in some jurisdictions or implementations. This document makes no determination about their validity or applicability. Deriving <code>sk_child</code> inside the secure area and signing with it is an alternative architecture and can have a different intellectual-property analysis.<a href="#section-8.2-9" class="pilcrow">¶</a></p>
+<p id="section-8.2-6"><code>b^-1</code> is the inverse of <code>b</code> modulo <code>n</code>. <code>NONEwithECDSA</code> means ECDSA over the supplied 32-byte representative without hashing it again. Implementations <span class="bcp14">MUST</span> verify that their API has exactly this behavior.<a href="#section-8.2-6" class="pilcrow">¶</a></p>
+<p id="section-8.2-7">The resulting <code>(r, s * b mod n)</code> is an ordinary ECDSA signature under <code>pk_child</code> for <code>msg</code>.<a href="#section-8.2-7" class="pilcrow">¶</a></p>
+<p id="section-8.2-8">This ECDSA construction may be covered by patent claims in some jurisdictions or implementations. This document makes no determination about their validity or applicability. Deriving <code>sk_child</code> inside the secure area and signing with it is an alternative architecture and can have a different intellectual-property analysis.<a href="#section-8.2-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1471,13 +1476,13 @@ z = OS2IP(SHA-256(msg))
 }
 </pre><a href="#section-9-2" class="pilcrow">¶</a>
 </div>
-<p id="section-9-3">Implementations <span class="bcp14">MUST NOT</span> infer HDK support merely from P-256 support.<a href="#section-9-3" class="pilcrow">¶</a></p>
+<p id="section-9-3">The <code>hdk</code> object in <code>proof_types_supported</code> is empty in this version of the specification; no proof-type-specific metadata parameters are currently defined. Implementations <span class="bcp14">MUST NOT</span> infer HDK support merely from P-256 support.<a href="#section-9-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="design-considerations">
+<div id="interoperability-considerations">
 <section id="section-10">
-      <h2 id="name-design-considerations">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-design-considerations" class="section-name selfRef">Design Considerations</a>
+      <h2 id="name-interoperability-considerat">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-interoperability-considerat" class="section-name selfRef">Interoperability Considerations</a>
       </h2>
 <p id="section-10-1">The derivation in this document is not interoperable with either <code>ARKG-P256</code> <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span> or the ECDSA construction in <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span>.<a href="#section-10-1" class="pilcrow">¶</a></p>
 <p id="section-10-2"><code>ARKG-P256</code> uses additive blinding, P-256 ECDH, and ARKG-specific seed and key-handle structures. This document uses multiplicative blinding and an ephemeral X25519 exchange directly in OpenID4VCI. The simpler construction avoids introducing ARKG key representations and key handles, and the multiplicative relation also permits the ECDH and ECDSA child-key equivalences above while the secure area continues to operate with the parent key.<a href="#section-10-2" class="pilcrow">¶</a></p>
@@ -1494,7 +1499,7 @@ z = OS2IP(SHA-256(msg))
 <p id="section-11-2">The security guarantee remains rooted in <code>sk_parent</code>. Disclosure of <code>shared_secret</code> does not reveal <code>sk_parent</code> or by itself enable child-key operations, but it reveals the relationship between <code>pk_parent</code> and its child public keys. Implementations <span class="bcp14">SHOULD</span> therefore protect and erase it when no longer needed.<a href="#section-11-2" class="pilcrow">¶</a></p>
 <p id="section-11-3">Both parties <span class="bcp14">MUST</span> use fresh X25519 key pairs for each request.<a href="#section-11-3" class="pilcrow">¶</a></p>
 <p id="section-11-4">Compromise of both <code>sk_parent</code> and an issuance <code>shared_secret</code> permits reconstruction of every child private key from that response.<a href="#section-11-4" class="pilcrow">¶</a></p>
-<p id="section-11-5">The biased <code>H</code> construction is intentional. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.<a href="#section-11-5" class="pilcrow">¶</a></p>
+<p id="section-11-5">The biased <code>H</code> construction is intentional: this specification prefers ease of implementation over eliminating the small statistical bias. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.<a href="#section-11-5" class="pilcrow">¶</a></p>
 <p id="section-11-6">See the ECDSA section for intellectual-property considerations.<a href="#section-11-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1589,22 +1594,11 @@ z = OS2IP(SHA-256(msg))
       <h2 id="name-acknowledgements">
 <a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
       </h2>
-<p id="appendix-A-1">Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, and Remco Schaar.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">ChatGPT was used to sketch the rewrite in this version of the draft.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="contributors">
-<section id="appendix-B">
-      <h2 id="name-contributors">
-<a href="#name-contributors" class="section-name selfRef">Contributors</a>
-      </h2>
-<address class="vcard">
-        <div dir="auto" class="left"><span class="fn nameRole">Micha Kraus</span></div>
-</address>
+<p id="appendix-A-1">Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, Paul Bastian, and Remco Schaar.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-C">
+<section id="appendix-B">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>
