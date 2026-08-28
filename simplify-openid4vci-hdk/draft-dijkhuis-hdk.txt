@@ -387,6 +387,13 @@ Table of Contents
    ECDH and ECDSA child-key equivalences above while the secure area
    continues to operate with the parent key.
 
+   X25519 was selected for the exchange because it requires little
+   protocol and encoding boilerplate for this application: each party
+   contributes one fixed-size public value and [RFC7748] directly
+   defines the shared-secret computation.  It is also listed as an
+   agreed key-establishment mechanism in the draft Version 3 of the EUCC
+   Agreed Cryptographic Mechanisms [EUCC-ACM-v3].
+
    The ECDSA construction in [KeyBlinding] uses the same multiplicative
    relation between parent and blinded keys, but derives the blinding
    scalar differently.  It uses a separately generated private blinding
@@ -495,6 +502,13 @@ Table of Contents
               <https://www.etsi.org/deliver/
               etsi_tr/119400_119499/11947601/01.03.01_60/
               tr_11947601v010301p.pdf>.
+
+   [EUCC-ACM-v3]
+              European Cybersecurity Certification Group, Sub-group on
+              Cryptography, "Agreed Cryptographic Mechanisms, Version 3,
+              Draft for Public Review", April 2026,
+              <https://certification.enisa.europa.eu/publications/eucc-
+              guidelines-cryptography_en>.
 
    [KeyBlinding]
               "Key Blinding for Signature Schemes", n.d.,
