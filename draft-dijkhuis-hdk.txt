@@ -2,14 +2,14 @@
 
 
 
-Crypto Forum                                         S. Q. Dijkhuis, Ed.
+Network Working Group                                S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                             18 March 2025
-Expires: 19 September 2025
+Intended status: Informational                            28 August 2026
+Expires: 1 March 2027
 
 
                     Hierarchical Deterministic Keys
-                   draft-dijkhuis-cfrg-hdkeys-latest
+                       draft-dijkhuis-hdk-latest
 
 Abstract
 
@@ -26,7 +26,7 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-dijkhuis-cfrg-hdkeys/.
+   https://datatracker.ietf.org/doc/draft-dijkhuis-hdk/.
 
    Source for this draft and an issue tracker can be found at
    https://github.com/sander/hierarchical-deterministic-keys.
@@ -46,11 +46,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 September 2025.
+   This Internet-Draft will expire on 1 March 2027.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
