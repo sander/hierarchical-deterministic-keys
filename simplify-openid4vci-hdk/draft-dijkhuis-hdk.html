@@ -1174,30 +1174,33 @@ svg {
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-openid4vci-metadata" class="internal xref">OpenID4VCI Metadata</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-design-considerations" class="internal xref">Design Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-references" class="internal xref">References</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
-                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
-                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
-</li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-contributors" class="internal xref">Contributors</a></p>
+            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-contributors" class="internal xref">Contributors</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1353,18 +1356,19 @@ BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
 BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 </pre><a href="#section-6-2" class="pilcrow">¶</a>
 </div>
-<p id="section-6-3"><code>H</code> returns an integer in <code>1..n-1</code>. The small statistical bias from reduction modulo <code>n - 1</code> is accepted for simplicity.<a href="#section-6-3" class="pilcrow">¶</a></p>
-<p id="section-6-4">For Credential <code>i</code>, where <code>0 &lt;= i &lt;= 0xffffffff</code>:<a href="#section-6-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-5">
+<p id="section-6-3">This is multiplicative key blinding, as used for ECDSA in <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span>. Its use here for remote child-key derivation serves a role related to ARKG <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span>, whose <code>ARKG-P256</code> instance instead uses additive blinding.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4"><code>H</code> returns an integer in <code>1..n-1</code>. The small statistical bias from reduction modulo <code>n - 1</code> is accepted for simplicity.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">For Credential <code>i</code>, where <code>0 &lt;= i &lt;= 0xffffffff</code>:<a href="#section-6-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-6">
 <pre>
 index = I2OSP(i, 4)
 ctx = pk_parent || index
 
 sk_child = BlindSK(sk_parent, shared_secret, ctx)
 pk_child = BlindPK(pk_parent, shared_secret, ctx)
-</pre><a href="#section-6-5" class="pilcrow">¶</a>
+</pre><a href="#section-6-6" class="pilcrow">¶</a>
 </div>
-<p id="section-6-6">Because <code>H(shared_secret || ctx)</code> and <code>sk_parent</code> are non-zero modulo the prime <code>n</code>, <code>sk_child</code> is non-zero.<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">Because the blinding factor and <code>sk_parent</code> are non-zero modulo the prime <code>n</code>, <code>sk_child</code> is non-zero.<a href="#section-6-7" class="pilcrow">¶</a></p>
 <div id="hierarchical-derivation">
 <section id="section-6.1">
         <h3 id="name-hierarchical-derivation">
@@ -1460,37 +1464,48 @@ z = OS2IP(SHA-256(msg))
 <p id="section-8-3">Implementations <span class="bcp14">MUST NOT</span> infer HDK support merely from P-256 support.<a href="#section-8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="security-considerations">
+<div id="design-considerations">
 <section id="section-9">
-      <h2 id="name-security-considerations">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      <h2 id="name-design-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-design-considerations" class="section-name selfRef">Design Considerations</a>
       </h2>
-<p id="section-9-1">HDK relies on the Issuer having already accepted <code>pk_parent</code>, including its holder binding, key protection, and user-authentication properties. It preserves that association for child keys; it does not establish it.<a href="#section-9-1" class="pilcrow">¶</a></p>
-<p id="section-9-2">The security guarantee remains rooted in <code>sk_parent</code>. Disclosure of <code>shared_secret</code> does not reveal <code>sk_parent</code> or by itself enable child-key operations, but it reveals the relationship between <code>pk_parent</code> and its child public keys. Implementations <span class="bcp14">SHOULD</span> therefore protect and erase it when no longer needed.<a href="#section-9-2" class="pilcrow">¶</a></p>
-<p id="section-9-3">Both parties <span class="bcp14">MUST</span> use fresh ephemeral X25519 key pairs for each request.<a href="#section-9-3" class="pilcrow">¶</a></p>
-<p id="section-9-4">Compromise of both <code>sk_parent</code> and an issuance <code>shared_secret</code> permits reconstruction of every child private key from that response.<a href="#section-9-4" class="pilcrow">¶</a></p>
-<p id="section-9-5">The biased <code>H</code> construction is intentional. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.<a href="#section-9-5" class="pilcrow">¶</a></p>
-<p id="section-9-6">See the ECDSA section for intellectual-property considerations.<a href="#section-9-6" class="pilcrow">¶</a></p>
+<p id="section-9-1">The derivation in this document is not interoperable with either <code>ARKG-P256</code> <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span> or the ECDSA construction in <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span>.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2"><code>ARKG-P256</code> uses additive blinding, P-256 ECDH, and ARKG-specific seed and key-handle structures. This document uses multiplicative blinding and an ephemeral X25519 exchange directly in OpenID4VCI. The simpler construction avoids introducing ARKG key representations and key handles, and the multiplicative relation also permits the ECDH and ECDSA child-key equivalences above while the secure area continues to operate with the parent key.<a href="#section-9-2" class="pilcrow">¶</a></p>
+<p id="section-9-3">The ECDSA construction in <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span> uses the same multiplicative relation between parent and blinded keys, but derives the blinding scalar differently. It uses a separately generated private blinding key, domain separation, and <code>hash_to_field</code>; this document uses the X25519 <code>shared_secret</code> as <code>bk</code>, the parent public key and Credential index as <code>ctx</code>, and the compact <code>H</code> function above. Consequently, implementations of the two constructions will not derive the same keys from nominally corresponding inputs.<a href="#section-9-3" class="pilcrow">¶</a></p>
+<p id="section-9-4">These deviations are intentional: HDK needs one high-entropy per-request secret from which both parties can deterministically derive a batch of child keys, and it applies the same child-key relation to ECDH as well as ECDSA. They should not be interpreted as inheriting interoperability or security analysis from either referenced construction.<a href="#section-9-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-10">
+      <h2 id="name-security-considerations">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-10-1">HDK relies on the Issuer having already accepted <code>pk_parent</code>, including its holder binding, key protection, and user-authentication properties. It preserves that association for child keys; it does not establish it.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<p id="section-10-2">The security guarantee remains rooted in <code>sk_parent</code>. Disclosure of <code>shared_secret</code> does not reveal <code>sk_parent</code> or by itself enable child-key operations, but it reveals the relationship between <code>pk_parent</code> and its child public keys. Implementations <span class="bcp14">SHOULD</span> therefore protect and erase it when no longer needed.<a href="#section-10-2" class="pilcrow">¶</a></p>
+<p id="section-10-3">Both parties <span class="bcp14">MUST</span> use fresh ephemeral X25519 key pairs for each request.<a href="#section-10-3" class="pilcrow">¶</a></p>
+<p id="section-10-4">Compromise of both <code>sk_parent</code> and an issuance <code>shared_secret</code> permits reconstruction of every child private key from that response.<a href="#section-10-4" class="pilcrow">¶</a></p>
+<p id="section-10-5">The biased <code>H</code> construction is intentional. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.<a href="#section-10-5" class="pilcrow">¶</a></p>
+<p id="section-10-6">See the ECDSA section for intellectual-property considerations.<a href="#section-10-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="privacy-considerations">
-<section id="section-10">
+<section id="section-11">
       <h2 id="name-privacy-considerations">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-10-1">Distinct child public keys prevent correlation merely through reuse of the holder-binding public key. Other Credential contents, protocol metadata, network identifiers, or application behavior can still enable correlation.<a href="#section-10-1" class="pilcrow">¶</a></p>
-<p id="section-10-2">The Issuer knows <code>pk_parent</code> and derives all child public keys, so HDK does not provide unlinkability from the Issuer. <code>shared_secret</code> is privacy-sensitive because it reveals these relationships.<a href="#section-10-2" class="pilcrow">¶</a></p>
+<p id="section-11-1">Distinct child public keys prevent correlation merely through reuse of the holder-binding public key. Other Credential contents, protocol metadata, network identifiers, or application behavior can still enable correlation.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-11-2">The Issuer knows <code>pk_parent</code> and derives all child public keys, so HDK does not provide unlinkability from the Issuer. <code>shared_secret</code> is privacy-sensitive because it reveals these relationships.<a href="#section-11-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-combined-references">
-<section id="section-11">
+<section id="section-12">
       <h2 id="name-references">
-<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-11.1">
+<section id="section-12.1">
         <h3 id="name-normative-references">
-<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="FIPS180-4">[FIPS180-4]</dt>
@@ -1529,9 +1544,9 @@ z = OS2IP(SHA-256(msg))
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-11.2">
+<section id="section-12.2">
         <h3 id="name-informative-references">
-<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="ARKG">[ARKG]</dt>

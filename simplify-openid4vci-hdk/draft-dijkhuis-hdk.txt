@@ -70,11 +70,12 @@ Table of Contents
      7.1.  ECDH
      7.2.  ECDSA
    8.  OpenID4VCI Metadata
-   9.  Security Considerations
-   10. Privacy Considerations
-   11. References
-     11.1.  Normative References
-     11.2.  Informative References
+   9.  Design Considerations
+   10. Security Considerations
+   11. Privacy Considerations
+   12. References
+     12.1.  Normative References
+     12.2.  Informative References
    Acknowledgements
    Contributors
    Author's Address
@@ -251,6 +252,11 @@ Table of Contents
    BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
    BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 
+   This is multiplicative key blinding, as used for ECDSA in
+   [KeyBlinding].  Its use here for remote child-key derivation serves a
+   role related to ARKG [ARKG], whose ARKG-P256 instance instead uses
+   additive blinding.
+
    H returns an integer in 1..n-1.  The small statistical bias from
    reduction modulo n - 1 is accepted for simplicity.
 
@@ -262,7 +268,7 @@ Table of Contents
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    pk_child = BlindPK(pk_parent, shared_secret, ctx)
 
-   Because H(shared_secret || ctx) and sk_parent are non-zero modulo the
+   Because the blinding factor and sk_parent are non-zero modulo the
    prime n, sk_child is non-zero.
 
 6.1.  Hierarchical Derivation
@@ -343,7 +349,36 @@ Table of Contents
 
    Implementations MUST NOT infer HDK support merely from P-256 support.
 
-9.  Security Considerations
+9.  Design Considerations
+
+   The derivation in this document is not interoperable with either
+   ARKG-P256 [ARKG] or the ECDSA construction in [KeyBlinding].
+
+   ARKG-P256 uses additive blinding, P-256 ECDH, and ARKG-specific seed
+   and key-handle structures.  This document uses multiplicative
+   blinding and an ephemeral X25519 exchange directly in OpenID4VCI.
+   The simpler construction avoids introducing ARKG key representations
+   and key handles, and the multiplicative relation also permits the
+   ECDH and ECDSA child-key equivalences above while the secure area
+   continues to operate with the parent key.
+
+   The ECDSA construction in [KeyBlinding] uses the same multiplicative
+   relation between parent and blinded keys, but derives the blinding
+   scalar differently.  It uses a separately generated private blinding
+   key, domain separation, and hash_to_field; this document uses the
+   X25519 shared_secret as bk, the parent public key and Credential
+   index as ctx, and the compact H function above.  Consequently,
+   implementations of the two constructions will not derive the same
+   keys from nominally corresponding inputs.
+
+   These deviations are intentional: HDK needs one high-entropy per-
+   request secret from which both parties can deterministically derive a
+   batch of child keys, and it applies the same child-key relation to
+   ECDH as well as ECDSA.  They should not be interpreted as inheriting
+   interoperability or security analysis from either referenced
+   construction.
+
+10.  Security Considerations
 
    HDK relies on the Issuer having already accepted pk_parent, including
    its holder binding, key protection, and user-authentication
@@ -368,7 +403,7 @@ Table of Contents
 
    See the ECDSA section for intellectual-property considerations.
 
-10.  Privacy Considerations
+11.  Privacy Considerations
 
    Distinct child public keys prevent correlation merely through reuse
    of the holder-binding public key.  Other Credential contents,
@@ -379,9 +414,9 @@ Table of Contents
    does not provide unlinkability from the Issuer. shared_secret is
    privacy-sensitive because it reveals these relationships.
 
-11.  References
+12.  References
 
-11.1.  Normative References
+12.1.  Normative References
 
    [FIPS180-4]
               National Institute of Standards and Technology (NIST),
@@ -420,7 +455,7 @@ Table of Contents
               Elliptic Curve Cryptography, Version 2.0", May 2009,
               <https://www.secg.org/sec1-v2.pdf>.
 
-11.2.  Informative References
+12.2.  Informative References
 
    [ARKG]     Lundberg, E. and J. Bradley, "The Asynchronous Remote Key
               Generation (ARKG) algorithm", n.d.,
