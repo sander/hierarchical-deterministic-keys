@@ -13,17 +13,11 @@ Expires: 1 March 2027
 
 Abstract
 
-   This document defines a small OpenID for Verifiable Credential
-   Issuance (OpenID4VCI) extension for deriving many unlinkable P-256
-   Credential keys from key pairs protected by a Wallet secure area.
-
-   The Wallet sends a parent public key and an ephemeral X25519 public
-   key.  The Credential Issuer generates its own ephemeral X25519 key
-   pair, and both parties compute the same shared secret.  The
-   Credential Issuer derives a different child public key for each
-   Credential in the response.  The Wallet can use the corresponding
-   child private keys with the same protections as the parent key,
-   including the same user authentication mechanisms.
+   This document defines an OpenID for Verifiable Credential Issuance
+   (OpenID4VCI) extension for deriving unlinkable P-256 Credential keys
+   from a parent key protected by a Wallet secure area.  The Issuer
+   derives each child public key, while only the Wallet can use the
+   corresponding child private key.
 
 About This Document
 
@@ -66,11 +60,11 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  Conventions and Definitions
+   2.  Conventions
    3.  Credential Request
    4.  Credential Response
    5.  Child-Key Derivation
-     5.1.  Hierarchical use
+     5.1.  Hierarchical Derivation
    6.  Using a Child Key
      6.1.  ECDH
      6.2.  ECDSA
@@ -86,69 +80,45 @@ Table of Contents
 
 1.  Introduction
 
-   A Wallet can protect one or more key pairs using a secure area.  Such
-   a secure area can protect private keys against extraction and can
-   require user authentication before cryptographic operations are
-   performed.  Creating and storing a separate secure-area key pair for
-   every Credential can, however, be expensive or impossible.
+   Credentials can use distinct holder-binding keys to avoid giving
+   Relying Parties a common correlation handle.  An Issuer can
+   nevertheless need assurance that these keys are associated with a
+   parent key whose holder binding and security properties it has
+   already accepted.
 
-   A Credential Issuer can also want a newly issued Credential to
-   inherit the holder binding of a key that it has already accepted.
-   For example, after a Wallet presents a PID bound to pk_parent, an
-   Issuer can use HDK when issuing an mDL so that the mDL is bound to a
-   child of that same accepted parent key.  The Issuer can thereby bind
-   the new Credential to the same Credential Holder without requiring an
-   unrelated new key to be established and assessed.
+   For example, an Issuer can accept a hardware-protected pk_parent when
+   a Wallet presents a PID, then issue mDL Credentials bound to distinct
+   children of that key.  The mDL keys appear unrelated to Relying
+   Parties, while the Issuer knows that their private keys are rooted in
+   the accepted parent.  HDK preserves this association; it does not
+   establish the holder's identity.
 
-   This document defines Hierarchical Deterministic Keys (HDK) for these
-   use cases.  HDK enables many child key pairs to be derived from a
-   P-256 parent key pair protected by the secure area.  The guarantee
-   intended for a Credential Issuer is that use of a child private key
-   has protections equivalent to use of its parent private key,
-   including any user authentication mechanisms applied by the secure
-   area.
+   Generating and storing a separate secure-area key pair for every
+   Credential can also be expensive or impossible.  HDK instead derives
+   many P-256 child keys from one protected parent.  Child-key
+   operations can retain the parent's protections, including user
+   authentication.
 
-   During Credential issuance, the Wallet and Credential Issuer
-   establish a shared secret using ephemeral X25519 keys.  They use that
-   secret, the parent public key, and a Credential index to derive a
-   different P-256 child key pair for each Credential.  The Credential
-   Issuer can derive the child public keys but never learns the parent
-   or child private keys.  A Verifier only needs to understand the
-   ordinary P-256 public key bound to a Credential.  It does not need to
-   understand HDK.
+   During issuance, the Wallet and Issuer establish a shared secret
+   using ephemeral X25519 keys.  The shared secret, parent public key,
+   and Credential index determine each child key.  The Issuer learns the
+   child public keys but no private keys.  Verifiers see ordinary P-256
+   keys and need no HDK support.
 
-   The material used to blind or derive keys is not a critical asset for
-   the Credential Issuer's ability to rely on the Wallet.  It is
-   cryptographic material used to provide unlinkability between public
-   keys seen by different Relying Parties.  The security property on
-   which the Credential Issuer relies remains rooted in the protected
-   parent private key and the secure area's controls over its use.
+   [ETSI-TR-119-476-1] identifies key management and Proof of
+   Association (PoA) as challenges when issuing multiple single-use
+   holder-binding keys in the EUDI Wallet setting.  It discusses ARKG
+   [ARKG], including HDK, for deriving such keys and related-key PoA for
+   associating them.  This document defines a concrete OpenID4VCI
+   mechanism for that design space.  See also key blinding
+   [KeyBlinding].
 
-   A child key pair can itself be used as a parent key pair.  The
-   algebraic properties of elliptic-curve scalar multiplication make the
-   same derivation and protected-use mechanisms composable across
-   multiple levels.  This document specifies one issuance level;
-   applications can apply the same mechanism recursively when needed.
+   A child key can itself be a parent, allowing hierarchical derivation.
 
-   Related approaches include key blinding [KeyBlinding], Asynchronous
-   Remote Key Generation (ARKG) [ARKG], and the mechanisms discussed for
-   unlinkable Credential keys in [ETSI-TR-119-476-1].
+   This document is an early, not yet reviewed proposal.  Its
+   cryptographic notation follows [CryptoSpec].
 
-   This document defines:
-
-   *  an OpenID4VCI hdk proof type;
-
-   *  hdk metadata in the Credential Response; and
-
-   *  P-256 child-key derivation and use.
-
-   The cryptographic specification follows the style recommendations in
-   [CryptoSpec].  In particular, byte encodings, integer encodings,
-   indices, and failure conditions are stated explicitly.
-
-   This document is an early, not yet reviewed proposal.
-
-2.  Conventions and Definitions
+2.  Conventions
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -156,38 +126,30 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   concat(a, b, ...) is the byte string formed by concatenating its
-   arguments in order.
+   concat(a, b, ...) concatenates byte strings.
 
-   bytes2int(x) interprets byte string x as an unsigned big-endian
-   integer.  This is equivalent to OS2IP in [RFC8017].
+   bytes2int(x) interprets x as an unsigned big-endian integer,
+   equivalent to OS2IP in [RFC8017].
 
-   int2bytes(x, len) encodes non-negative integer x as exactly len
-   unsigned big-endian bytes.  This is equivalent to I2OSP in [RFC8017].
-   The operation fails if x >= 256^len.
+   int2bytes(x, len) encodes x as exactly len unsigned big-endian bytes,
+   equivalent to I2OSP in [RFC8017], and fails if x >= 256^len.
 
-   base64(x) is base64url encoding without padding as defined in
-   Section 5 of [RFC4648].
+   base64(x) is unpadded base64url as defined in Section 5 of [RFC4648].
 
-   jwk(pk) is the JWK [RFC7517] representation of a P-256 public key.
+   SerializePublicKey(pk) is the 65-byte uncompressed SEC 1 encoding
+   0x04 || x || y of a P-256 public key [SEC1].
 
-   SerializePublicKey(pk) is the 65-byte uncompressed SEC 1 encoding of
-   a P-256 public key: 0x04 || x || y, where x and y are each encoded as
-   32-byte unsigned big-endian integers [SEC1].
-
-   ScalarMult(pk, k) is P-256 scalar multiplication of public key pk by
-   scalar k.
+   ScalarMult(pk, k) is P-256 scalar multiplication.
 
    ECDH(sk, pk) returns the 32-byte big-endian x-coordinate of P-256
-   scalar multiplication of pk by sk.  Implementations MUST validate
-   received public keys as required by [SEC1] before using them.
+   scalar multiplication.  Received public keys MUST be validated as
+   required by [SEC1].
 
    GenerateX25519KeyPair() generates a fresh X25519 private key and
-   corresponding 32-byte public key as defined in [RFC7748].
+   32-byte public key [RFC7748].
 
-   X25519(sk, pk) is the X25519 function defined in [RFC7748], using
-   private key sk and 32-byte public key pk.  It returns a 32-byte
-   shared secret.  An implementation MUST reject an all-zero output.
+   X25519(sk, pk) is X25519 as defined in [RFC7748] and returns a
+   32-byte shared secret.  All-zero output MUST be rejected.
 
    The P-256 group order is:
 
@@ -196,31 +158,25 @@ Table of Contents
 3.  Credential Request
 
    The Wallet has a P-256 parent key pair (sk_parent, pk_parent)
-   protected by its secure area. pk_parent uses the uncompressed SEC 1
-   encoding when used as an input to the algorithms in this document.
+   protected by its secure area.  Before the request, the Issuer MUST
+   already have established that pk_parent represents the intended
+   Credential Holder and meets its requirements for key protection and
+   user authentication.  How this is established is out of scope.  For
+   example, pk_parent can be established by a PID presentation using
+   OpenID4VP [OpenID4VP], or by proof of possession associated with a
+   refresh token bound to pk_parent.
 
-   This specification assumes that, before the Credential Request, the
-   Credential Issuer has already established that pk_parent represents
-   the intended Credential Holder and satisfies the Issuer's security
-   policy requirements.  This includes any requirements concerning the
-   secure area protecting sk_parent and any user authentication required
-   for use of that key.
-
-   How the Issuer establishes this relationship is outside the scope of
-   this specification.  For example, pk_parent can have been established
-   as part of a PID presentation using OpenID4VP [OpenID4VP], or through
-   proof of possession associated with a refresh token that is bound to
-   pk_parent.  The hdk proof therefore does not introduce a new,
-   otherwise untrusted parent key; it uses a parent key whose validity
-   and security properties the Issuer has already accepted.
-
-   For each Credential Request, the Wallet generates a fresh X25519 key
-   pair:
+   For each request, the Wallet generates:
 
    (sk_eph, pk_eph) = GenerateX25519KeyPair()
 
-   The following non-normative example requests an ISO/IEC 18013-5 mDL
-   using the Credential Configuration Identifier used in [OpenID4VCI]:
+   and sends an hdk proof containing:
+
+   *  parent: the P-256 parent public key as a JWK [RFC7517]; and
+
+   *  pk_eph: base64(pk_eph).
+
+   For example:
 
    POST /credential HTTP/1.1
    Host: issuer.example.com
@@ -230,54 +186,30 @@ Table of Contents
    {
      "credential_configuration_id": "org.iso.18013.5.1.mDL",
      "proofs": {
-       "hdk": [
-         {
-           "parent": {
-             "kty": "EC",
-             "crv": "P-256",
-             "x": "<base64url x-coordinate>",
-             "y": "<base64url y-coordinate>"
-           },
-           "pk_eph": "<base64url 32-byte X25519 public key>"
-         }
-       ]
+       "hdk": [{
+         "parent": {
+           "kty": "EC",
+           "crv": "P-256",
+           "x": "<base64url x-coordinate>",
+           "y": "<base64url y-coordinate>"
+         },
+         "pk_eph": "<base64url 32-byte X25519 public key>"
+       }]
      }
    }
 
-   The hdk proof object contains:
-
-   *  parent: REQUIRED.  The P-256 parent public key as a JWK.
-
-   *  pk_eph: REQUIRED.  A fresh 32-byte X25519 public key, encoded as
-      base64(pk_eph).
-
-   The Wallet MUST use a fresh (sk_eph, pk_eph) for each Credential
-   Request.  The Wallet MUST retain sk_eph until it has processed the
-   corresponding Credential Response.
-
-   The hdk proof type conveys the material needed for HDK derivation.
-   It relies on the Issuer having already established the identity,
-   control, and security-policy properties associated with pk_parent as
-   described above.
+   The Wallet MUST generate a fresh (sk_eph, pk_eph) for each request
+   and retain sk_eph until it processes the response.
 
 4.  Credential Response
 
-   After accepting the Credential Request, the Credential Issuer
-   validates pk_parent as a P-256 public key and generates a fresh
-   X25519 key pair:
+   The Issuer generates:
 
    (sk_eph_issuer, pk_eph_issuer) = GenerateX25519KeyPair()
    shared_secret = X25519(sk_eph_issuer, pk_eph)
 
-   If shared_secret is all zero, the Credential Issuer MUST reject the
-   request.
-
-   The Credential Issuer returns pk_eph_issuer once in an hdk Credential
-   Response parameter.  Credentials are ordered, and their zero-based
-   position in the credentials array is their HDK index.
-
-   For example, an mDL issuer can issue multiple mDL Credential
-   instances for unlinkable presentation:
+   and rejects the request if X25519 fails.  It returns
+   base64(pk_eph_issuer) once in the hdk response parameter:
 
    HTTP/1.1 200 OK
    Content-Type: application/json
@@ -287,31 +219,23 @@ Table of Contents
        "pk_eph": "<base64url 32-byte X25519 public key>"
      },
      "credentials": [
-       { "credential": "<base64url encoded mdoc Credential 0>" },
-       { "credential": "<base64url encoded mdoc Credential 1>" },
-       { "credential": "<base64url encoded mdoc Credential 2>" }
+       { "credential": "<base64url encoded Credential 0>" },
+       { "credential": "<base64url encoded Credential 1>" },
+       { "credential": "<base64url encoded Credential 2>" }
      ]
    }
 
-   The hdk response object contains:
-
-   *  pk_eph: REQUIRED.  The Credential Issuer's fresh 32-byte X25519
-      public key, base64url encoded without padding.
-
-   The Credential Issuer MUST bind Credential at position i to the child
-   public key derived with index i.  The first Credential therefore uses
-   index 0x00000000, the second uses 0x00000001, and so on.  A response
+   Credential position is its zero-based HDK index.  The Issuer MUST
+   bind Credential i to the child public key for index i.  A response
    MUST NOT contain more than 2^32 Credentials.
 
-   After receiving the response, the Wallet computes:
+   The Wallet computes:
 
    shared_secret = X25519(sk_eph, pk_eph_issuer)
 
-   If shared_secret is all zero, the Wallet MUST reject the response.
+   and MUST reject the response if X25519 fails.
 
 5.  Child-Key Derivation
-
-   Each Credential is bound to a child of (sk_parent, pk_parent).
 
    Define:
 
@@ -323,13 +247,10 @@ Table of Contents
    BlindSK(sk, bk, ctx) =
        sk * HashToScalar(concat(bk, ctx)) mod n
 
-   HashToScalar accepts an arbitrary byte string and returns an integer
-   from 1 through n - 1.  This construction has a small statistical bias
-   because reduction modulo n - 1 is used.  This document accepts that
-   bias for simplicity.
+   HashToScalar returns an integer in 1..n-1.  The small statistical
+   bias from reduction modulo n - 1 is accepted for simplicity.
 
-   For each Credential, index is the zero-based Credential position
-   encoded as exactly four unsigned big-endian bytes:
+   For Credential i, where 0 <= i <= 0xffffffff:
 
    index = int2bytes(i, 4)
    ctx = concat(SerializePublicKey(pk_parent), index)
@@ -337,45 +258,26 @@ Table of Contents
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    pk_child = BlindPK(pk_parent, shared_secret, ctx)
 
-   where i ranges from 0 through 0xffffffff.
+   The exact encodings above MUST be used.  In particular, pk_parent in
+   ctx is its 65-byte uncompressed SEC 1 encoding, not its JWK encoding.
 
-   Because HashToScalar never returns zero and sk_parent is non-zero
-   modulo the prime group order n, sk_child is also non-zero.
+   Because HashToScalar is non-zero and n is prime, a valid non-zero
+   sk_parent produces a non-zero sk_child.
 
-   The Wallet and Credential Issuer MUST use the exact encodings defined
-   in this document.  In particular, pk_parent in ctx is the 65-byte
-   uncompressed SEC 1 encoding, not its JWK encoding.
+5.1.  Hierarchical Derivation
 
-5.1.  Hierarchical use
+   A child key pair MAY itself be used as a parent.  For blinding
+   factors b1 and b2:
 
-   A derived pair (sk_child, pk_child) is an ordinary P-256 key pair and
-   MAY itself be used as (sk_parent, pk_parent) in another derivation.
-   No special conversion is needed.
-
-   For example, if b1 derives a first child and b2 derives its child,
-   then:
-
-   pk_child2 = ScalarMult(ScalarMult(pk_parent, b1), b2)
-             = ScalarMult(pk_parent, b1 * b2 mod n)
-
+   pk_child2 = ScalarMult(pk_parent, b1 * b2 mod n)
    sk_child2 = sk_parent * b1 * b2 mod n
-
-   The same protected ECDH and ECDSA mechanisms described below can
-   therefore be applied recursively.
 
 6.  Using a Child Key
 
-   An implementation SHOULD arrange use of a child private key so that
-   it receives protections equivalent to the parent private key,
-   including any user authentication required by the secure area.
-
-   The secure area can implement this directly by computing sk_child =
-   BlindSK(sk_parent, shared_secret, ctx) internally and then performing
-   the requested operation with sk_child.  Alternatively, the following
-   algebraic constructions allow some secure areas to keep operating
-   only with sk_parent, while processing the blinding factor outside the
-   secure area.  In both cases, the secure area is expected to apply the
-   same authorization policy as for use of the parent key.
+   Child-key operations SHOULD receive protections equivalent to parent-
+   key operations, including the same user-authentication policy.  A
+   secure area can derive sk_child internally, or use the equivalences
+   below while continuing to operate with sk_parent.
 
 6.1.  ECDH
 
@@ -389,71 +291,51 @@ Table of Contents
 
    ECDH(sk_child, pk) = ECDH(sk_parent, ScalarMult(pk, b))
 
-   The Wallet can therefore multiply the peer public key by b outside
-   the secure area, then perform ordinary ECDH with sk_parent.  This
-   allows the secure area's existing controls, including user
-   authentication, to remain attached to the parent-key operation.
-
-   The Wallet MUST validate pk before scalar multiplication and MUST
-   validate the resulting public key before passing it to an ECDH
-   implementation when required by that implementation's interface.
+   This allows b to be applied outside the secure area while the
+   protected ECDH operation still uses sk_parent. pk MUST be validated
+   before scalar multiplication; the result MUST also be validated if
+   required by the ECDH interface.
 
 6.2.  ECDSA
 
-   A secure area that supports blinded ECDSA can directly compute:
+   A secure area can derive the child and sign directly:
 
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    signature = SHA256withECDSA(sk_child, msg)
 
-   The secure area SHOULD apply the same protection and user-
-   authentication policy to this operation as to signing directly with
-   sk_parent.
-
-   If the secure area cannot directly use sk_child, the following
-   algebraic construction can be used with a suitable ECDSA interface.
-   Let:
+   Alternatively, let:
 
    b = HashToScalar(concat(shared_secret,
                            SerializePublicKey(pk_parent),
                            index))
    z = bytes2int(SHA-256(msg))
 
-   SHA256withECDSA(sk_child, msg) is equivalent to producing (r, s * b
-   mod n), where:
+   Then SHA256withECDSA(sk_child, msg) is equivalent to (r, s * b mod
+   n), where:
 
    (r, s) = NONEwithECDSA(
        sk_parent,
        int2bytes(z * b^-1 mod n, 32))
 
-   Here b^-1 is the multiplicative inverse of b modulo n.  It always
-   exists because b is in 1..n-1 and n is prime.
+   b^-1 is the inverse of b modulo n.  NONEwithECDSA means ECDSA over
+   the supplied 32-byte representative without hashing it again.
+   Implementations MUST verify that their API has exactly this behavior.
 
-   NONEwithECDSA means ECDSA applied directly to the supplied 32-byte
-   representative, without hashing it again.  Implementations MUST
-   ensure that their cryptographic API has exactly this behavior before
-   using this equivalence.
+   The resulting (r, s * b mod n) is an ordinary ECDSA signature under
+   pk_child for msg.
 
-   The resulting (r, s * b mod n) is an ordinary ECDSA signature that
-   verifies under pk_child for msg.
-
-   The ECDSA construction described above may be covered by patent
-   claims in some jurisdictions or implementations.  This document makes
-   no determination about the validity or applicability of any such
-   claims.  Implementers are responsible for evaluating applicable
-   intellectual-property rights.  Implementing blinded ECDSA inside the
-   secure area by deriving sk_child with BlindSK and signing with that
-   key is an alternative architecture and can have a different
-   intellectual-property analysis.
+   This ECDSA construction may be covered by patent claims in some
+   jurisdictions or implementations.  This document makes no
+   determination about their validity or applicability.  Deriving
+   sk_child inside the secure area and signing with it is an alternative
+   architecture and can have a different intellectual-property analysis.
 
 7.  OpenID4VCI Metadata
 
-   A Credential Issuer that supports this specification advertises the
-   hdk proof type in the Credential Configuration's
-   proof_types_supported metadata defined by [OpenID4VCI].  For example:
+   Support is advertised with the hdk proof type in
+   proof_types_supported [OpenID4VCI]:
 
    {
-     "credential_issuer": "https://issuer.example.com",
-     "credential_endpoint": "https://issuer.example.com/credential",
      "credential_configurations_supported": {
        "org.iso.18013.5.1.mDL": {
          "format": "mso_mdoc",
@@ -467,82 +349,43 @@ Table of Contents
      }
    }
 
-   The proof-type identifier is the string hdk.  Further capability
-   parameters can be defined in a later revision.  Implementations of
-   this early draft MUST NOT infer support for hdk merely from support
-   for P-256.
+   Implementations MUST NOT infer HDK support merely from P-256 support.
 
 8.  Security Considerations
 
-   This specification assumes the Credential Issuer has established
-   before issuance that pk_parent belongs to the intended Credential
-   Holder and satisfies the applicable key-protection and user-
-   authentication policy.  HDK preserves those accepted properties for
-   child-key use; it is not itself the mechanism by which the Issuer
-   initially establishes them.
+   HDK relies on the Issuer having already accepted pk_parent, including
+   its holder binding, key protection, and user-authentication
+   properties.  It preserves that association for child keys; it does
+   not establish it.
 
-   The intended security guarantee is inherited from the parent key: a
-   child-key operation should be possible only subject to protections
-   equivalent to those governing the parent key, including applicable
-   user authentication.  Whether a particular secure-area implementation
-   provides this guarantee is outside the cryptographic derivation
-   itself and needs to be established by the Wallet's security
-   architecture and evidence accepted by the Credential Issuer.
+   The security guarantee remains rooted in sk_parent.  Disclosure of
+   shared_secret does not reveal sk_parent or by itself enable child-key
+   operations, but it does reveal the relationship between pk_parent and
+   its child public keys.  Implementations SHOULD therefore protect and
+   erase it when no longer needed.
 
-   The blinding material, including shared_secret, is not a critical
-   asset for the Credential Issuer's ability to rely on the Wallet's key
-   protection.  Disclosure does not by itself reveal sk_parent or permit
-   use of a child private key without it.  The material is nevertheless
-   privacy-sensitive because it enables relationships between derived
-   public keys to be computed.  Implementations SHOULD therefore protect
-   it against unnecessary disclosure and erase it when no longer needed.
+   Both parties MUST use fresh ephemeral X25519 key pairs for each
+   request.
 
-   Reusing the Wallet's ephemeral X25519 key pair across requests can
-   cause different issuance transactions to use related derivation state
-   and can create linkability.  The Wallet therefore MUST generate a
-   fresh (sk_eph, pk_eph) for every Credential Request.  The Credential
-   Issuer likewise MUST generate a fresh (sk_eph_issuer, pk_eph_issuer)
-   for every accepted request.
+   Compromise of both sk_parent and an issuance shared_secret permits
+   reconstruction of every child private key from that response.
 
-   Knowledge of shared_secret, pk_parent, and an index is sufficient to
-   derive the corresponding child public key.  Disclosure of
-   shared_secret can therefore reveal relationships between Credentials
-   from the same response.
+   The biased HashToScalar construction is intentional.  Replacing it
+   with an unbiased construction would not be wire-compatible and
+   requires a new algorithm identifier or protocol version.
 
-   The parent public key is intentionally disclosed to the Credential
-   Issuer.  It MUST NOT be included in a Credential unless the
-   application explicitly wants that disclosure.  Verifiers normally
-   receive only pk_child.
-
-   Compromise of sk_parent together with the issuance shared_secret
-   permits reconstruction of every child private key from that response.
-   Compromise of the blinding material without sk_parent does not.
-
-   This document uses a simple biased hash-to-scalar construction.  A
-   future revision can replace it with an unbiased construction if
-   analysis shows that this is necessary.  Such a change would not be
-   wire-compatible and therefore requires a new algorithm identifier or
-   protocol version.
-
-   The ECDSA mechanism in this document requires separate consideration
-   of applicable intellectual-property rights, as noted in the ECDSA
-   section.
+   See the ECDSA section for intellectual-property considerations.
 
 9.  Privacy Considerations
 
-   Different child public keys are intended to prevent Relying Parties
-   from linking Credentials merely because they contain the same public
-   key.  This property does not prevent linking through other Credential
-   contents, protocol metadata, network identifiers, or application
-   behavior.
+   Distinct child public keys prevent correlation merely through reuse
+   of the holder-binding public key.  Other Credential contents,
+   protocol metadata, network identifiers, or application behavior can
+   still enable correlation.
 
-   The Credential Issuer sees pk_parent and derives all pk_child values
-   for a response.  HDK therefore does not provide unlinkability from
-   the Credential Issuer.
-
-   The blinding material exists primarily to support this Relying Party
-   unlinkability property.  It is privacy-sensitive, but it is not the
-   root of the Wallet key-protection guarantee.
+   The Issuer knows pk_parent and derives all child public keys, so HDK
+   does not provide unlinkability from the Issuer. shared_secret is
+   privacy-sensitive because it reveals these relationships.
 
 10.  References
 
