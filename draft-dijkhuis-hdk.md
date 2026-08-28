@@ -1,6 +1,6 @@
 ---
-title: Hierarchical Deterministic Keys for OpenID4VCI
-abbrev: HDK for OpenID4VCI
+title: Hierarchical Deterministic Keys
+abbrev: HDK
 category: info
 docname: draft-dijkhuis-hdk-latest
 submissiontype: independent
@@ -19,8 +19,6 @@ author:
     surname: Dijkhuis
     organization: Cleverbase
     email: mail@sanderdijkhuis.nl
-contributor:
-  - fullname: Micha Kraus
 ipr: trust200902
 normative:
   FIPS180-4:
@@ -85,7 +83,7 @@ This specification is limited to P-256 because it targets high-assurance Wallet 
 
 During issuance, the Wallet and Issuer establish a shared secret using ephemeral X25519 keys. Together with the parent public key and Credential index, this determines each child key. The Issuer can derive the child public keys but not the corresponding private keys. Verifiers see ordinary P-256 keys and need no HDK support.
 
-[ETSI-TR-119-476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. [KeyBlinding] independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Design Considerations.
+[ETSI-TR-119-476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. [KeyBlinding] independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.
 
 A child key can itself be a parent, allowing hierarchical derivation.
 
@@ -101,18 +99,22 @@ OS2IP and I2OSP are the octet-string/integer conversions defined in [RFC8017].
 
 # Cryptographic Dependencies
 
-From [SEC1], this specification uses the P-256 elliptic curve, its scalar and point representations, scalar multiplication, and public-key validation rules. The P-256 group order is:
+This specification imports the following values and functions:
 
-~~~
-n = 0xffffffff00000000ffffffffffffffff
-    bce6faada7179e84f3b9cac2fc632551
-~~~
+* From [SEC1], the P-256 elliptic curve, its scalar and point representations, and its public-key validation rules. The P-256 group order is:
 
-`ScalarMult(pk, k)` denotes the P-256 scalar multiplication defined by [SEC1]. Received P-256 public keys MUST be validated as required by [SEC1]. When a P-256 public key `pk` is used as a byte string, it is encoded as the 65-byte uncompressed SEC 1 representation `0x04 || x || y`.
+  ~~~
+  n = 0xffffffff00000000ffffffffffffffff
+      bce6faada7179e84f3b9cac2fc632551
+  ~~~
 
-From [FIPS180-4], this specification uses SHA-256.
+* `ScalarMult(pk, k)` is P-256 scalar multiplication as defined by [SEC1]. Received P-256 public keys MUST be validated as required by [SEC1]. When a P-256 public key `pk` is used as a byte string, it is encoded as the 65-byte uncompressed SEC 1 representation `0x04 || x || y`.
 
-From [RFC7748], this specification uses X25519. `GenerateX25519KeyPair()` denotes generation of a fresh X25519 private key and its corresponding 32-byte public key. `X25519(sk, pk)` is the X25519 function defined in [RFC7748]; its 32-byte output is used directly as `shared_secret`. An all-zero output MUST be rejected.
+* `SHA-256(msg)` is SHA-256 as defined by [FIPS180-4].
+
+* `GenerateX25519KeyPair()` generates a fresh X25519 private key and its corresponding 32-byte public key, using X25519 as defined by [RFC7748].
+
+* `X25519(sk, pk)` is the X25519 function defined by [RFC7748]. Its 32-byte output is used directly as `shared_secret`. An all-zero output MUST be rejected.
 
 # Parent-Key Assurance
 
@@ -181,9 +183,9 @@ Content-Type: application/json
     "pk_issuer": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
   },
   "credentials": [
-    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4x" },
-    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4xAQ" },
-    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4xAg" }
+    { "credential": "<Credential 0>" },
+    { "credential": "<Credential 1>" },
+    { "credential": "<Credential 2>" }
   ]
 }
 ~~~
@@ -213,7 +215,7 @@ This is multiplicative key blinding, as used for ECDSA in [KeyBlinding]. Its use
 
 `H` returns an integer in `1..n-1`. The small statistical bias from reduction modulo `n - 1` is accepted for simplicity.
 
-For Credential `i`, where `0 <= i <= 0xffffffff`:
+For Credential `i`, where `0x00000000 <= i <= 0xffffffff`:
 
 ~~~
 index = I2OSP(i, 4)
@@ -252,14 +254,9 @@ This allows `b` to be applied outside the secure area while the protected ECDH o
 
 ## ECDSA
 
-A secure area can derive the child and sign directly:
+A secure area that supports multiplicative key blinding can derive and use the child key directly as described in [KeyBlinding]. The remainder of this subsection describes an alternative that keeps the protected ECDSA operation on `sk_parent`.
 
-~~~
-sk_child = BlindSK(sk_parent, shared_secret, ctx)
-signature = SHA256withECDSA(sk_child, msg)
-~~~
-
-Alternatively, for the blinding factor `b` of the child, let:
+For the blinding factor `b` of the child, let:
 
 ~~~
 z = OS2IP(SHA-256(msg))
@@ -299,9 +296,9 @@ Support is advertised with the `hdk` proof type in `proof_types_supported` [Open
 }
 ~~~
 
-Implementations MUST NOT infer HDK support merely from P-256 support.
+The `hdk` object in `proof_types_supported` is empty in this version of the specification; no proof-type-specific metadata parameters are currently defined. Implementations MUST NOT infer HDK support merely from P-256 support.
 
-# Design Considerations
+# Interoperability Considerations
 
 The derivation in this document is not interoperable with either `ARKG-P256` [ARKG] or the ECDSA construction in [KeyBlinding].
 
@@ -321,7 +318,7 @@ Both parties MUST use fresh X25519 key pairs for each request.
 
 Compromise of both `sk_parent` and an issuance `shared_secret` permits reconstruction of every child private key from that response.
 
-The biased `H` construction is intentional. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.
+The biased `H` construction is intentional: this specification prefers ease of implementation over eliminating the small statistical bias. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.
 
 See the ECDSA section for intellectual-property considerations.
 
@@ -336,6 +333,4 @@ The Issuer knows `pk_parent` and derives all child public keys, so HDK does not 
 # Acknowledgements
 {:numbered="false"}
 
-Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, and Remco Schaar.
-
-ChatGPT was used to sketch the rewrite in this version of the draft.
+Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, Paul Bastian, and Remco Schaar.
