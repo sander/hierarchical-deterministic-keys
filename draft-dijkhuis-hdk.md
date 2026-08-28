@@ -54,12 +54,6 @@ informative:
     author:
       - name: E. Lundberg
       - name: J. Bradley
-  CryptoSpec:
-    title: Guidelines for Writing Cryptography Specifications
-    target: https://www.ietf.org/archive/id/draft-irtf-cfrg-cryptography-specification-01.html
-    author:
-      - name: N. Sullivan
-      - name: C. A. Wood
   ETSI-TR-119-476-1:
     title: "ETSI TR 119 476-1 V1.3.1: Selective disclosure and zero-knowledge proofs applied to Electronic Attestation of Attributes; Part 1: Feasibility study"
     target: https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/01.03.01_60/tr_11947601v010301p.pdf
@@ -75,25 +69,25 @@ informative:
   RFC7517:
 --- abstract
 
-This document defines an OpenID for Verifiable Credential Issuance (OpenID4VCI) extension for deriving unlinkable P-256 Credential keys from a parent key protected by a Wallet secure area. The Issuer derives each child public key, while only the Wallet can use the corresponding child private key.
+Using a distinct holder-binding key for each Credential improves unlinkability, but generating and storing many keys in a Wallet secure area can be expensive or impossible. This document defines a way to derive unlinkable P-256 Credential keys from one protected parent key while retaining the parent's key-protection properties. It specifies this mechanism as an extension to OpenID for Verifiable Credential Issuance (OpenID4VCI), allowing the Issuer to derive each child public key while only the Wallet can use the corresponding child private key.
 
 --- middle
 
 # Introduction
 
-Credentials can use distinct holder-binding keys to avoid giving Relying Parties a common correlation handle. An Issuer can nevertheless need assurance that these keys remain associated with a holder-binding key whose security properties it has already accepted.
+A Wallet can use distinct holder-binding keys for its Credentials to avoid giving Relying Parties a common correlation handle. An Issuer can nevertheless need assurance that these keys remain associated with a holder-binding key whose security properties it has already accepted.
 
-For example, an Issuer can accept a hardware-protected key when a Wallet presents a PID, then issue mDL Credentials bound to distinct child keys. The mDL keys appear unrelated to Relying Parties, while retaining their association with the accepted parent key. HDK preserves this association; it does not establish the holder's identity.
+For example, an Issuer can accept a hardware-protected key when a Wallet presents a Person Identification Data credential, then issue mobile Driving Licence (mDL) Credentials bound to distinct child keys. The mDL keys appear unrelated to Relying Parties, while the Issuer can determine that they are derived from the previously accepted parent key. HDK relies on the assurance already established for that parent key rather than establishing the holder's identity itself.
 
-Generating and storing a separate secure-area key pair for every Credential can also be expensive or impossible. HDK instead derives many P-256 child keys from one protected parent. Child-key operations can retain the parent's protections, including user authentication.
+Generating and storing a separate secure area key pair for every Credential can also be expensive or impossible. HDK instead derives many P-256 child keys from one protected parent. Child-key operations can retain the parent's protections, including user authentication.
+
+This specification is limited to P-256 because it targets high-assurance Wallet ecosystems in which P-256 is widely supported by secure hardware and Credential formats. Other curves or key types require separate specification.
 
 During issuance, the Wallet and Issuer establish a shared secret using ephemeral X25519 keys. Together with the parent public key and Credential index, this determines each child key. The Issuer can derive the child public keys but not the corresponding private keys. Verifiers see ordinary P-256 keys and need no HDK support.
 
-[ETSI-TR-119-476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. See also key blinding [KeyBlinding].
+[ETSI-TR-119-476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. [KeyBlinding] independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Design Considerations.
 
 A child key can itself be a parent, allowing hierarchical derivation.
-
-This document is an early, not yet reviewed proposal. Its cryptographic notation follows [CryptoSpec].
 
 # Conventions and Encoding
 
@@ -105,40 +99,39 @@ OS2IP and I2OSP are the octet-string/integer conversions defined in [RFC8017].
 
 `base64(x)` is unpadded base64url as defined in Section 5 of [RFC4648].
 
-When a P-256 public key `pk` is used as a byte string in the algorithms below, it is encoded as the 65-byte uncompressed SEC 1 representation `0x04 || x || y` [SEC1].
-
 # Cryptographic Dependencies
 
-This specification uses P-256 [SEC1], SHA-256 [FIPS180-4], and X25519 [RFC7748].
-
-The P-256 group order is:
+From [SEC1], this specification uses the P-256 elliptic curve, its scalar and point representations, scalar multiplication, and public-key validation rules. The P-256 group order is:
 
 ~~~
-n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+n = 0xffffffff00000000ffffffffffffffff
+    bce6faada7179e84f3b9cac2fc632551
 ~~~
 
-`ScalarMult(pk, k)` is P-256 scalar multiplication of public key `pk` by scalar `k`.
+`ScalarMult(pk, k)` denotes the P-256 scalar multiplication defined by [SEC1]. Received P-256 public keys MUST be validated as required by [SEC1]. When a P-256 public key `pk` is used as a byte string, it is encoded as the 65-byte uncompressed SEC 1 representation `0x04 || x || y`.
 
-`ECDH(sk, pk)` returns the 32-byte big-endian x-coordinate of `ScalarMult(pk, sk)`. Received P-256 public keys MUST be validated as required by [SEC1].
+From [FIPS180-4], this specification uses SHA-256.
 
-`GenerateX25519KeyPair()` generates a fresh X25519 private key and corresponding 32-byte public key.
+From [RFC7748], this specification uses X25519. `GenerateX25519KeyPair()` denotes generation of a fresh X25519 private key and its corresponding 32-byte public key. `X25519(sk, pk)` is the X25519 function defined in [RFC7748]; its 32-byte output is used directly as `shared_secret`. An all-zero output MUST be rejected.
 
-`X25519(sk, pk)` is the X25519 function defined in [RFC7748]. Its 32-byte output is the shared secret. An all-zero output MUST be rejected.
+# Parent-Key Assurance
+
+The Wallet has a P-256 parent key pair `(sk_parent, pk_parent)` protected by its secure area.
+
+Before a Credential Request using HDK, the Issuer MUST already have established that `pk_parent` represents the intended Credential Holder and meets its requirements for key protection and user authentication. How this is established is out of scope. For example, it can be established by presentation of a Person Identification Data credential using OpenID4VP [OpenID4VP], or by proof of possession associated with a refresh token bound to `pk_parent`.
 
 # Credential Request
-
-The Wallet has a P-256 parent key pair `(sk_parent, pk_parent)` protected by its secure area. Before the request, the Issuer MUST already have established that `pk_parent` represents the intended Credential Holder and meets its requirements for key protection and user authentication. How this is established is out of scope. For example, it can be established by a PID presentation using OpenID4VP [OpenID4VP], or by proof of possession associated with a refresh token bound to `pk_parent`.
 
 For each request, the Wallet generates:
 
 ~~~
-(sk_eph, pk_eph) = GenerateX25519KeyPair()
+(sk_wallet, pk_wallet) = GenerateX25519KeyPair()
 ~~~
 
 and sends an `hdk` proof containing:
 
 * `parent`: the P-256 parent public key as a JWK [RFC7517]; and
-* `pk_eph`: `base64(pk_eph)`.
+* `pk_wallet`: `base64(pk_wallet)`.
 
 For example:
 
@@ -155,29 +148,29 @@ Authorization: Bearer czZCaGRSa3F0MzpnWDFmQmF0M2JW
       "parent": {
         "kty": "EC",
         "crv": "P-256",
-        "x": "<base64url x-coordinate>",
-        "y": "<base64url y-coordinate>"
+        "x": "axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY",
+        "y": "T-NC4v4af5uO5-tKfA-eFivOM1drMV7Oy7ZAaDe_UfU"
       },
-      "pk_eph": "<base64url 32-byte X25519 public key>"
+      "pk_wallet": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
     }]
   }
 }
 ~~~
 
-The Wallet MUST generate a fresh `(sk_eph, pk_eph)` for each request and retain `sk_eph` until it processes the response.
+The Wallet MUST generate a fresh `(sk_wallet, pk_wallet)` for each request and retain `sk_wallet` until it processes the response.
 
 # Credential Response
 
 The Issuer generates:
 
 ~~~
-(sk_eph_issuer, pk_eph_issuer) = GenerateX25519KeyPair()
-shared_secret = X25519(sk_eph_issuer, pk_eph)
+(sk_issuer, pk_issuer) = GenerateX25519KeyPair()
+shared_secret = X25519(sk_issuer, pk_wallet)
 ~~~
 
 If `shared_secret` is all zero, the Issuer MUST reject the request.
 
-The Issuer returns `base64(pk_eph_issuer)` once in the `hdk` response parameter:
+The Issuer returns `base64(pk_issuer)` once in the `hdk` response parameter:
 
 ~~~http
 HTTP/1.1 200 OK
@@ -185,12 +178,12 @@ Content-Type: application/json
 
 {
   "hdk": {
-    "pk_eph": "<base64url 32-byte X25519 public key>"
+    "pk_issuer": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
   },
   "credentials": [
-    { "credential": "<base64url encoded Credential 0>" },
-    { "credential": "<base64url encoded Credential 1>" },
-    { "credential": "<base64url encoded Credential 2>" }
+    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4x" },
+    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4xAQ" },
+    { "credential": "omdkb2N0eXBldW9yZy5pc28uMTgwMTMuNS4xAg" }
   ]
 }
 ~~~
@@ -200,7 +193,7 @@ Credential position is its zero-based HDK index. The Issuer MUST bind Credential
 The Wallet computes:
 
 ~~~
-shared_secret = X25519(sk_eph, pk_eph_issuer)
+shared_secret = X25519(sk_wallet, pk_issuer)
 ~~~
 
 If `shared_secret` is all zero, the Wallet MUST reject the response.
@@ -246,6 +239,8 @@ sk_child2 = sk_parent * b1 * b2 mod n
 Child-key operations SHOULD receive protections equivalent to parent-key operations, including the same user-authentication policy. A secure area can derive `sk_child` internally, or use the equivalences below while continuing to operate with `sk_parent`.
 
 ## ECDH
+
+For this section, `ECDH(sk, pk)` denotes P-256 ECDH as specified in [SEC1], returning the 32-byte big-endian x-coordinate of `ScalarMult(pk, sk)`.
 
 For the blinding factor `b` of a child:
 
@@ -322,7 +317,7 @@ HDK relies on the Issuer having already accepted `pk_parent`, including its hold
 
 The security guarantee remains rooted in `sk_parent`. Disclosure of `shared_secret` does not reveal `sk_parent` or by itself enable child-key operations, but it reveals the relationship between `pk_parent` and its child public keys. Implementations SHOULD therefore protect and erase it when no longer needed.
 
-Both parties MUST use fresh ephemeral X25519 key pairs for each request.
+Both parties MUST use fresh X25519 key pairs for each request.
 
 Compromise of both `sk_parent` and an issuance `shared_secret` permits reconstruction of every child private key from that response.
 
@@ -343,4 +338,4 @@ The Issuer knows `pk_parent` and derives all child public keys, so HDK does not 
 
 Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, and Remco Schaar.
 
-ChatGPT was used to sketch the not yet reviewed rewrite in this version of the draft.
+ChatGPT was used to sketch the rewrite in this version of the draft.
