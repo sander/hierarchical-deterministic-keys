@@ -126,7 +126,7 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   concat(a, b, ...) concatenates byte strings in order.
+   a || b denotes byte-string concatenation.
 
    bytes2int(x) interprets x as an unsigned big-endian integer,
    equivalent to OS2IP in [RFC8017].
@@ -249,22 +249,19 @@ Table of Contents
 
    Define:
 
-   HashToScalar(msg) = (bytes2int(SHA-256(msg)) mod (n - 1)) + 1
+   H(msg) = (bytes2int(SHA-256(msg)) mod (n - 1)) + 1
 
-   BlindPK(pk, bk, ctx) =
-       ScalarMult(pk, HashToScalar(concat(bk, ctx)))
+   BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
+   BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 
-   BlindSK(sk, bk, ctx) =
-       sk * HashToScalar(concat(bk, ctx)) mod n
-
-   HashToScalar returns an integer in 1..n-1.  The small statistical
-   bias from reduction modulo n - 1 is accepted for simplicity.
+   H returns an integer in 1..n-1.  The small statistical bias from
+   reduction modulo n - 1 is accepted for simplicity.
 
    For Credential i, where 0 <= i <= 0xffffffff:
 
    index = int2bytes(i, 4)
-   ctx = concat(pk_parent, index)
-   b = HashToScalar(concat(shared_secret, ctx))
+   ctx = pk_parent || index
+   b = H(shared_secret || ctx)
 
    sk_child = sk_parent * b mod n
    pk_child = ScalarMult(pk_parent, b)
@@ -374,9 +371,9 @@ Table of Contents
    Compromise of both sk_parent and an issuance shared_secret permits
    reconstruction of every child private key from that response.
 
-   The biased HashToScalar construction is intentional.  Replacing it
-   with an unbiased construction would not be wire-compatible and
-   requires a new algorithm identifier or protocol version.
+   The biased H construction is intentional.  Replacing it with an
+   unbiased construction would not be wire-compatible and requires a new
+   algorithm identifier or protocol version.
 
    See the ECDSA section for intellectual-property considerations.
 

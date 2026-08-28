@@ -1226,7 +1226,7 @@ svg {
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2"><code>concat(a, b, ...)</code> concatenates byte strings in order.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-2"><code>a || b</code> denotes byte-string concatenation.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3"><code>bytes2int(x)</code> interprets <code>x</code> as an unsigned big-endian integer, equivalent to OS2IP in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>.<a href="#section-2-3" class="pilcrow">¶</a></p>
 <p id="section-2-4"><code>int2bytes(x, len)</code> encodes <code>x</code> as exactly <code>len</code> unsigned big-endian bytes, equivalent to I2OSP in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>, and fails if <code>x &gt;= 256^len</code>.<a href="#section-2-4" class="pilcrow">¶</a></p>
 <p id="section-2-5"><code>base64(x)</code> is unpadded base64url as defined in Section 5 of <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
@@ -1348,22 +1348,19 @@ shared_secret = X25519(sk_eph, pk_eph_issuer)
 <p id="section-6-1">Define:<a href="#section-6-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6-2">
 <pre>
-HashToScalar(msg) = (bytes2int(SHA-256(msg)) mod (n - 1)) + 1
+H(msg) = (bytes2int(SHA-256(msg)) mod (n - 1)) + 1
 
-BlindPK(pk, bk, ctx) =
-    ScalarMult(pk, HashToScalar(concat(bk, ctx)))
-
-BlindSK(sk, bk, ctx) =
-    sk * HashToScalar(concat(bk, ctx)) mod n
+BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
+BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 </pre><a href="#section-6-2" class="pilcrow">¶</a>
 </div>
-<p id="section-6-3"><code>HashToScalar</code> returns an integer in <code>1..n-1</code>. The small statistical bias from reduction modulo <code>n - 1</code> is accepted for simplicity.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-3"><code>H</code> returns an integer in <code>1..n-1</code>. The small statistical bias from reduction modulo <code>n - 1</code> is accepted for simplicity.<a href="#section-6-3" class="pilcrow">¶</a></p>
 <p id="section-6-4">For Credential <code>i</code>, where <code>0 &lt;= i &lt;= 0xffffffff</code>:<a href="#section-6-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6-5">
 <pre>
 index = int2bytes(i, 4)
-ctx = concat(pk_parent, index)
-b = HashToScalar(concat(shared_secret, ctx))
+ctx = pk_parent || index
+b = H(shared_secret || ctx)
 
 sk_child = sk_parent * b mod n
 pk_child = ScalarMult(pk_parent, b)
@@ -1481,7 +1478,7 @@ z = bytes2int(SHA-256(msg))
 <p id="section-9-2">The security guarantee remains rooted in <code>sk_parent</code>. Disclosure of <code>shared_secret</code> does not reveal <code>sk_parent</code> or by itself enable child-key operations, but it reveals the relationship between <code>pk_parent</code> and its child public keys. Implementations <span class="bcp14">SHOULD</span> therefore protect and erase it when no longer needed.<a href="#section-9-2" class="pilcrow">¶</a></p>
 <p id="section-9-3">Both parties <span class="bcp14">MUST</span> use fresh ephemeral X25519 key pairs for each request.<a href="#section-9-3" class="pilcrow">¶</a></p>
 <p id="section-9-4">Compromise of both <code>sk_parent</code> and an issuance <code>shared_secret</code> permits reconstruction of every child private key from that response.<a href="#section-9-4" class="pilcrow">¶</a></p>
-<p id="section-9-5">The biased <code>HashToScalar</code> construction is intentional. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.<a href="#section-9-5" class="pilcrow">¶</a></p>
+<p id="section-9-5">The biased <code>H</code> construction is intentional. Replacing it with an unbiased construction would not be wire-compatible and requires a new algorithm identifier or protocol version.<a href="#section-9-5" class="pilcrow">¶</a></p>
 <p id="section-9-6">See the ECDSA section for intellectual-property considerations.<a href="#section-9-6" class="pilcrow">¶</a></p>
 </section>
 </div>
