@@ -128,11 +128,8 @@ Table of Contents
 
    a || b denotes byte-string concatenation.
 
-   bytes2int(x) interprets x as an unsigned big-endian integer,
-   equivalent to OS2IP in [RFC8017].
-
-   int2bytes(x, len) encodes x as exactly len unsigned big-endian bytes,
-   equivalent to I2OSP in [RFC8017], and fails if x >= 256^len.
+   OS2IP and I2OSP are the octet-string/integer conversions defined in
+   [RFC8017].
 
    base64(x) is unpadded base64url as defined in Section 5 of [RFC4648].
 
@@ -249,7 +246,7 @@ Table of Contents
 
    Define:
 
-   H(msg) = (bytes2int(SHA-256(msg)) mod (n - 1)) + 1
+   H(msg) = (OS2IP(SHA-256(msg)) mod (n - 1)) + 1
 
    BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
    BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
@@ -259,7 +256,7 @@ Table of Contents
 
    For Credential i, where 0 <= i <= 0xffffffff:
 
-   index = int2bytes(i, 4)
+   index = I2OSP(i, 4)
    ctx = pk_parent || index
    b = H(shared_secret || ctx)
 
@@ -309,14 +306,14 @@ Table of Contents
 
    Alternatively, for the blinding factor b of the child, let:
 
-   z = bytes2int(SHA-256(msg))
+   z = OS2IP(SHA-256(msg))
 
    Then SHA256withECDSA(sk_child, msg) is equivalent to (r, s * b mod
    n), where:
 
    (r, s) = NONEwithECDSA(
        sk_parent,
-       int2bytes(z * b^-1 mod n, 32))
+       I2OSP(z * b^-1 mod n, 32))
 
    b^-1 is the inverse of b modulo n.  NONEwithECDSA means ECDSA over
    the supplied 32-byte representative without hashing it again.

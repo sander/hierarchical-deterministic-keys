@@ -1227,10 +1227,9 @@ svg {
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <p id="section-2-2"><code>a || b</code> denotes byte-string concatenation.<a href="#section-2-2" class="pilcrow">¶</a></p>
-<p id="section-2-3"><code>bytes2int(x)</code> interprets <code>x</code> as an unsigned big-endian integer, equivalent to OS2IP in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>.<a href="#section-2-3" class="pilcrow">¶</a></p>
-<p id="section-2-4"><code>int2bytes(x, len)</code> encodes <code>x</code> as exactly <code>len</code> unsigned big-endian bytes, equivalent to I2OSP in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>, and fails if <code>x &gt;= 256^len</code>.<a href="#section-2-4" class="pilcrow">¶</a></p>
-<p id="section-2-5"><code>base64(x)</code> is unpadded base64url as defined in Section 5 of <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
-<p id="section-2-6">When a P-256 public key <code>pk</code> is used as a byte string in the algorithms below, it is encoded as the 65-byte uncompressed SEC 1 representation <code>0x04 || x || y</code> <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>.<a href="#section-2-6" class="pilcrow">¶</a></p>
+<p id="section-2-3">OS2IP and I2OSP are the octet-string/integer conversions defined in <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4"><code>base64(x)</code> is unpadded base64url as defined in Section 5 of <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">When a P-256 public key <code>pk</code> is used as a byte string in the algorithms below, it is encoded as the 65-byte uncompressed SEC 1 representation <code>0x04 || x || y</code> <span>[<a href="#SEC1" class="cite xref">SEC1</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cryptographic-dependencies">
@@ -1348,7 +1347,7 @@ shared_secret = X25519(sk_eph, pk_eph_issuer)
 <p id="section-6-1">Define:<a href="#section-6-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6-2">
 <pre>
-H(msg) = (bytes2int(SHA-256(msg)) mod (n - 1)) + 1
+H(msg) = (OS2IP(SHA-256(msg)) mod (n - 1)) + 1
 
 BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
 BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
@@ -1358,7 +1357,7 @@ BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 <p id="section-6-4">For Credential <code>i</code>, where <code>0 &lt;= i &lt;= 0xffffffff</code>:<a href="#section-6-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6-5">
 <pre>
-index = int2bytes(i, 4)
+index = I2OSP(i, 4)
 ctx = pk_parent || index
 b = H(shared_secret || ctx)
 
@@ -1425,7 +1424,7 @@ signature = SHA256withECDSA(sk_child, msg)
 <p id="section-7.2-3">Alternatively, for the blinding factor <code>b</code> of the child, let:<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7.2-4">
 <pre>
-z = bytes2int(SHA-256(msg))
+z = OS2IP(SHA-256(msg))
 </pre><a href="#section-7.2-4" class="pilcrow">¶</a>
 </div>
 <p id="section-7.2-5">Then <code>SHA256withECDSA(sk_child, msg)</code> is equivalent to <code>(r, s * b mod n)</code>, where:<a href="#section-7.2-5" class="pilcrow">¶</a></p>
@@ -1433,7 +1432,7 @@ z = bytes2int(SHA-256(msg))
 <pre>
 (r, s) = NONEwithECDSA(
     sk_parent,
-    int2bytes(z * b^-1 mod n, 32))
+    I2OSP(z * b^-1 mod n, 32))
 </pre><a href="#section-7.2-6" class="pilcrow">¶</a>
 </div>
 <p id="section-7.2-7"><code>b^-1</code> is the inverse of <code>b</code> modulo <code>n</code>. <code>NONEwithECDSA</code> means ECDSA over the supplied 32-byte representative without hashing it again. Implementations <span class="bcp14">MUST</span> verify that their API has exactly this behavior.<a href="#section-7.2-7" class="pilcrow">¶</a></p>
