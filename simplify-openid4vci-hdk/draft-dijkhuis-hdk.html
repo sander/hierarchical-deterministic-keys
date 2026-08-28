@@ -1359,20 +1359,12 @@ BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
 <pre>
 index = I2OSP(i, 4)
 ctx = pk_parent || index
-b = H(shared_secret || ctx)
 
-sk_child = sk_parent * b mod n
-pk_child = ScalarMult(pk_parent, b)
-</pre><a href="#section-6-5" class="pilcrow">¶</a>
-</div>
-<p id="section-6-6">Equivalently:<a href="#section-6-6" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-7">
-<pre>
 sk_child = BlindSK(sk_parent, shared_secret, ctx)
 pk_child = BlindPK(pk_parent, shared_secret, ctx)
-</pre><a href="#section-6-7" class="pilcrow">¶</a>
+</pre><a href="#section-6-5" class="pilcrow">¶</a>
 </div>
-<p id="section-6-8">Because <code>b</code> and <code>sk_parent</code> are non-zero modulo the prime <code>n</code>, <code>sk_child</code> is non-zero.<a href="#section-6-8" class="pilcrow">¶</a></p>
+<p id="section-6-6">Because <code>H(shared_secret || ctx)</code> and <code>sk_parent</code> are non-zero modulo the prime <code>n</code>, <code>sk_child</code> is non-zero.<a href="#section-6-6" class="pilcrow">¶</a></p>
 <div id="hierarchical-derivation">
 <section id="section-6.1">
         <h3 id="name-hierarchical-derivation">

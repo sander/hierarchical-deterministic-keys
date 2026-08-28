@@ -258,18 +258,12 @@ Table of Contents
 
    index = I2OSP(i, 4)
    ctx = pk_parent || index
-   b = H(shared_secret || ctx)
-
-   sk_child = sk_parent * b mod n
-   pk_child = ScalarMult(pk_parent, b)
-
-   Equivalently:
 
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    pk_child = BlindPK(pk_parent, shared_secret, ctx)
 
-   Because b and sk_parent are non-zero modulo the prime n, sk_child is
-   non-zero.
+   Because H(shared_secret || ctx) and sk_parent are non-zero modulo the
+   prime n, sk_child is non-zero.
 
 6.1.  Hierarchical Derivation
 
