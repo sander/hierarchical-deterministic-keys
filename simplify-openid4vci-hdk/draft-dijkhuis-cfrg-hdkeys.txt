@@ -60,20 +60,21 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  Conventions
-   3.  Credential Request
-   4.  Credential Response
-   5.  Child-Key Derivation
-     5.1.  Hierarchical Derivation
-   6.  Using a Child Key
-     6.1.  ECDH
-     6.2.  ECDSA
-   7.  OpenID4VCI Metadata
-   8.  Security Considerations
-   9.  Privacy Considerations
-   10. References
-     10.1.  Normative References
-     10.2.  Informative References
+   2.  Conventions and Encoding
+   3.  Cryptographic Dependencies
+   4.  Credential Request
+   5.  Credential Response
+   6.  Child-Key Derivation
+     6.1.  Hierarchical Derivation
+   7.  Using a Child Key
+     7.1.  ECDH
+     7.2.  ECDSA
+   8.  OpenID4VCI Metadata
+   9.  Security Considerations
+   10. Privacy Considerations
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
    Acknowledgements
    Contributors
    Author's Address
@@ -82,16 +83,15 @@ Table of Contents
 
    Credentials can use distinct holder-binding keys to avoid giving
    Relying Parties a common correlation handle.  An Issuer can
-   nevertheless need assurance that these keys are associated with a
-   parent key whose holder binding and security properties it has
-   already accepted.
+   nevertheless need assurance that these keys remain associated with a
+   holder-binding key whose security properties it has already accepted.
 
-   For example, an Issuer can accept a hardware-protected pk_parent when
-   a Wallet presents a PID, then issue mDL Credentials bound to distinct
-   children of that key.  The mDL keys appear unrelated to Relying
-   Parties, while the Issuer knows that their private keys are rooted in
-   the accepted parent.  HDK preserves this association; it does not
-   establish the holder's identity.
+   For example, an Issuer can accept a hardware-protected key when a
+   Wallet presents a PID, then issue mDL Credentials bound to distinct
+   child keys.  The mDL keys appear unrelated to Relying Parties, while
+   retaining their association with the accepted parent key.  HDK
+   preserves this association; it does not establish the holder's
+   identity.
 
    Generating and storing a separate secure-area key pair for every
    Credential can also be expensive or impossible.  HDK instead derives
@@ -100,10 +100,10 @@ Table of Contents
    authentication.
 
    During issuance, the Wallet and Issuer establish a shared secret
-   using ephemeral X25519 keys.  The shared secret, parent public key,
-   and Credential index determine each child key.  The Issuer learns the
-   child public keys but no private keys.  Verifiers see ordinary P-256
-   keys and need no HDK support.
+   using ephemeral X25519 keys.  Together with the parent public key and
+   Credential index, this determines each child key.  The Issuer can
+   derive the child public keys but not the corresponding private keys.
+   Verifiers see ordinary P-256 keys and need no HDK support.
 
    [ETSI-TR-119-476-1] identifies key management and Proof of
    Association (PoA) as challenges when issuing multiple single-use
@@ -118,7 +118,7 @@ Table of Contents
    This document is an early, not yet reviewed proposal.  Its
    cryptographic notation follows [CryptoSpec].
 
-2.  Conventions
+2.  Conventions and Encoding
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -126,7 +126,7 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   concat(a, b, ...) concatenates byte strings.
+   concat(a, b, ...) concatenates byte strings in order.
 
    bytes2int(x) interprets x as an unsigned big-endian integer,
    equivalent to OS2IP in [RFC8017].
@@ -139,32 +139,39 @@ Table of Contents
    SerializePublicKey(pk) is the 65-byte uncompressed SEC 1 encoding
    0x04 || x || y of a P-256 public key [SEC1].
 
-   ScalarMult(pk, k) is P-256 scalar multiplication.
+3.  Cryptographic Dependencies
 
-   ECDH(sk, pk) returns the 32-byte big-endian x-coordinate of P-256
-   scalar multiplication.  Received public keys MUST be validated as
-   required by [SEC1].
-
-   GenerateX25519KeyPair() generates a fresh X25519 private key and
-   32-byte public key [RFC7748].
-
-   X25519(sk, pk) is X25519 as defined in [RFC7748] and returns a
-   32-byte shared secret.  All-zero output MUST be rejected.
+   This specification uses P-256 [SEC1], SHA-256 [FIPS180-4], and X25519
+   [RFC7748].
 
    The P-256 group order is:
 
   n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
 
-3.  Credential Request
+   ScalarMult(pk, k) is P-256 scalar multiplication of public key pk by
+   scalar k.
+
+   ECDH(sk, pk) returns the 32-byte big-endian x-coordinate of
+   ScalarMult(pk, sk).  Received P-256 public keys MUST be validated as
+   required by [SEC1].
+
+   GenerateX25519KeyPair() generates a fresh X25519 private key and
+   corresponding 32-byte public key.
+
+   X25519(sk, pk) is the X25519 function defined in [RFC7748].  Its
+   32-byte output is the shared secret.  An all-zero output MUST be
+   rejected.
+
+4.  Credential Request
 
    The Wallet has a P-256 parent key pair (sk_parent, pk_parent)
    protected by its secure area.  Before the request, the Issuer MUST
    already have established that pk_parent represents the intended
    Credential Holder and meets its requirements for key protection and
    user authentication.  How this is established is out of scope.  For
-   example, pk_parent can be established by a PID presentation using
-   OpenID4VP [OpenID4VP], or by proof of possession associated with a
-   refresh token bound to pk_parent.
+   example, it can be established by a PID presentation using OpenID4VP
+   [OpenID4VP], or by proof of possession associated with a refresh
+   token bound to pk_parent.
 
    For each request, the Wallet generates:
 
@@ -201,15 +208,17 @@ Table of Contents
    The Wallet MUST generate a fresh (sk_eph, pk_eph) for each request
    and retain sk_eph until it processes the response.
 
-4.  Credential Response
+5.  Credential Response
 
    The Issuer generates:
 
    (sk_eph_issuer, pk_eph_issuer) = GenerateX25519KeyPair()
    shared_secret = X25519(sk_eph_issuer, pk_eph)
 
-   and rejects the request if X25519 fails.  It returns
-   base64(pk_eph_issuer) once in the hdk response parameter:
+   If shared_secret is all zero, the Issuer MUST reject the request.
+
+   The Issuer returns base64(pk_eph_issuer) once in the hdk response
+   parameter:
 
    HTTP/1.1 200 OK
    Content-Type: application/json
@@ -233,9 +242,9 @@ Table of Contents
 
    shared_secret = X25519(sk_eph, pk_eph_issuer)
 
-   and MUST reject the response if X25519 fails.
+   If shared_secret is all zero, the Wallet MUST reject the response.
 
-5.  Child-Key Derivation
+6.  Child-Key Derivation
 
    Define:
 
@@ -254,6 +263,12 @@ Table of Contents
 
    index = int2bytes(i, 4)
    ctx = concat(SerializePublicKey(pk_parent), index)
+   b = HashToScalar(concat(shared_secret, ctx))
+
+   sk_child = sk_parent * b mod n
+   pk_child = ScalarMult(pk_parent, b)
+
+   Equivalently:
 
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    pk_child = BlindPK(pk_parent, shared_secret, ctx)
@@ -261,33 +276,27 @@ Table of Contents
    The exact encodings above MUST be used.  In particular, pk_parent in
    ctx is its 65-byte uncompressed SEC 1 encoding, not its JWK encoding.
 
-   Because HashToScalar is non-zero and n is prime, a valid non-zero
-   sk_parent produces a non-zero sk_child.
+   Because b and sk_parent are non-zero modulo the prime n, sk_child is
+   non-zero.
 
-5.1.  Hierarchical Derivation
+6.1.  Hierarchical Derivation
 
-   A child key pair MAY itself be used as a parent.  For blinding
-   factors b1 and b2:
+   A child key pair MAY itself be used as a parent.  For successive
+   blinding factors b1 and b2:
 
    pk_child2 = ScalarMult(pk_parent, b1 * b2 mod n)
    sk_child2 = sk_parent * b1 * b2 mod n
 
-6.  Using a Child Key
+7.  Using a Child Key
 
    Child-key operations SHOULD receive protections equivalent to parent-
    key operations, including the same user-authentication policy.  A
    secure area can derive sk_child internally, or use the equivalences
    below while continuing to operate with sk_parent.
 
-6.1.  ECDH
+7.1.  ECDH
 
-   Let:
-
-   b = HashToScalar(concat(shared_secret,
-                           SerializePublicKey(pk_parent),
-                           index))
-
-   Then:
+   For the blinding factor b of a child:
 
    ECDH(sk_child, pk) = ECDH(sk_parent, ScalarMult(pk, b))
 
@@ -296,18 +305,15 @@ Table of Contents
    before scalar multiplication; the result MUST also be validated if
    required by the ECDH interface.
 
-6.2.  ECDSA
+7.2.  ECDSA
 
    A secure area can derive the child and sign directly:
 
    sk_child = BlindSK(sk_parent, shared_secret, ctx)
    signature = SHA256withECDSA(sk_child, msg)
 
-   Alternatively, let:
+   Alternatively, for the blinding factor b of the child, let:
 
-   b = HashToScalar(concat(shared_secret,
-                           SerializePublicKey(pk_parent),
-                           index))
    z = bytes2int(SHA-256(msg))
 
    Then SHA256withECDSA(sk_child, msg) is equivalent to (r, s * b mod
@@ -330,7 +336,7 @@ Table of Contents
    sk_child inside the secure area and signing with it is an alternative
    architecture and can have a different intellectual-property analysis.
 
-7.  OpenID4VCI Metadata
+8.  OpenID4VCI Metadata
 
    Support is advertised with the hdk proof type in
    proof_types_supported [OpenID4VCI]:
@@ -351,7 +357,7 @@ Table of Contents
 
    Implementations MUST NOT infer HDK support merely from P-256 support.
 
-8.  Security Considerations
+9.  Security Considerations
 
    HDK relies on the Issuer having already accepted pk_parent, including
    its holder binding, key protection, and user-authentication
@@ -360,8 +366,8 @@ Table of Contents
 
    The security guarantee remains rooted in sk_parent.  Disclosure of
    shared_secret does not reveal sk_parent or by itself enable child-key
-   operations, but it does reveal the relationship between pk_parent and
-   its child public keys.  Implementations SHOULD therefore protect and
+   operations, but it reveals the relationship between pk_parent and its
+   child public keys.  Implementations SHOULD therefore protect and
    erase it when no longer needed.
 
    Both parties MUST use fresh ephemeral X25519 key pairs for each
@@ -376,7 +382,7 @@ Table of Contents
 
    See the ECDSA section for intellectual-property considerations.
 
-9.  Privacy Considerations
+10.  Privacy Considerations
 
    Distinct child public keys prevent correlation merely through reuse
    of the holder-binding public key.  Other Credential contents,
@@ -387,9 +393,9 @@ Table of Contents
    does not provide unlinkability from the Issuer. shared_secret is
    privacy-sensitive because it reveals these relationships.
 
-10.  References
+11.  References
 
-10.1.  Normative References
+11.1.  Normative References
 
    [FIPS180-4]
               National Institute of Standards and Technology (NIST),
@@ -428,7 +434,7 @@ Table of Contents
               Elliptic Curve Cryptography, Version 2.0", May 2009,
               <https://www.secg.org/sec1-v2.pdf>.
 
-10.2.  Informative References
+11.2.  Informative References
 
    [ARKG]     Lundberg, E. and J. Bradley, "The Asynchronous Remote Key
               Generation (ARKG) algorithm", n.d.,
