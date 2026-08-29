@@ -59,7 +59,8 @@ record Holder(KeyPair ephemeral, KeyPair parent) {
         var ctx = context(parentPK(), index);
         var childSk = blindSK(((ECPrivateKey) parent.getPrivate()).getS(), bk, ctx);
         var publicKey = response.publicKeys().get(index);
-        assert Crypto.mul(parentPK().getParams().getGenerator(), childSk).equals(publicKey.getW());
+        var params = parentPK().getParams();
+        assert Crypto.mul(Crypto.ecPublic(params.getGenerator(), params), childSk).getW().equals(publicKey.getW());
         return new Credential(publicKey, h(bk, ctx));
     }
 
@@ -90,7 +91,7 @@ static BigInteger h(byte[] bk, byte[] ctx) throws Exception {
 }
 
 static ECPublicKey blindPK(ECPublicKey pk, byte[] bk, byte[] ctx) throws Exception {
-    return Crypto.ecPublic(Crypto.mul(pk.getW(), h(bk, ctx)), pk.getParams());
+    return Crypto.mul(pk, h(bk, ctx));
 }
 
 static BigInteger blindSK(BigInteger sk, byte[] bk, byte[] ctx) throws Exception {
@@ -145,35 +146,34 @@ static class Crypto {
         return ka.generateSecret();
     }
 
+    static BigInteger xmul(ECPublicKey pk, BigInteger k) throws Exception {
+        return new BigInteger(1, agree("ECDH", ecPrivate(k, pk.getParams()), pk));
+    }
+
     // JCA ECDH gives x(k*pk). Reconstruct either point; its sign is irrelevant to ECDH.
     static ECPublicKey scaleForEcdh(ECPublicKey pk, BigInteger k) throws Exception {
-        var x = new BigInteger(1, agree("ECDH", ecPrivate(k, pk.getParams()), pk));
+        var x = xmul(pk, k);
         var curve = pk.getParams().getCurve();
         var y = x.pow(3).add(curve.getA().multiply(x)).add(curve.getB()).mod(P)
                 .modPow(P.add(BigInteger.ONE).shiftRight(2), P);
         return ecPublic(new ECPoint(x, y), pk.getParams());
     }
 
-    // Scalar multiplication needed by BlindPK. Simple affine, variable-time prototype code.
-    static ECPoint mul(ECPoint p, BigInteger k) {
-        var r = ECPoint.POINT_INFINITY;
-        for (; k.signum() != 0; k = k.shiftRight(1), p = add(p, p))
-            if (k.testBit(0)) r = add(r, p);
-        return r;
-    }
+    // Recover exact k*pk from x(k*pk) and x((k+1)*pk), both obtained through ECDH.
+    static ECPublicKey mul(ECPublicKey pk, BigInteger k) throws Exception {
+        var q = pk.getW();
+        if (k.equals(N.subtract(BigInteger.ONE)))
+            return ecPublic(new ECPoint(q.getAffineX(), P.subtract(q.getAffineY()).mod(P)), pk.getParams());
 
-    static ECPoint add(ECPoint p, ECPoint q) {
-        if (p.equals(ECPoint.POINT_INFINITY)) return q;
-        if (q.equals(ECPoint.POINT_INFINITY)) return p;
-        var x1 = p.getAffineX(); var y1 = p.getAffineY();
-        var x2 = q.getAffineX(); var y2 = q.getAffineY();
-        if (x1.equals(x2) && !y1.equals(y2)) return ECPoint.POINT_INFINITY;
-        var m = x1.equals(x2)
-                ? x1.pow(2).multiply(BigInteger.valueOf(3)).subtract(BigInteger.valueOf(3))
-                        .multiply(y1.shiftLeft(1).modInverse(P)).mod(P)
-                : y2.subtract(y1).multiply(x2.subtract(x1).mod(P).modInverse(P)).mod(P);
-        var x3 = m.pow(2).subtract(x1).subtract(x2).mod(P);
-        return new ECPoint(x3, m.multiply(x1.subtract(x3)).subtract(y1).mod(P));
+        var x = xmul(pk, k);
+        var xn = xmul(pk, k.add(BigInteger.ONE));
+        var curve = pk.getParams().getCurve();
+        var y2 = x.pow(3).add(curve.getA().multiply(x)).add(curve.getB()).mod(P);
+        var d = x.subtract(q.getAffineX()).pow(2)
+                .multiply(xn.add(x).add(q.getAffineX())).mod(P);
+        var y = y2.add(q.getAffineY().pow(2)).subtract(d)
+                .multiply(q.getAffineY().shiftLeft(1).modInverse(P)).mod(P);
+        return ecPublic(new ECPoint(x, y), pk.getParams());
     }
 
     static PrivateKey ecPrivate(BigInteger k, ECParameterSpec params) throws Exception {
