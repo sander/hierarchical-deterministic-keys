@@ -4,8 +4,8 @@
 
 Network Working Group                                S. Q. Dijkhuis, Ed.
 Internet-Draft                                                Cleverbase
-Intended status: Informational                            28 August 2026
-Expires: 1 March 2027
+Intended status: Informational                            29 August 2026
+Expires: 2 March 2027
 
 
                     Hierarchical Deterministic Keys
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 March 2027.
+   This Internet-Draft will expire on 2 March 2027.
 
 Copyright Notice
 
@@ -129,6 +129,11 @@ Table of Contents
    deterministic remote derivation of Credential keys.  The
    interoperability differences are discussed in Interoperability
    Considerations.
+
+   This version is a substantial rewrite of earlier versions and has not
+   yet been reviewed by the stakeholders involved in that earlier work.
+   The purpose of the rewrite is to specify the smallest possible
+   extension to OpenID4VCI that makes HDK practical to use.
 
    A child key can itself be a parent, allowing hierarchical derivation.
 
