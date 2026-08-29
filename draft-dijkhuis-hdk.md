@@ -58,9 +58,11 @@ informative:
     author:
       - organization: European Cybersecurity Certification Group, Sub-group on Cryptography
     date: 2026-04
-  ETSI-TR-119-476-1:
-    title: "ETSI TR 119 476-1 V1.3.1: Selective disclosure and zero-knowledge proofs applied to Electronic Attestation of Attributes; Part 1: Feasibility study"
-    target: https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/01.03.01_60/tr_11947601v010301p.pdf
+  TR119476-1:
+    title: "Selective disclosure and zero-knowledge proofs applied to Electronic Attestation of Attributes; Part 1: Feasibility study"
+    target: https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/
+    seriesinfo:
+      ETSI TR: "119 476-1 V1.3.1"
     author:
       - organization: ETSI
     date: 2025-08
@@ -89,7 +91,7 @@ This specification is limited to P-256 because it targets high-assurance Wallet 
 
 During issuance, the Wallet and Issuer establish a shared secret using ephemeral X25519 keys. Together with the parent public key and Credential index, this determines each child key. The Issuer can derive the child public keys but not the corresponding private keys. Verifiers see ordinary P-256 keys and need no HDK support.
 
-[ETSI-TR-119-476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. [KeyBlinding] independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.
+[TR119476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. [KeyBlinding] independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.
 
 This version is a substantial rewrite of earlier versions and has not yet been reviewed by the stakeholders involved in that earlier work. The purpose of the rewrite is to specify the smallest possible extension to OpenID4VCI that makes HDK practical to use.
 
