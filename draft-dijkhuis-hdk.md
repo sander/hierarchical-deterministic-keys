@@ -91,6 +91,8 @@ During issuance, the Wallet and Issuer establish a shared secret using ephemeral
 
 [ETSI-TR-119-476-1] identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG [ARKG], including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. [KeyBlinding] independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.
 
+This version is a substantial rewrite of earlier versions and has not yet been reviewed by the stakeholders involved in that earlier work. The purpose of the rewrite is to specify the smallest possible extension to OpenID4VCI that makes HDK practical to use.
+
 A child key can itself be a parent, allowing hierarchical derivation.
 
 # Conventions and Encoding
