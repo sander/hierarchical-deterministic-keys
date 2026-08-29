@@ -47,7 +47,7 @@ Expert participants from Potential:
 
 To address challenges 5 and 6, this repository contains a freely accessible, unencumbered specification of **[Hierarchical Deterministic Keys](draft-dijkhuis-hdk.md)**. This enables an EU Digital Identity Wallet deployment that distributes key management efficiently:
 
-To illustrate and validate the specifications, this repository contains a **[Prototype implementation](prototype.lisp)** and **[demo](prototype.demo.lisp)** to run with [Common Lisp](https://lisp-lang.org/learn/getting-started/) using `make demo` and `make repl`.
+To illustrate and validate the specification, this repository contains a **[Java 25 prototype implementation](prototype.java)**. Run it with `make test`.
 
 To inform further standardisation and legislation, this repository contains **[Feedback to enable Hierarchical Deterministic Keys in the Wallet Toolbox](feedback.md)**. It also contains **[Feedback to resolve HDK and PoA issues in the ARF](feedback-poa.md)**.
 
