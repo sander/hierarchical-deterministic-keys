@@ -1,13 +1,12 @@
 // Illustrative prototype, not production code. Run with Java 25+: java -ea prototype.java
 
 void main() throws Exception {
-    var holder = new Holder(
-            Crypto.x25519KeyPair("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"),
-            Crypto.ecKeyPair("519b423d715f8b5d549f6c4d97eab0e8e36d5fcdb3fbb1b5045f7d58f4c1b6a3"));
-    var issuer = new Issuer(Crypto.x25519KeyPair(
-            "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"));
-    var verifier = new Verifier(Crypto.ecKeyPair(
-            "c9afa9d845ba75166b5c215767b1d6934e50c3db36e89b127b8a622b120f6721"));
+    var random = SecureRandom.getInstance("SHA1PRNG");
+    random.setSeed("HDK test vectors".getBytes(StandardCharsets.US_ASCII));
+
+    var holder = new Holder(Crypto.keyPair("X25519", random), Crypto.keyPair("EC", random));
+    var issuer = new Issuer(Crypto.keyPair("X25519", random));
+    var verifier = new Verifier(Crypto.keyPair("EC", random));
 
     var request = holder.credentialRequest();
     var response = issuer.issue(request);
@@ -130,7 +129,7 @@ static byte[] context(ECPublicKey pk, int index) {
 static class ECDSA {
     static byte[] signChildViaParent(PrivateKey parent, BigInteger b, byte[] msg) throws Exception {
         var z = new BigInteger(1, MessageDigest.getInstance("SHA-256").digest(msg));
-        var signer = Signature.getInstance("NONEwithECDSAinP1363Format");
+        var signer = java.security.Signature.getInstance("NONEwithECDSAinP1363Format");
         signer.initSign(parent);
         signer.update(Crypto.i2osp(z.multiply(b.modInverse(Crypto.N)).mod(Crypto.N)));
         var sig = signer.sign();
@@ -140,7 +139,7 @@ static class ECDSA {
     }
 
     static boolean verify(PublicKey pk, byte[] msg, byte[] sig) throws Exception {
-        var verifier = Signature.getInstance("SHA256withECDSAinP1363Format");
+        var verifier = java.security.Signature.getInstance("SHA256withECDSAinP1363Format");
         verifier.initVerify(pk);
         verifier.update(msg);
         return verifier.verify(sig);
@@ -151,21 +150,11 @@ static class Crypto {
     static final BigInteger N = new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16);
     static final BigInteger P = new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16);
 
-    static KeyPair ecKeyPair(String skHex) throws Exception {
-        var params = AlgorithmParameters.getInstance("EC");
-        params.init(new ECGenParameterSpec("secp256r1"));
-        var ec = params.getParameterSpec(ECParameterSpec.class);
-        var sk = new BigInteger(skHex, 16);
-        return new KeyPair(ecPublic(mul(ec.getGenerator(), sk), ec), ecPrivate(sk, ec));
-    }
-
-    static KeyPair x25519KeyPair(String skHex) throws Exception {
-        var factory = KeyFactory.getInstance("X25519");
-        var sk = factory.generatePrivate(new XECPrivateKeySpec(NamedParameterSpec.X25519, HexFormat.of().parseHex(skHex)));
-        var base = factory.generatePublic(new XECPublicKeySpec(NamedParameterSpec.X25519, BigInteger.valueOf(9)));
-        var u = new BigInteger(1, reverse(agree("X25519", sk, base)));
-        var pk = factory.generatePublic(new XECPublicKeySpec(NamedParameterSpec.X25519, u));
-        return new KeyPair(pk, sk);
+    static KeyPair keyPair(String algorithm, SecureRandom random) throws Exception {
+        var kg = KeyPairGenerator.getInstance(algorithm);
+        if (algorithm.equals("EC")) kg.initialize(new ECGenParameterSpec("secp256r1"), random);
+        else kg.initialize(NamedParameterSpec.X25519, random);
+        return kg.generateKeyPair();
     }
 
     static byte[] agree(String algorithm, PrivateKey sk, PublicKey pk) throws Exception {
