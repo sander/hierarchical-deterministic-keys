@@ -15,32 +15,8 @@ void main() throws Exception {
     assert verifier.verifyPossessionECDH(holder.provePossessionECDH(response, verifier.publicKey()));
     assert verifier.verifyPossessionECDSA(holder.provePossessionECDSA(response, transcript), transcript);
 
-    printTestVectors(holder, issuer, response);
+    printTestVectors(holder, response);
     IO.println("HDK prototype tests passed");
-}
-
-static void printTestVectors(Holder holder, Issuer issuer, CredentialResponse response) throws Exception {
-    var parent = (ECPrivateKey) holder.parent().getPrivate();
-    var parentPK = (ECPublicKey) holder.parent().getPublic();
-    var shared = Crypto.agree("X25519", holder.ephemeral().getPrivate(), issuer.ephemeral().getPublic());
-
-    IO.println("sk_parent=" + Crypto.hex(Crypto.i2osp(parent.getS())));
-    IO.println("pk_parent=" + Crypto.hex(Crypto.encode(parentPK)));
-    IO.println("sk_wallet=" + Crypto.hex(((XECPrivateKey) holder.ephemeral().getPrivate()).getScalar().orElseThrow()));
-    IO.println("pk_wallet=" + Crypto.hex(Crypto.encodeX25519((XECPublicKey) holder.ephemeral().getPublic())));
-    IO.println("sk_issuer=" + Crypto.hex(((XECPrivateKey) issuer.ephemeral().getPrivate()).getScalar().orElseThrow()));
-    IO.println("pk_issuer=" + Crypto.hex(Crypto.encodeX25519((XECPublicKey) issuer.ephemeral().getPublic())));
-    IO.println("shared_secret=" + Crypto.hex(shared));
-
-    for (int index = 0; index < response.publicKeys().size(); index++) {
-        var ctx = context(parentPK, index);
-        var b = h(shared, ctx);
-        var skChild = blindSK(parent.getS(), shared, ctx);
-        IO.println("child[" + index + "].ctx=" + Crypto.hex(ctx));
-        IO.println("child[" + index + "].b=" + Crypto.hex(Crypto.i2osp(b)));
-        IO.println("child[" + index + "].sk_child=" + Crypto.hex(Crypto.i2osp(skChild)));
-        IO.println("child[" + index + "].pk_child=" + Crypto.hex(Crypto.encode(response.publicKeys().get(index))));
-    }
 }
 
 record CredentialRequest(PublicKey ephemeral, ECPublicKey parent) {}
@@ -208,18 +184,6 @@ static class Crypto {
         return concat(new byte[] {4}, i2osp(p.getAffineX()), i2osp(p.getAffineY()));
     }
 
-    static byte[] encodeX25519(XECPublicKey pk) {
-        return reverse(i2osp(pk.getU()));
-    }
-
-    static byte[] reverse(byte[] in) {
-        var out = in.clone();
-        for (int i = 0, j = out.length - 1; i < j; i++, j--) {
-            var b = out[i]; out[i] = out[j]; out[j] = b;
-        }
-        return out;
-    }
-
     static String hex(byte[] bytes) {
         return HexFormat.of().formatHex(bytes);
     }
@@ -235,5 +199,25 @@ static class Crypto {
         var out = new byte[Arrays.stream(xs).mapToInt(x -> x.length).sum()];
         for (int i = 0, p = 0; i < xs.length; p += xs[i].length, i++) System.arraycopy(xs[i], 0, out, p, xs[i].length);
         return out;
+    }
+}
+
+static void printTestVectors(Holder holder, CredentialResponse response) throws Exception {
+    var parent = (ECPrivateKey) holder.parent().getPrivate();
+    var parentPK = (ECPublicKey) holder.parent().getPublic();
+    var shared = Crypto.agree("X25519", holder.ephemeral().getPrivate(), response.ephemeral());
+
+    IO.println("sk_parent = " + Crypto.hex(Crypto.i2osp(parent.getS())));
+    IO.println("pk_parent = " + Crypto.hex(Crypto.encode(parentPK)));
+    IO.println("shared_secret = " + Crypto.hex(shared));
+
+    for (int index = 0; index < response.publicKeys().size(); index++) {
+        var ctx = context(parentPK, index);
+        IO.println("\nFor Credential " + index + ":\n");
+        IO.println("index = %08x".formatted(index));
+        IO.println("ctx = " + Crypto.hex(ctx));
+        IO.println("b = " + Crypto.hex(Crypto.i2osp(h(shared, ctx))));
+        IO.println("sk_child = " + Crypto.hex(Crypto.i2osp(blindSK(parent.getS(), shared, ctx))));
+        IO.println("pk_child = " + Crypto.hex(Crypto.encode(response.publicKeys().get(index))));
     }
 }
