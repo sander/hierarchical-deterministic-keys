@@ -55,8 +55,7 @@ record Holder(KeyPair ephemeral, KeyPair parent) {
         var ctx = context(parentPK(), index);
         var childSk = blindSK(((ECPrivateKey) parent.getPrivate()).getS(), bk, ctx);
         var publicKey = response.publicKeys().get(index);
-        var params = parentPK().getParams();
-        assert Crypto.mul(Crypto.ecPublic(params.getGenerator(), params), childSk).getW().equals(publicKey.getW());
+        assert Crypto.mul(Crypto.ecPublic(Crypto.P256.getGenerator()), childSk).getW().equals(publicKey.getW());
         return new Credential(publicKey, h(bk, ctx));
     }
 
@@ -97,8 +96,18 @@ static class ECDSA {
 }
 
 static class Crypto {
-    static final BigInteger N = new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16);
-    static final BigInteger P = new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16);
+    static final ECParameterSpec P256 = p256();
+    static final EllipticCurve CURVE = P256.getCurve();
+    static final BigInteger N = P256.getOrder();
+    static final BigInteger P = ((ECFieldFp) CURVE.getField()).getP();
+
+    private static ECParameterSpec p256() {
+        try {
+            var parameters = AlgorithmParameters.getInstance("EC");
+            parameters.init(new ECGenParameterSpec("secp256r1"));
+            return parameters.getParameterSpec(ECParameterSpec.class);
+        } catch (GeneralSecurityException e) { throw new ExceptionInInitializerError(e); }
+    }
 
     static SecureRandom random() throws Exception {
         var random = SecureRandom.getInstance("SHA1PRNG");
@@ -108,7 +117,7 @@ static class Crypto {
 
     static KeyPair keyPair(String algorithm, SecureRandom random) throws Exception {
         var kg = KeyPairGenerator.getInstance(algorithm);
-        if (algorithm.equals("EC")) kg.initialize(new ECGenParameterSpec("secp256r1"), random);
+        if (algorithm.equals("EC")) kg.initialize(P256, random);
         else kg.initialize(NamedParameterSpec.X25519, random);
         return kg.generateKeyPair();
     }
@@ -120,30 +129,29 @@ static class Crypto {
         return ka.generateSecret();
     }
 
-    static BigInteger xmul(ECPublicKey pk, BigInteger k) throws Exception { return new BigInteger(1, agree("ECDH", ecPrivate(k, pk.getParams()), pk)); }
+    static BigInteger xmul(ECPublicKey pk, BigInteger k) throws Exception { return new BigInteger(1, agree("ECDH", ecPrivate(k), pk)); }
 
     // JCA ECDH gives x(k*pk). Reconstruct either point; its sign is irrelevant to ECDH.
     static ECPublicKey scaleForEcdh(ECPublicKey pk, BigInteger k) throws Exception {
         var x = xmul(pk, k);
-        return ecPublic(new ECPoint(x, y2(pk.getParams().getCurve(), x).modPow(P.add(BigInteger.ONE).shiftRight(2), P)), pk.getParams());
+        return ecPublic(new ECPoint(x, y2(x).modPow(P.add(BigInteger.ONE).shiftRight(2), P)));
     }
 
     // Recover exact k*pk from x(k*pk) and x((k+1)*pk), both obtained through ECDH.
     static ECPublicKey mul(ECPublicKey pk, BigInteger k) throws Exception {
         var q = pk.getW();
-        if (k.equals(N.subtract(BigInteger.ONE))) return ecPublic(new ECPoint(q.getAffineX(), P.subtract(q.getAffineY()).mod(P)), pk.getParams());
+        if (k.equals(N.subtract(BigInteger.ONE))) return ecPublic(new ECPoint(q.getAffineX(), P.subtract(q.getAffineY()).mod(P)));
 
         var x = xmul(pk, k);
         var xn = xmul(pk, k.add(BigInteger.ONE));
         var d = x.subtract(q.getAffineX()).pow(2).multiply(xn.add(x).add(q.getAffineX())).mod(P);
-        var y = y2(pk.getParams().getCurve(), x).add(q.getAffineY().pow(2)).subtract(d)
-                .multiply(q.getAffineY().shiftLeft(1).modInverse(P)).mod(P);
-        return ecPublic(new ECPoint(x, y), pk.getParams());
+        var y = y2(x).add(q.getAffineY().pow(2)).subtract(d).multiply(q.getAffineY().shiftLeft(1).modInverse(P)).mod(P);
+        return ecPublic(new ECPoint(x, y));
     }
 
-    private static BigInteger y2(EllipticCurve curve, BigInteger x) { return x.pow(3).add(curve.getA().multiply(x)).add(curve.getB()).mod(P); }
-    static PrivateKey ecPrivate(BigInteger k, ECParameterSpec params) throws Exception { return KeyFactory.getInstance("EC").generatePrivate(new ECPrivateKeySpec(k, params)); }
-    static ECPublicKey ecPublic(ECPoint p, ECParameterSpec params) throws Exception { return (ECPublicKey) KeyFactory.getInstance("EC").generatePublic(new ECPublicKeySpec(p, params)); }
+    private static BigInteger y2(BigInteger x) { return x.pow(3).add(CURVE.getA().multiply(x)).add(CURVE.getB()).mod(P); }
+    static PrivateKey ecPrivate(BigInteger k) throws Exception { return KeyFactory.getInstance("EC").generatePrivate(new ECPrivateKeySpec(k, P256)); }
+    static ECPublicKey ecPublic(ECPoint p) throws Exception { return (ECPublicKey) KeyFactory.getInstance("EC").generatePublic(new ECPublicKeySpec(p, P256)); }
 
     static byte[] encode(ECPublicKey pk) {
         var p = pk.getW();
