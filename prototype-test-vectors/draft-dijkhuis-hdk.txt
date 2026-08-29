@@ -81,6 +81,7 @@ Table of Contents
    13. References
      13.1.  Normative References
      13.2.  Informative References
+   Test Vectors
    Acknowledgements
    Author's Address
 
@@ -526,6 +527,31 @@ Table of Contents
               Feasibility study", ETSI TR 119 476-1 V1.3.1, August 2025,
               <https://www.etsi.org/deliver/
               etsi_tr/119400_119499/11947601/>.
+
+Test Vectors
+
+   P-256 public keys use the 65-byte uncompressed SEC 1 representation.
+   All values are hexadecimal.
+
+sk_parent = 026c8885036aa8c80de55b2a9300732b792413f2e9117e3072bdae57f951b02c
+pk_parent = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d328
+shared_secret = d83fd4cea34474d151bde6457fd1610d6aefc38470b466a474793031f19c1009
+
+   For Credential 0:
+
+index = 00000000
+ctx = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d32800000000
+b = 780ebc13c92c284ef7c64c429625be7c3c3bf48c6d84dede22c59c891471af2e
+sk_child = e34057ecc1ae83e66afca9946c553f3075e6d31b628833667064d46c08557451
+pk_child = 042b693d956a806ed20b26ba1854841dc3fccce6b43cb5a1960f5514346dad168fdcec60d7f68a7da74a45486d895e26407966bb2e21485f701959c33eae9c951b
+
+   For Credential 1:
+
+index = 00000001
+ctx = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d32800000001
+b = 745bfdb88824bb663e3465eec0c9aad1f1096f549d40f448af4c855b7edc52df
+sk_child = a6cd9996694ba5fbfe9901642b7707cec0b0e0bb5d56ec53a2d506ee3261a511
+pk_child = 0481a8791cccc0cbe989c78739919a36de3047c1e7b0820a3708f0971d17b5581b239a8ff0c532b49b3b2d523456f9ef000cd303dfc762ce737f561a58911bdf24
 
 Acknowledgements
 

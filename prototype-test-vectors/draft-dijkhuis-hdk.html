@@ -1197,10 +1197,13 @@ svg {
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+            <p id="section-toc.1-1.14.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-test-vectors" class="internal xref">Test Vectors</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
-            <p id="section-toc.1-1.15.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.15.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1595,16 +1598,51 @@ z = OS2IP(SHA-256(msg))
 </div>
 </section>
 </div>
-<div id="acknowledgements">
+<div id="test-vectors">
 <section id="appendix-A">
+      <h2 id="name-test-vectors">
+<a href="#name-test-vectors" class="section-name selfRef">Test Vectors</a>
+      </h2>
+<p id="appendix-A-1">P-256 public keys use the 65-byte uncompressed SEC 1 representation. All values are hexadecimal.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A-2">
+<pre>
+sk_parent = 026c8885036aa8c80de55b2a9300732b792413f2e9117e3072bdae57f951b02c
+pk_parent = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d328
+shared_secret = d83fd4cea34474d151bde6457fd1610d6aefc38470b466a474793031f19c1009
+</pre><a href="#appendix-A-2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A-3">For Credential 0:<a href="#appendix-A-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A-4">
+<pre>
+index = 00000000
+ctx = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d32800000000
+b = 780ebc13c92c284ef7c64c429625be7c3c3bf48c6d84dede22c59c891471af2e
+sk_child = e34057ecc1ae83e66afca9946c553f3075e6d31b628833667064d46c08557451
+pk_child = 042b693d956a806ed20b26ba1854841dc3fccce6b43cb5a1960f5514346dad168fdcec60d7f68a7da74a45486d895e26407966bb2e21485f701959c33eae9c951b
+</pre><a href="#appendix-A-4" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A-5">For Credential 1:<a href="#appendix-A-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A-6">
+<pre>
+index = 00000001
+ctx = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d32800000001
+b = 745bfdb88824bb663e3465eec0c9aad1f1096f549d40f448af4c855b7edc52df
+sk_child = a6cd9996694ba5fbfe9901642b7707cec0b0e0bb5d56ec53a2d506ee3261a511
+pk_child = 0481a8791cccc0cbe989c78739919a36de3047c1e7b0820a3708f0971d17b5581b239a8ff0c532b49b3b2d523456f9ef000cd303dfc762ce737f561a58911bdf24
+</pre><a href="#appendix-A-6" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="acknowledgements">
+<section id="appendix-B">
       <h2 id="name-acknowledgements">
 <a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
       </h2>
-<p id="appendix-A-1">Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, Paul Bastian, and Remco Schaar.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-B-1">Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus, Emil Lundberg, John Bradley, Paul Bastian, and Remco Schaar.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-B">
+<section id="appendix-C">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>
