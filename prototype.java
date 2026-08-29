@@ -1,8 +1,7 @@
 // Illustrative prototype, not production code. Run with Java 25+: java -ea prototype.java
 
 void main() throws Exception {
-    var random = SecureRandom.getInstance("SHA1PRNG");
-    random.setSeed("HDK test vectors".getBytes(StandardCharsets.US_ASCII));
+    var random = Crypto.random();
 
     var holder = new Holder(Crypto.keyPair("X25519", random), Crypto.keyPair("EC", random));
     var issuer = new Issuer(Crypto.keyPair("X25519", random));
@@ -125,6 +124,12 @@ static class ECDSA {
 static class Crypto {
     static final BigInteger N = new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16);
     static final BigInteger P = new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16);
+
+    static SecureRandom random() throws Exception {
+        var random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed("HDK test vectors".getBytes(StandardCharsets.US_ASCII));
+        return random;
+    }
 
     static KeyPair keyPair(String algorithm, SecureRandom random) throws Exception {
         var kg = KeyPairGenerator.getInstance(algorithm);
