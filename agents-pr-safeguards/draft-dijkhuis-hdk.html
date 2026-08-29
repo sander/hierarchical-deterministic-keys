@@ -1216,7 +1216,7 @@ svg {
 <p id="section-1-3">Generating and storing a separate secure area key pair for every Credential can also be expensive or impossible. HDK instead derives many P-256 child keys from one protected parent. Child-key operations can retain the parent's protections, including user authentication.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This specification is limited to P-256 because it targets high-assurance Wallet ecosystems in which P-256 is widely supported by secure hardware and Credential formats. Other curves or key types require separate specification.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">During issuance, the Wallet and Issuer establish a shared secret using ephemeral X25519 keys. Together with the parent public key and Credential index, this determines each child key. The Issuer can derive the child public keys but not the corresponding private keys. Verifiers see ordinary P-256 keys and need no HDK support.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6"><span>[<a href="#ETSI-TR-119-476-1" class="cite xref">ETSI-TR-119-476-1</a>]</span> identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span>, including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span> independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-6"><span>[<a href="#TR119476-1" class="cite xref">TR119476-1</a>]</span> identifies key management and Proof of Association (PoA) as challenges when issuing multiple single-use holder-binding keys in the EUDI Wallet setting. It discusses ARKG <span>[<a href="#ARKG" class="cite xref">ARKG</a>]</span>, including HDK, for deriving such keys and related-key PoA for associating them. This document defines a concrete OpenID4VCI mechanism for that design space. <span>[<a href="#KeyBlinding" class="cite xref">KeyBlinding</a>]</span> independently specifies multiplicative key blinding for signature keys; the construction here uses the same algebraic relation but adapts it for deterministic remote derivation of Credential keys. The interoperability differences are discussed in Interoperability Considerations.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">This version is a substantial rewrite of earlier versions and has not yet been reviewed by the stakeholders involved in that earlier work. The purpose of the rewrite is to specify the smallest possible extension to OpenID4VCI that makes HDK practical to use.<a href="#section-1-7" class="pilcrow">¶</a></p>
 <p id="section-1-8">A child key can itself be a parent, allowing hierarchical derivation.<a href="#section-1-8" class="pilcrow">¶</a></p>
 </section>
@@ -1570,10 +1570,6 @@ z = OS2IP(SHA-256(msg))
         <dd>
 <span class="refAuthor">Lundberg, E.</span> and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"The Asynchronous Remote Key Generation (ARKG) algorithm"</span>, <span>n.d.</span>, <span>&lt;<a href="https://www.ietf.org/archive/id/draft-bradleylundberg-cfrg-arkg-09.html">https://www.ietf.org/archive/id/draft-bradleylundberg-cfrg-arkg-09.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="ETSI-TR-119-476-1">[ETSI-TR-119-476-1]</dt>
-        <dd>
-<span class="refAuthor">ETSI</span>, <span class="refTitle">"ETSI TR 119 476-1 V1.3.1: Selective disclosure and zero-knowledge proofs applied to Electronic Attestation of Attributes; Part 1: Feasibility study"</span>, <time datetime="2025-08" class="refDate">August 2025</time>, <span>&lt;<a href="https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/01.03.01_60/tr_11947601v010301p.pdf">https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/01.03.01_60/tr_11947601v010301p.pdf</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="EUCC-ACM-v3">[EUCC-ACM-v3]</dt>
         <dd>
 <span class="refAuthor">European Cybersecurity Certification Group, Sub-group on Cryptography</span>, <span class="refTitle">"Agreed Cryptographic Mechanisms, Version 3, Draft for Public Review"</span>, <time datetime="2026-04" class="refDate">April 2026</time>, <span>&lt;<a href="https://certification.enisa.europa.eu/publications/eucc-guidelines-cryptography_en">https://certification.enisa.europa.eu/publications/eucc-guidelines-cryptography_en</a>&gt;</span>. </dd>
@@ -1587,8 +1583,12 @@ z = OS2IP(SHA-256(msg))
 <span class="refTitle">"OpenID for Verifiable Presentations 1.0"</span>, <span>n.d.</span>, <span>&lt;<a href="https://openid.net/specs/openid-4-verifiable-presentations-1_0-final.html">https://openid.net/specs/openid-4-verifiable-presentations-1_0-final.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7517">[RFC7517]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refTitle">"JSON Web Key (JWK)"</span>, <span class="seriesInfo">RFC 7517</span>, <span class="seriesInfo">DOI 10.17487/RFC7517</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7517">https://www.rfc-editor.org/rfc/rfc7517</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TR119476-1">[TR119476-1]</dt>
+      <dd>
+<span class="refAuthor">ETSI</span>, <span class="refTitle">"Selective disclosure and zero-knowledge proofs applied to Electronic Attestation of Attributes; Part 1: Feasibility study"</span>, <span class="seriesInfo">ETSI TR 119 476-1 V1.3.1</span>, <time datetime="2025-08" class="refDate">August 2025</time>, <span>&lt;<a href="https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/">https://www.etsi.org/deliver/etsi_tr/119400_119499/11947601/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>

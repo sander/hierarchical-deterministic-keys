@@ -118,17 +118,16 @@ Table of Contents
    derive the child public keys but not the corresponding private keys.
    Verifiers see ordinary P-256 keys and need no HDK support.
 
-   [ETSI-TR-119-476-1] identifies key management and Proof of
-   Association (PoA) as challenges when issuing multiple single-use
-   holder-binding keys in the EUDI Wallet setting.  It discusses ARKG
-   [ARKG], including HDK, for deriving such keys and related-key PoA for
-   associating them.  This document defines a concrete OpenID4VCI
-   mechanism for that design space.  [KeyBlinding] independently
-   specifies multiplicative key blinding for signature keys; the
-   construction here uses the same algebraic relation but adapts it for
-   deterministic remote derivation of Credential keys.  The
-   interoperability differences are discussed in Interoperability
-   Considerations.
+   [TR119476-1] identifies key management and Proof of Association (PoA)
+   as challenges when issuing multiple single-use holder-binding keys in
+   the EUDI Wallet setting.  It discusses ARKG [ARKG], including HDK,
+   for deriving such keys and related-key PoA for associating them.
+   This document defines a concrete OpenID4VCI mechanism for that design
+   space.  [KeyBlinding] independently specifies multiplicative key
+   blinding for signature keys; the construction here uses the same
+   algebraic relation but adapts it for deterministic remote derivation
+   of Credential keys.  The interoperability differences are discussed
+   in Interoperability Considerations.
 
    This version is a substantial rewrite of earlier versions and has not
    yet been reviewed by the stakeholders involved in that earlier work.
@@ -500,14 +499,6 @@ Table of Contents
               <https://www.ietf.org/archive/id/draft-bradleylundberg-
               cfrg-arkg-09.html>.
 
-   [ETSI-TR-119-476-1]
-              ETSI, "ETSI TR 119 476-1 V1.3.1: Selective disclosure and
-              zero-knowledge proofs applied to Electronic Attestation of
-              Attributes; Part 1: Feasibility study", August 2025,
-              <https://www.etsi.org/deliver/
-              etsi_tr/119400_119499/11947601/01.03.01_60/
-              tr_11947601v010301p.pdf>.
-
    [EUCC-ACM-v3]
               European Cybersecurity Certification Group, Sub-group on
               Cryptography, "Agreed Cryptographic Mechanisms, Version 3,
@@ -528,6 +519,13 @@ Table of Contents
    [RFC7517]  Jones, M., "JSON Web Key (JWK)", RFC 7517,
               DOI 10.17487/RFC7517, May 2015,
               <https://www.rfc-editor.org/rfc/rfc7517>.
+
+   [TR119476-1]
+              ETSI, "Selective disclosure and zero-knowledge proofs
+              applied to Electronic Attestation of Attributes; Part 1:
+              Feasibility study", ETSI TR 119 476-1 V1.3.1, August 2025,
+              <https://www.etsi.org/deliver/
+              etsi_tr/119400_119499/11947601/>.
 
 Acknowledgements
 
