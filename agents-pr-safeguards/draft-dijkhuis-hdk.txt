@@ -1,0 +1,541 @@
+
+
+
+
+Network Working Group                                S. Q. Dijkhuis, Ed.
+Internet-Draft                                                Cleverbase
+Intended status: Informational                            29 August 2026
+Expires: 2 March 2027
+
+
+                    Hierarchical Deterministic Keys
+                       draft-dijkhuis-hdk-latest
+
+Abstract
+
+   Using a distinct holder-binding key for each Credential improves
+   unlinkability, but generating and storing many keys in a Wallet
+   secure area can be expensive or impossible.  This document defines a
+   way to derive unlinkable P-256 Credential keys from one protected
+   parent key while retaining the parent's key-protection properties.
+   It specifies this mechanism as an extension to OpenID for Verifiable
+   Credential Issuance (OpenID4VCI), allowing the Issuer to derive each
+   child public key while only the Wallet can use the corresponding
+   child private key.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   Status information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-dijkhuis-hdk/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/sander/hierarchical-deterministic-keys.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 2 March 2027.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Conventions and Encoding
+   3.  Cryptographic Dependencies
+   4.  Parent-Key Assurance
+   5.  Credential Request
+   6.  Credential Response
+   7.  Child-Key Derivation
+     7.1.  Hierarchical Derivation
+   8.  Using a Child Key
+     8.1.  ECDH
+     8.2.  ECDSA
+   9.  OpenID4VCI Metadata
+   10. Interoperability Considerations
+   11. Security Considerations
+   12. Privacy Considerations
+   13. References
+     13.1.  Normative References
+     13.2.  Informative References
+   Acknowledgements
+   Author's Address
+
+1.  Introduction
+
+   A Wallet can use distinct holder-binding keys for its Credentials to
+   avoid giving Relying Parties a common correlation handle.  An Issuer
+   can nevertheless need assurance that these keys remain associated
+   with a holder-binding key whose security properties it has already
+   accepted.
+
+   For example, an Issuer can accept a hardware-protected key when a
+   Wallet presents a Person Identification Data credential, then issue
+   mobile Driving Licence (mDL) Credentials bound to distinct child
+   keys.  The mDL keys appear unrelated to Relying Parties, while the
+   Issuer can determine that they are derived from the previously
+   accepted parent key.  HDK relies on the assurance already established
+   for that parent key rather than establishing the holder's identity
+   itself.
+
+   Generating and storing a separate secure area key pair for every
+   Credential can also be expensive or impossible.  HDK instead derives
+   many P-256 child keys from one protected parent.  Child-key
+   operations can retain the parent's protections, including user
+   authentication.
+
+   This specification is limited to P-256 because it targets high-
+   assurance Wallet ecosystems in which P-256 is widely supported by
+   secure hardware and Credential formats.  Other curves or key types
+   require separate specification.
+
+   During issuance, the Wallet and Issuer establish a shared secret
+   using ephemeral X25519 keys.  Together with the parent public key and
+   Credential index, this determines each child key.  The Issuer can
+   derive the child public keys but not the corresponding private keys.
+   Verifiers see ordinary P-256 keys and need no HDK support.
+
+   [ETSI-TR-119-476-1] identifies key management and Proof of
+   Association (PoA) as challenges when issuing multiple single-use
+   holder-binding keys in the EUDI Wallet setting.  It discusses ARKG
+   [ARKG], including HDK, for deriving such keys and related-key PoA for
+   associating them.  This document defines a concrete OpenID4VCI
+   mechanism for that design space.  [KeyBlinding] independently
+   specifies multiplicative key blinding for signature keys; the
+   construction here uses the same algebraic relation but adapts it for
+   deterministic remote derivation of Credential keys.  The
+   interoperability differences are discussed in Interoperability
+   Considerations.
+
+   This version is a substantial rewrite of earlier versions and has not
+   yet been reviewed by the stakeholders involved in that earlier work.
+   The purpose of the rewrite is to specify the smallest possible
+   extension to OpenID4VCI that makes HDK practical to use.
+
+   A child key can itself be a parent, allowing hierarchical derivation.
+
+2.  Conventions and Encoding
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   a || b denotes byte-string concatenation.
+
+   OS2IP and I2OSP are the octet-string/integer conversions defined in
+   [RFC8017].
+
+   base64(x) is unpadded base64url as defined in Section 5 of [RFC4648].
+
+3.  Cryptographic Dependencies
+
+   This specification imports the following values and functions:
+
+   *  From [SEC1], the P-256 elliptic curve, its scalar and point
+      representations, and its public-key validation rules.  The P-256
+      group order is:
+
+      n = 0xffffffff00000000ffffffffffffffff
+          bce6faada7179e84f3b9cac2fc632551
+
+   *  ScalarMult(pk, k) is P-256 scalar multiplication as defined by
+      [SEC1].  Received P-256 public keys MUST be validated as required
+      by [SEC1].  When a P-256 public key pk is used as a byte string,
+      it is encoded as the 65-byte uncompressed SEC 1 representation
+      0x04 || x || y.
+
+   *  SHA-256(msg) is SHA-256 as defined by [FIPS180-4].
+
+   *  GenerateX25519KeyPair() generates a fresh X25519 private key and
+      its corresponding 32-byte public key, using X25519 as defined by
+      [RFC7748].
+
+   *  X25519(sk, pk) is the X25519 function defined by [RFC7748].  Its
+      32-byte output is used directly as shared_secret.  An all-zero
+      output MUST be rejected.
+
+4.  Parent-Key Assurance
+
+   The Wallet has a P-256 parent key pair (sk_parent, pk_parent)
+   protected by its secure area.
+
+   Before a Credential Request using HDK, the Issuer MUST already have
+   established that pk_parent represents the intended Credential Holder
+   and meets its requirements for key protection and user
+   authentication.  How this is established is out of scope.  For
+   example, it can be established by presentation of a Person
+   Identification Data credential using OpenID4VP [OpenID4VP], or by
+   proof of possession associated with a refresh token bound to
+   pk_parent.
+
+5.  Credential Request
+
+   For each request, the Wallet generates:
+
+   (sk_wallet, pk_wallet) = GenerateX25519KeyPair()
+
+   and sends an hdk proof containing:
+
+   *  parent: the P-256 parent public key as a JWK [RFC7517]; and
+
+   *  pk_wallet: base64(pk_wallet).
+
+   For example:
+
+   POST /credential HTTP/1.1
+   Host: issuer.example.com
+   Content-Type: application/json
+   Authorization: Bearer czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+   {
+     "credential_configuration_id": "org.iso.18013.5.1.mDL",
+     "proofs": {
+       "hdk": [{
+         "parent": {
+           "kty": "EC",
+           "crv": "P-256",
+           "x": "axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpY",
+           "y": "T-NC4v4af5uO5-tKfA-eFivOM1drMV7Oy7ZAaDe_UfU"
+         },
+         "pk_wallet": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
+       }]
+     }
+   }
+
+   The Wallet MUST generate a fresh (sk_wallet, pk_wallet) for each
+   request and retain sk_wallet until it processes the response.
+
+6.  Credential Response
+
+   The Issuer generates:
+
+   (sk_issuer, pk_issuer) = GenerateX25519KeyPair()
+   shared_secret = X25519(sk_issuer, pk_wallet)
+
+   If shared_secret is all zero, the Issuer MUST reject the request.
+
+   The Issuer returns base64(pk_issuer) once in the hdk response
+   parameter:
+
+   HTTP/1.1 200 OK
+   Content-Type: application/json
+
+   {
+     "hdk": {
+       "pk_issuer": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8"
+     },
+     "credentials": [
+       { "credential": "<Credential 0>" },
+       { "credential": "<Credential 1>" },
+       { "credential": "<Credential 2>" }
+     ]
+   }
+
+   Credential position is its zero-based HDK index.  The Issuer MUST
+   bind Credential i to the child public key for index i.  A response
+   MUST NOT contain more than 2^32 Credentials.
+
+   The Wallet computes:
+
+   shared_secret = X25519(sk_wallet, pk_issuer)
+
+   If shared_secret is all zero, the Wallet MUST reject the response.
+
+7.  Child-Key Derivation
+
+   Define:
+
+   H(msg) = (OS2IP(SHA-256(msg)) mod (n - 1)) + 1
+
+   BlindPK(pk, bk, ctx) = ScalarMult(pk, H(bk || ctx))
+   BlindSK(sk, bk, ctx) = sk * H(bk || ctx) mod n
+
+   This is multiplicative key blinding, as used for ECDSA in
+   [KeyBlinding].  Its use here for remote child-key derivation serves a
+   role related to ARKG [ARKG], whose ARKG-P256 instance instead uses
+   additive blinding.
+
+   H returns an integer in 1..n-1.  The small statistical bias from
+   reduction modulo n - 1 is accepted for simplicity.
+
+   For Credential i, where 0x00000000 <= i <= 0xffffffff:
+
+   index = I2OSP(i, 4)
+   ctx = pk_parent || index
+
+   sk_child = BlindSK(sk_parent, shared_secret, ctx)
+   pk_child = BlindPK(pk_parent, shared_secret, ctx)
+
+   Because the blinding factor and sk_parent are non-zero modulo the
+   prime n, sk_child is non-zero.
+
+7.1.  Hierarchical Derivation
+
+   A child key pair MAY itself be used as a parent.  For successive
+   blinding factors b1 and b2:
+
+   pk_child2 = ScalarMult(pk_parent, b1 * b2 mod n)
+   sk_child2 = sk_parent * b1 * b2 mod n
+
+8.  Using a Child Key
+
+   Child-key operations SHOULD receive protections equivalent to parent-
+   key operations, including the same user-authentication policy.  A
+   secure area can derive sk_child internally, or use the equivalences
+   below while continuing to operate with sk_parent.
+
+8.1.  ECDH
+
+   For this section, ECDH(sk, pk) denotes P-256 ECDH as specified in
+   [SEC1], returning the 32-byte big-endian x-coordinate of
+   ScalarMult(pk, sk).
+
+   For the blinding factor b of a child:
+
+   ECDH(sk_child, pk) = ECDH(sk_parent, ScalarMult(pk, b))
+
+   This allows b to be applied outside the secure area while the
+   protected ECDH operation still uses sk_parent. pk MUST be validated
+   before scalar multiplication; the result MUST also be validated if
+   required by the ECDH interface.
+
+8.2.  ECDSA
+
+   A secure area that supports multiplicative key blinding can derive
+   and use the child key directly as described in [KeyBlinding].  The
+   remainder of this subsection describes an alternative that keeps the
+   protected ECDSA operation on sk_parent.
+
+   For the blinding factor b of the child, let:
+
+   z = OS2IP(SHA-256(msg))
+
+   Then SHA256withECDSA(sk_child, msg) is equivalent to (r, s * b mod
+   n), where:
+
+   (r, s) = NONEwithECDSA(
+       sk_parent,
+       I2OSP(z * b^-1 mod n, 32))
+
+   b^-1 is the inverse of b modulo n.  NONEwithECDSA means ECDSA over
+   the supplied 32-byte representative without hashing it again.
+   Implementations MUST verify that their API has exactly this behavior.
+
+   The resulting (r, s * b mod n) is an ordinary ECDSA signature under
+   pk_child for msg.
+
+   This ECDSA construction may be covered by patent claims in some
+   jurisdictions or implementations.  This document makes no
+   determination about their validity or applicability.  Deriving
+   sk_child inside the secure area and signing with it is an alternative
+   architecture and can have a different intellectual-property analysis.
+
+9.  OpenID4VCI Metadata
+
+   Support is advertised with the hdk proof type in
+   proof_types_supported [OpenID4VCI]:
+
+   {
+     "credential_configurations_supported": {
+       "org.iso.18013.5.1.mDL": {
+         "format": "mso_mdoc",
+         "doctype": "org.iso.18013.5.1.mDL",
+         "cryptographic_binding_methods_supported": ["jwk"],
+         "credential_signing_alg_values_supported": ["ES256"],
+         "proof_types_supported": {
+           "hdk": {}
+         }
+       }
+     }
+   }
+
+   The hdk object in proof_types_supported is empty in this version of
+   the specification; no proof-type-specific metadata parameters are
+   currently defined.  Implementations MUST NOT infer HDK support merely
+   from P-256 support.
+
+10.  Interoperability Considerations
+
+   The derivation in this document is not interoperable with either
+   ARKG-P256 [ARKG] or the ECDSA construction in [KeyBlinding].
+
+   ARKG-P256 uses additive blinding, P-256 ECDH, and ARKG-specific seed
+   and key-handle structures.  This document uses multiplicative
+   blinding and an ephemeral X25519 exchange directly in OpenID4VCI.
+   The simpler construction avoids introducing ARKG key representations
+   and key handles, and the multiplicative relation also permits the
+   ECDH and ECDSA child-key equivalences above while the secure area
+   continues to operate with the parent key.
+
+   X25519 was selected for the exchange because it requires little
+   protocol and encoding boilerplate for this application: each party
+   contributes one fixed-size public value and [RFC7748] directly
+   defines the shared-secret computation.  It is also listed as an
+   agreed key-establishment mechanism in the draft Version 3 of the EUCC
+   Agreed Cryptographic Mechanisms [EUCC-ACM-v3].
+
+   The ECDSA construction in [KeyBlinding] uses the same multiplicative
+   relation between parent and blinded keys, but derives the blinding
+   scalar differently.  It uses a separately generated private blinding
+   key, domain separation, and hash_to_field; this document uses the
+   X25519 shared_secret as bk, the parent public key and Credential
+   index as ctx, and the compact H function above.  Consequently,
+   implementations of the two constructions will not derive the same
+   keys from nominally corresponding inputs.
+
+   These deviations are intentional: HDK needs one high-entropy per-
+   request secret from which both parties can deterministically derive a
+   batch of child keys, and it applies the same child-key relation to
+   ECDH as well as ECDSA.  They should not be interpreted as inheriting
+   interoperability or security analysis from either referenced
+   construction.
+
+11.  Security Considerations
+
+   HDK relies on the Issuer having already accepted pk_parent, including
+   its holder binding, key protection, and user-authentication
+   properties.  It preserves that association for child keys; it does
+   not establish it.
+
+   The security guarantee remains rooted in sk_parent.  Disclosure of
+   shared_secret does not reveal sk_parent or by itself enable child-key
+   operations, but it reveals the relationship between pk_parent and its
+   child public keys.  Implementations SHOULD therefore protect and
+   erase it when no longer needed.
+
+   Both parties MUST use fresh X25519 key pairs for each request.
+
+   Compromise of both sk_parent and an issuance shared_secret permits
+   reconstruction of every child private key from that response.
+
+   The biased H construction is intentional: this specification prefers
+   ease of implementation over eliminating the small statistical bias.
+   Replacing it with an unbiased construction would not be wire-
+   compatible and requires a new algorithm identifier or protocol
+   version.
+
+   See the ECDSA section for intellectual-property considerations.
+
+12.  Privacy Considerations
+
+   Distinct child public keys prevent correlation merely through reuse
+   of the holder-binding public key.  Other Credential contents,
+   protocol metadata, network identifiers, or application behavior can
+   still enable correlation.
+
+   The Issuer knows pk_parent and derives all child public keys, so HDK
+   does not provide unlinkability from the Issuer. shared_secret is
+   privacy-sensitive because it reveals these relationships.
+
+13.  References
+
+13.1.  Normative References
+
+   [FIPS180-4]
+              National Institute of Standards and Technology (NIST),
+              "Secure Hash Standard (SHS)", FIPS 180-4, August 2015,
+              <https://csrc.nist.gov/pubs/fips/180-4/upd1/final>.
+
+   [OpenID4VCI]
+              Lodderstedt, T., Yasuda, K., and T. Looker, "OpenID for
+              Verifiable Credential Issuance 1.0", n.d.,
+              <https://openid.net/specs/openid-4-verifiable-credential-
+              issuance-1_0-final.html>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
+              Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
+              <https://www.rfc-editor.org/rfc/rfc4648>.
+
+   [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
+              for Security", RFC 7748, DOI 10.17487/RFC7748, January
+              2016, <https://www.rfc-editor.org/rfc/rfc7748>.
+
+   [RFC8017]  Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch,
+              "PKCS #1: RSA Cryptography Specifications Version 2.2",
+              RFC 8017, DOI 10.17487/RFC8017, November 2016,
+              <https://www.rfc-editor.org/rfc/rfc8017>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [SEC1]     Standards for Efficient Cryptography Group, "SEC 1:
+              Elliptic Curve Cryptography, Version 2.0", May 2009,
+              <https://www.secg.org/sec1-v2.pdf>.
+
+13.2.  Informative References
+
+   [ARKG]     Lundberg, E. and J. Bradley, "The Asynchronous Remote Key
+              Generation (ARKG) algorithm", n.d.,
+              <https://www.ietf.org/archive/id/draft-bradleylundberg-
+              cfrg-arkg-09.html>.
+
+   [ETSI-TR-119-476-1]
+              ETSI, "ETSI TR 119 476-1 V1.3.1: Selective disclosure and
+              zero-knowledge proofs applied to Electronic Attestation of
+              Attributes; Part 1: Feasibility study", August 2025,
+              <https://www.etsi.org/deliver/
+              etsi_tr/119400_119499/11947601/01.03.01_60/
+              tr_11947601v010301p.pdf>.
+
+   [EUCC-ACM-v3]
+              European Cybersecurity Certification Group, Sub-group on
+              Cryptography, "Agreed Cryptographic Mechanisms, Version 3,
+              Draft for Public Review", April 2026,
+              <https://certification.enisa.europa.eu/publications/eucc-
+              guidelines-cryptography_en>.
+
+   [KeyBlinding]
+              "Key Blinding for Signature Schemes", n.d.,
+              <https://www.ietf.org/archive/id/draft-irtf-cfrg-
+              signature-key-blinding-11.html>.
+
+   [OpenID4VP]
+              "OpenID for Verifiable Presentations 1.0", n.d.,
+              <https://openid.net/specs/openid-4-verifiable-
+              presentations-1_0-final.html>.
+
+   [RFC7517]  Jones, M., "JSON Web Key (JWK)", RFC 7517,
+              DOI 10.17487/RFC7517, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7517>.
+
+Acknowledgements
+
+   Helpful ideas and feedback came from Peter Lee Altmann, Micha Kraus,
+   Emil Lundberg, John Bradley, Paul Bastian, and Remco Schaar.
+
+Author's Address
+
+   Sander Dijkhuis (editor)
+   Cleverbase
+   Email: mail@sanderdijkhuis.nl
