@@ -342,6 +342,44 @@ The Issuer knows `pk_parent` and derives all child public keys, so HDK does not 
 
 --- back
 
+# Test Vectors
+{:numbered="false"}
+
+The following values were produced by the Java prototype using its fixed-seed random number generator. P-256 public keys use the 65-byte uncompressed SEC 1 representation. X25519 public keys use the raw 32-byte public-key representation defined by [RFC7748]. All values are hexadecimal.
+
+~~~
+sk_parent = 026c8885036aa8c80de55b2a9300732b792413f2e9117e3072bdae57f951b02c
+pk_parent = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d328
+
+sk_wallet = a0f48e55a1039b5cbdb0074b9c8f5e597448ecb58a686fd21def2bbc62ea7e52
+pk_wallet = 19c0bd3590b56fdc4262f8c8671e03bdd1209cbe10cfd112d4e8b2d92b84452b
+
+sk_issuer = 52c1d126a92ba77ae555b2e461fdaf0458fbbf8151a257247c97090b9753ae3d
+pk_issuer = 9e370ba93fed3af9b8332ebb01831187c20c380dc9a5938575662dd20ed3571b
+
+shared_secret = d83fd4cea34474d151bde6457fd1610d6aefc38470b466a474793031f19c1009
+~~~
+
+For Credential 0:
+
+~~~
+index = 00000000
+ctx = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d32800000000
+b = 780ebc13c92c284ef7c64c429625be7c3c3bf48c6d84dede22c59c891471af2e
+sk_child = e34057ecc1ae83e66afca9946c553f3075e6d31b628833667064d46c08557451
+pk_child = 042b693d956a806ed20b26ba1854841dc3fccce6b43cb5a1960f5514346dad168fdcec60d7f68a7da74a45486d895e26407966bb2e21485f701959c33eae9c951b
+~~~
+
+For Credential 1:
+
+~~~
+index = 00000001
+ctx = 0480bb30492b801039c16da3027c49e3c9b6d7ce6149f21e4ae24e8576c86eb3a370383425c936ad2569e5f1eeff40eb0f7a33fd271518296a153e029d0ab7d32800000001
+b = 745bfdb88824bb663e3465eec0c9aad1f1096f549d40f448af4c855b7edc52df
+sk_child = a6cd9996694ba5fbfe9901642b7707cec0b0e0bb5d56ec53a2d506ee3261a511
+pk_child = 0481a8791cccc0cbe989c78739919a36de3047c1e7b0820a3708f0971d17b5581b239a8ff0c532b49b3b2d523456f9ef000cd303dfc762ce737f561a58911bdf24
+~~~
+
 # Acknowledgements
 {:numbered="false"}
 
