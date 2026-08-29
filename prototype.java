@@ -1,9 +1,13 @@
 // Illustrative prototype, not production code. Run with Java 25+: java -ea prototype.java
 
 void main() throws Exception {
-    var holder = new Holder(Crypto.keyPair("X25519"), Crypto.keyPair("EC"));
-    var issuer = new Issuer(Crypto.keyPair("X25519"));
-    var verifier = new Verifier(Crypto.keyPair("EC"));
+    var holder = new Holder(
+            Crypto.x25519KeyPair("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"),
+            Crypto.ecKeyPair("519b423d715f8b5d549f6c4d97eab0e8e36d5fcdb3fbb1b5045f7d58f4c1b6a3"));
+    var issuer = new Issuer(Crypto.x25519KeyPair(
+            "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"));
+    var verifier = new Verifier(Crypto.ecKeyPair(
+            "c9afa9d845ba75166b5c215767b1d6934e50c3db36e89b127b8a622b120f6721"));
 
     var request = holder.credentialRequest();
     var response = issuer.issue(request);
@@ -12,7 +16,32 @@ void main() throws Exception {
     assert verifier.verifyPossessionECDH(holder.provePossessionECDH(response, verifier.publicKey()));
     assert verifier.verifyPossessionECDSA(holder.provePossessionECDSA(response, transcript), transcript);
 
+    printTestVectors(holder, issuer, response);
     IO.println("HDK prototype tests passed");
+}
+
+static void printTestVectors(Holder holder, Issuer issuer, CredentialResponse response) throws Exception {
+    var parent = (ECPrivateKey) holder.parent().getPrivate();
+    var parentPK = (ECPublicKey) holder.parent().getPublic();
+    var shared = Crypto.agree("X25519", holder.ephemeral().getPrivate(), issuer.ephemeral().getPublic());
+
+    IO.println("sk_parent=" + Crypto.hex(Crypto.i2osp(parent.getS())));
+    IO.println("pk_parent=" + Crypto.hex(Crypto.encode(parentPK)));
+    IO.println("sk_wallet=" + Crypto.hex(((XECPrivateKey) holder.ephemeral().getPrivate()).getScalar().orElseThrow()));
+    IO.println("pk_wallet=" + Crypto.hex(Crypto.encodeX25519((XECPublicKey) holder.ephemeral().getPublic())));
+    IO.println("sk_issuer=" + Crypto.hex(((XECPrivateKey) issuer.ephemeral().getPrivate()).getScalar().orElseThrow()));
+    IO.println("pk_issuer=" + Crypto.hex(Crypto.encodeX25519((XECPublicKey) issuer.ephemeral().getPublic())));
+    IO.println("shared_secret=" + Crypto.hex(shared));
+
+    for (int index = 0; index < response.publicKeys().size(); index++) {
+        var ctx = context(parentPK, index);
+        var b = h(shared, ctx);
+        var skChild = blindSK(parent.getS(), shared, ctx);
+        IO.println("child[" + index + "].ctx=" + Crypto.hex(ctx));
+        IO.println("child[" + index + "].b=" + Crypto.hex(Crypto.i2osp(b)));
+        IO.println("child[" + index + "].sk_child=" + Crypto.hex(Crypto.i2osp(skChild)));
+        IO.println("child[" + index + "].pk_child=" + Crypto.hex(Crypto.encode(response.publicKeys().get(index))));
+    }
 }
 
 record CredentialRequest(PublicKey ephemeral, ECPublicKey parent) {}
@@ -122,10 +151,21 @@ static class Crypto {
     static final BigInteger N = new BigInteger("ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551", 16);
     static final BigInteger P = new BigInteger("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff", 16);
 
-    static KeyPair keyPair(String algorithm) throws Exception {
-        var kg = KeyPairGenerator.getInstance(algorithm);
-        if (algorithm.equals("EC")) kg.initialize(new ECGenParameterSpec("secp256r1"));
-        return kg.generateKeyPair();
+    static KeyPair ecKeyPair(String skHex) throws Exception {
+        var params = AlgorithmParameters.getInstance("EC");
+        params.init(new ECGenParameterSpec("secp256r1"));
+        var ec = params.getParameterSpec(ECParameterSpec.class);
+        var sk = new BigInteger(skHex, 16);
+        return new KeyPair(ecPublic(mul(ec.getGenerator(), sk), ec), ecPrivate(sk, ec));
+    }
+
+    static KeyPair x25519KeyPair(String skHex) throws Exception {
+        var factory = KeyFactory.getInstance("X25519");
+        var sk = factory.generatePrivate(new XECPrivateKeySpec(NamedParameterSpec.X25519, HexFormat.of().parseHex(skHex)));
+        var base = factory.generatePublic(new XECPublicKeySpec(NamedParameterSpec.X25519, BigInteger.valueOf(9)));
+        var u = new BigInteger(1, reverse(agree("X25519", sk, base)));
+        var pk = factory.generatePublic(new XECPublicKeySpec(NamedParameterSpec.X25519, u));
+        return new KeyPair(pk, sk);
     }
 
     static byte[] agree(String algorithm, PrivateKey sk, PublicKey pk) throws Exception {
@@ -177,6 +217,22 @@ static class Crypto {
     static byte[] encode(ECPublicKey pk) {
         var p = pk.getW();
         return concat(new byte[] {4}, i2osp(p.getAffineX()), i2osp(p.getAffineY()));
+    }
+
+    static byte[] encodeX25519(XECPublicKey pk) {
+        return reverse(i2osp(pk.getU()));
+    }
+
+    static byte[] reverse(byte[] in) {
+        var out = in.clone();
+        for (int i = 0, j = out.length - 1; i < j; i++, j--) {
+            var b = out[i]; out[i] = out[j]; out[j] = b;
+        }
+        return out;
+    }
+
+    static String hex(byte[] bytes) {
+        return HexFormat.of().formatHex(bytes);
     }
 
     static byte[] i2osp(BigInteger n) {
